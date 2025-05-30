@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Alunos {
+  idAluno    Int                @id @default(autoincrement())
+  nome       String             @db.VarChar(100)
+  sobrenome  String             @db.VarChar(150)
+  cpf        String             @unique(map: "cpf") @db.VarChar(14)
+  rg         String             @unique(map: "rg") @db.VarChar(12)
+  nomeMae    String             @db.VarChar(160)
+  nomePai    String?            @db.VarChar(160)
+  dataNasc   DateTime           @db.Date
+  fotoPath   String?            @db.VarChar(255)
+  descricao  String?            @db.Text
+  created_at DateTime           @default(now()) @db.DateTime(0)
+  updated_at DateTime           @default(now()) @updatedAt @db.DateTime(0)
+  contato    ContatoAluno?
+  endereco   Enderecos?
+  historico  HistoricoEscolar[]
+  presencas  Presencas[]
+  turmaAluno TurmaAluno[]
+}
+
+model Enderecos {
+  idEndereco Int      @id @default(autoincrement())
+  idAluno    Int      @unique(map: "uq_endereco_aluno")
+  cep        String   @db.VarChar(9)
+  rua        String   @db.VarChar(255)
+  cidade     String   @db.VarChar(100)
+  uf         String   @db.Char(2)
+  numero     String   @db.VarChar(10)
+  created_at DateTime @default(now()) @db.DateTime(0)
+  updated_at DateTime @default(now()) @updatedAt @db.DateTime(0)
+  aluno      Alunos   @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade, map: "fk_enderecos_aluno")
+}
+
+model ContatoAluno {
+  idContato  Int      @id @default(autoincrement())
+  idAluno    Int      @unique(map: "uq_contato_aluno")
+  nomeTel1   String   @db.VarChar(45)
+  tel1       String   @db.VarChar(20)
+  nomeTel2   String?  @db.VarChar(45)
+  tel2       String?  @db.VarChar(20)
+  created_at DateTime @default(now()) @db.DateTime(0)
+  updated_at DateTime @default(now()) @updatedAt @db.DateTime(0)
+  aluno      Alunos   @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade, map: "fk_contatoaluno_aluno")
+}
+
+model Curso {
+  idCurso           Int                @id @default(autoincrement())
+  nomeCurso         String             @db.VarChar(255)
+  cargaHorariaTotal Int
+  descricao         String?            @db.Text
+  docsPath          String?            @db.VarChar(255)
+  created_at        DateTime           @default(now()) @db.DateTime(0)
+  updated_at        DateTime           @default(now()) @updatedAt @db.DateTime(0)
+  cursoMaterias     CursoMaterias[]
+  historicoEscolar  HistoricoEscolar[]
+  turmas            Turmas[]
+}
+
+model Materias {
+  idMateria     Int                @id @default(autoincrement())
+  nomeMateria   String             @db.VarChar(180)
+  created_at    DateTime           @default(now()) @db.DateTime(0)
+  updated_at    DateTime           @default(now()) @updatedAt @db.DateTime(0)
+  aulas         Aula[]
+  cursoMaterias CursoMaterias[]
+  historico     HistoricoEscolar[]
+}
+
+model CursoMaterias {
+  idCurso      Int
+  idMateria    Int
+  cargaHoraria Int
+  curso        Curso    @relation(fields: [idCurso], references: [idCurso], onDelete: Cascade, map: "fk_cm_curso")
+  materia      Materias @relation(fields: [idMateria], references: [idMateria], onDelete: Cascade, map: "fk_cm_materia")
+
+  @@id([idCurso, idMateria])
+  @@index([idMateria], map: "fk_cm_materia")
+}
+
+model Professores {
+  idProfessor String      @id @db.VarChar(14)
+  nome        String      @db.VarChar(100)
+  sobrenome   String      @db.VarChar(150)
+  rg          String      @unique(map: "rg") @db.VarChar(12)
+  dataNasc    DateTime    @db.Date
+  cargo       String      @db.VarChar(100)
+  fotoPath    String?     @db.VarChar(255)
+  docsPath    String?     @db.VarChar(255)
+  descricao   String?     @db.Text
+  tel         String?     @db.VarChar(20)
+  created_at  DateTime    @default(now()) @db.DateTime(0)
+  updated_at  DateTime    @default(now()) @updatedAt @db.DateTime(0)
+  presencas   Presencas[]
+}
+
+model Turmas {
+  idTurma    Int          @id @default(autoincrement())
+  idCurso    Int
+  nomeTurma  String       @db.VarChar(100)
+  anoLetivo  Int          @db.Year
+  created_at DateTime     @default(now()) @db.DateTime(0)
+  updated_at DateTime     @default(now()) @updatedAt @db.DateTime(0)
+  aulas      Aula[]
+  turmaAluno TurmaAluno[]
+  curso      Curso        @relation(fields: [idCurso], references: [idCurso], onDelete: Cascade, map: "fk_turmas_curso")
+
+  @@index([idCurso], map: "fk_turmas_curso")
+}
+
+model TurmaAluno {
+  idTurma         Int
+  idAluno         Int
+  statusMatricula StatusMatricula @default(Ativa)
+  created_at      DateTime        @default(now()) @db.DateTime(0)
+  aluno           Alunos          @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade, map: "fk_turmaaluno_aluno")
+  turma           Turmas          @relation(fields: [idTurma], references: [idTurma], onDelete: Cascade, map: "fk_turmaaluno_turma")
+
+  @@id([idTurma, idAluno])
+  @@index([idAluno], map: "fk_turmaaluno_aluno")
+}
+
+model Aula {
+  idAula             Int         @id @default(autoincrement())
+  idTurma            Int
+  idMateria          Int
+  presencasAplicadas Boolean     @default(false)
+  aulaConcluida      Boolean     @default(false)
+  descricao          String?     @db.Text
+  observacoes        String?     @db.Text
+  dataAula           DateTime    @db.DateTime(0)
+  created_at         DateTime    @default(now()) @db.DateTime(0)
+  updated_at         DateTime    @default(now()) @updatedAt @db.DateTime(0)
+  materia            Materias    @relation(fields: [idMateria], references: [idMateria], map: "fk_aula_materias")
+  turma              Turmas      @relation(fields: [idTurma], references: [idTurma], onDelete: Cascade, map: "fk_aula_turmas")
+  docsAula           DocsAula[]
+  presencas          Presencas[]
+
+  @@index([idMateria], map: "fk_aula_materias")
+  @@index([idTurma], map: "fk_aula_turmas")
+}
+
+model DocsAula {
+  idDocAula Int    @id @default(autoincrement())
+  idAula    Int
+  src       String @db.VarChar(255)
+  aula      Aula   @relation(fields: [idAula], references: [idAula], onDelete: Cascade, map: "fk_docsaula_aula")
+
+  @@index([idAula], map: "fk_docsaula_aula")
+}
+
+model Presencas {
+  idPresenca    Int         @id @default(autoincrement())
+  idAula        Int
+  idAluno       Int
+  idProfessor   String      @db.VarChar(14)
+  presente      Boolean
+  justificativa String?     @db.Text
+  dataRegistro  DateTime    @default(now()) @db.DateTime(0)
+  aluno         Alunos      @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade, map: "fk_presencas_aluno")
+  aula          Aula        @relation(fields: [idAula], references: [idAula], onDelete: Cascade, map: "fk_presencas_aula")
+  professor     Professores @relation(fields: [idProfessor], references: [idProfessor], map: "fk_presencas_professor")
+
+  @@index([idAluno], map: "fk_presencas_aluno")
+  @@index([idAula], map: "fk_presencas_aula")
+  @@index([idProfessor], map: "fk_presencas_professor")
+}
+
+model HistoricoEscolar {
+  idHistorico Int      @id @default(autoincrement())
+  idAluno     Int
+  idCurso     Int
+  idMateria   Int
+  nota        Decimal  @default(0.00) @db.Decimal(5, 2)
+  frequencia  Decimal  @default(0.00) @db.Decimal(5, 2)
+  created_at  DateTime @default(now()) @db.DateTime(0)
+  aluno       Alunos   @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade, map: "fk_historico_aluno")
+  curso       Curso    @relation(fields: [idCurso], references: [idCurso], onDelete: Cascade, map: "fk_historico_curso")
+  materia     Materias @relation(fields: [idMateria], references: [idMateria], onDelete: Cascade, map: "fk_historico_materia")
+
+  @@index([idAluno], map: "fk_historico_aluno")
+  @@index([idCurso], map: "fk_historico_curso")
+  @@index([idMateria], map: "fk_historico_materia")
+}
+
+model Usuarios {
+  cpf        String      @id @db.VarChar(14)
+  senhaHash  String      @db.VarChar(255)
+  tipo       TipoUsuario
+  created_at DateTime    @default(now()) @db.DateTime(0)
+}
+
+model Log {
+  idLog    Int      @id @default(autoincrement())
+  action   String   @db.Text
+  dateTime DateTime @default(now()) @db.DateTime(0)
+}
+
+enum StatusMatricula {
+  Ativa
+  Trancada
+  Cancelada
+}
+
+enum TipoUsuario {
+  Admin
+  Professor
+  Aluno
+}
