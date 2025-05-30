@@ -1,41 +1,54 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema Acadêmico FATEC
 
-## Getting Started
+Sistema de gerenciamento acadêmico desenvolvido para a FATEC, visando facilitar o controle de alunos, disciplinas, notas, e demais informações acadêmicas de forma integrada e eficiente.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Sumário
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- [Descrição](#descrição)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
+- [Contato](#contato)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Descrição
 
-## Learn More
+Este projeto é um sistema acadêmico que permite a gestão de dados como cadastro de alunos, professores, disciplinas, turmas, lançamento de notas, e geração de relatórios. Foi desenvolvido para apoiar os processos administrativos e pedagógicos da FATEC, com foco em usabilidade e segurança.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Funcionalidades
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Cadastro e gerenciamento de usuários (alunos, professores, administradores)
+- Controle de disciplinas e turmas
+- Lançamento e consulta de notas e frequências
+- Geração de relatórios acadêmicos
+- Autenticação e controle de acesso
+- Interface responsiva e intuitiva
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tecnologias Utilizadas
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# Sistema-Academico-FATEC
-Este é um repositório para o sistema acadêmico que está sendo desenvolvido para a fatec
->>>>>>> f61aa371fa7e828b6a8d336aaeb5e9d523dca042
+- Backend: (Informe aqui a linguagem e framework usado, ex: Node.js, PHP, Python, Java)
+- Banco de Dados: (Informe o SGBD utilizado, ex: MySQL, PostgreSQL)
+- Frontend: (Informe frameworks ou bibliotecas, ex: React, Angular, Vue)
+- Controle de versão: Git
+- Hospedagem do código: GitHub
+
+---
+
+## Instalação
+
+1. Clone o repositório:
+
+   ```bash
+   git clone https://github.com/iKosMooh/Sistema-Academico-FATEC.git
+   cd Sistema-Academico-FATEC
