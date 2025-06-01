@@ -1,265 +1,138 @@
+// src/app/pages/admin/cadastrar-aluno/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { ActionButton } from "@/app/components/ui/ActionButton";
-import { EditModal } from "@/app/components/ui/EditModal";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  isValidCPF,
+  isValidRG
+} from "@/utils/cpf-rg/route";
 import { AdminGuard } from "@/app/components/AdminGuard";
 
-interface AlunoFlat {
-  idAluno: number;
+interface FormDataAluno {
   nome: string;
   sobrenome: string;
   cpf: string;
   rg: string;
   nomeMae: string;
-  nomePai: string | null;
+  nomePai: string;
   dataNasc: string;
-  descricao: string | null;
-  fotoPath: string | null;
-  // Campos de contato “flattened”:
+  descricao: string;
+  foto: File | null;
   nomeTel1: string;
   tel1: string;
-  nomeTel2: string | null;
-  tel2: string | null;
+  nomeTel2: string;
+  tel2: string;
 }
 
-export default function AlunosPage() {
-  const [alunos, setAlunos] = useState<AlunoFlat[]>([]);
-  const [error, setError] = useState<string | null>(null);
+export default function CadastrarAluno() {
+  const router = useRouter();
+  const [formData, setFormData] = useState<FormDataAluno>({
+    nome: "",
+    sobrenome: "",
+    cpf: "",
+    rg: "",
+    nomeMae: "",
+    nomePai: "",
+    dataNasc: "",
+    descricao: "",
+    foto: null,
+    nomeTel1: "",
+    tel1: "",
+    nomeTel2: "",
+    tel2: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAluno, setSelectedAluno] = useState<AlunoFlat | null>(null);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  // 1. Busca alunos do backend (GET) e “flatten” dos campos de contato
-  const fetchAlunos = async () => {
-    try {
-      const response = await fetch("/api/alunos/get-delete");
-      if (!response.ok) throw new Error("Erro ao carregar alunos.");
-      // O backend deve retornar um array de objetos com include: { contato: true }
-      const data: Array<{
-        idAluno: number;
-        nome: string;
-        sobrenome: string;
-        cpf: string;
-        rg: string;
-        nomeMae: string;
-        nomePai: string | null;
-        dataNasc: string;
-        descricao: string | null;
-        fotoPath: string | null;
-        contato: {
-          nomeTel1: string;
-          tel1: string;
-          nomeTel2: string | null;
-          tel2: string | null;
-        } | null;
-      }> = await response.json();
+    const faltando: string[] = [];
+    if (!formData.nome) faltando.push("Nome");
+    if (!formData.sobrenome) faltando.push("Sobrenome");
+    if (!formData.cpf) faltando.push("CPF");
+    if (!formData.rg) faltando.push("RG");
+    if (!formData.nomeMae) faltando.push("Nome da Mãe");
+    if (!formData.dataNasc) faltando.push("Data de Nascimento");
+    if (!formData.nomeTel1) faltando.push("Nome do Telefone 1");
+    if (!formData.tel1) faltando.push("Telefone 1");
 
-      // Converte cada objeto para a forma “flattened” (contato no mesmo nível)
-      const flat: AlunoFlat[] = data.map((a) => ({
-        idAluno: a.idAluno,
-        nome: a.nome,
-        sobrenome: a.sobrenome,
-        cpf: a.cpf,
-        rg: a.rg,
-        nomeMae: a.nomeMae,
-        nomePai: a.nomePai,
-        dataNasc: a.dataNasc,
-        descricao: a.descricao,
-        fotoPath: a.fotoPath,
-        nomeTel1: a.contato ? a.contato.nomeTel1 : "",
-        tel1: a.contato ? a.contato.tel1 : "",
-        nomeTel2: a.contato ? a.contato.nomeTel2 : null,
-        tel2: a.contato ? a.contato.tel2 : null,
-      }));
-
-      setAlunos(flat);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido.");
+    if (faltando.length) {
+      setError(`Você precisa preencher: ${faltando.join(", ")}`);
+      setLoading(false);
+      return;
     }
-  };
 
-  useEffect(() => {
-    fetchAlunos();
-  }, []);
+    if (!isValidCPF(formData.cpf)) {
+      setError("CPF inválido");
+      setLoading(false);
+      return;
+    }
+    if (!isValidRG(formData.rg)) {
+      setError("RG inválido");
+      setLoading(false);
+      return;
+    }
 
-  // 2. Exclui aluno (DELETE)
-  const handleDelete = async (idAluno: number) => {
+    const fd = new FormData();
+    Object.entries(formData).forEach(([key, val]) => {
+      if (key === "foto" && val instanceof File) {
+        fd.append("foto", val);
+      } else if (typeof val === "string") {
+        fd.append(key, val);
+      }
+    });
+
     try {
-      const response = await fetch("/api/alunos/get-delete", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idAluno }),
+      const res = await fetch("/api/alunos/insert", {
+        method: "POST",
+        body: fd,
       });
-      if (!response.ok) throw new Error("Erro ao deletar.");
-      await fetchAlunos();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido.");
-    }
-  };
 
-  // 3. Abre modal de edição, preenchendo campos “flattened”
-  const handleEdit = (aluno: AlunoFlat) => {
-    setSelectedAluno(aluno);
-    setIsModalOpen(true);
-  };
+      const body = await res.json();
+      if (!res.ok) {
+        setError(body.error || "Erro desconhecido");
+        setLoading(false);
+        return;
+      }
 
-  // 4. Salva alterações (PUT) — atualiza tanto Aluno quanto ContatoAluno
-  const handleSave = async (updatedAluno: AlunoFlat) => {
-    try {
-      // Prepara payload com todos os campos, incluindo telefone
-      const payload = {
-        idAluno: updatedAluno.idAluno,
-        nome: updatedAluno.nome,
-        sobrenome: updatedAluno.sobrenome,
-        cpf: updatedAluno.cpf,
-        rg: updatedAluno.rg,
-        nomeMae: updatedAluno.nomeMae,
-        nomePai: updatedAluno.nomePai,
-        dataNasc: updatedAluno.dataNasc,
-        descricao: updatedAluno.descricao,
-        nomeTel1: updatedAluno.nomeTel1,
-        tel1: updatedAluno.tel1,
-        nomeTel2: updatedAluno.nomeTel2,
-        tel2: updatedAluno.tel2,
-      };
-
-      const response = await fetch("/api/alunos/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      setFormData({
+        nome: "",
+        sobrenome: "",
+        cpf: "",
+        rg: "",
+        nomeMae: "",
+        nomePai: "",
+        dataNasc: "",
+        descricao: "",
+        foto: null,
+        nomeTel1: "",
+        tel1: "",
+        nomeTel2: "",
+        tel2: "",
       });
-      if (!response.ok) throw new Error("Erro ao atualizar.");
-
-      await fetchAlunos();
-      setError(null);
-      setIsModalOpen(false);
-      setSelectedAluno(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro desconhecido.");
+      router.push("/admin/alunos-view");
+    } catch {
+      setError("Erro de rede ou do servidor.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedAluno(null);
-  };
+  }
 
   return (
     <AdminGuard>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Lista de Alunos</h1>
-
-        {error && (
-          <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">
-            {error}
-          </div>
-        )}
-
-        <table className="min-w-full bg-white border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-3 border text-center">ID</th>
-              <th className="py-2 px-3 border">Nome</th>
-              <th className="py-2 px-3 border">Sobrenome</th>
-              <th className="py-2 px-3 border">CPF</th>
-              <th className="py-2 px-3 border">RG</th>
-              <th className="py-2 px-3 border">Mãe</th>
-              <th className="py-2 px-3 border">Pai</th>
-              <th className="py-2 px-3 border">Nascimento</th>
-              <th className="py-2 px-3 border">Descrição</th>
-              <th className="py-2 px-3 border">Foto</th>
-              <th className="py-2 px-3 border">Tel. 1</th>
-              <th className="py-2 px-3 border">Tel. 2</th>
-              <th className="py-2 px-3 border">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {alunos.map((aluno) => (
-              <tr
-                key={aluno.idAluno}
-                className="hover:bg-gray-50"
-              >
-                <td className="py-2 px-3 border text-center">
-                  {aluno.idAluno}
-                </td>
-                <td className="py-2 px-3 border">{aluno.nome}</td>
-                <td className="py-2 px-3 border">{aluno.sobrenome}</td>
-                <td className="py-2 px-3 border">{aluno.cpf}</td>
-                <td className="py-2 px-3 border">{aluno.rg}</td>
-                <td className="py-2 px-3 border">{aluno.nomeMae}</td>
-                <td className="py-2 px-3 border">
-                  {aluno.nomePai || "—"}
-                </td>
-                <td className="py-2 px-3 border">
-                  {new Date(aluno.dataNasc).toLocaleDateString("pt-BR")}
-                </td>
-                <td className="py-2 px-3 border">
-                  {aluno.descricao ? (
-                    <span className="whitespace-pre-wrap">
-                      {aluno.descricao}
-                    </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td className="py-2 px-3 border text-center">
-                  {aluno.fotoPath ? (
-                    <img
-                      src={aluno.fotoPath}
-                      alt={`Foto do(a) ${aluno.nome}`}
-                      className="h-12 w-12 object-cover rounded-full mx-auto"
-                    />
-                  ) : (
-                    <span className="text-gray-400">—</span>
-                  )}
-                </td>
-                <td className="py-2 px-3 border">
-                  {aluno.tel1}
-                </td>
-                <td className="py-2 px-3 border">
-                  {aluno.tel2 || "—"}
-                </td>
-                <td className="py-2 px-3 border text-center">
-                  <ActionButton
-                    onEdit={() => handleEdit(aluno)}
-                    onDelete={() => handleDelete(aluno.idAluno)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {isModalOpen && selectedAluno && (
-          <EditModal
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            data={selectedAluno}
-            onSave={handleSave}
-            // Adicionamos agora os campos de contato na edição:
-            fields={[
-              "idAluno",
-              "nome",
-              "sobrenome",
-              "cpf",
-              "rg",
-              "nomeMae",
-              "nomePai",
-              "dataNasc",
-              "descricao",
-              "nomeTel1",
-              "tel1",
-              "nomeTel2",
-              "tel2",
-            ]}
-          />
-        )}
-
-        <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          <a href="/pages/admin/cadastrar-aluno">Adicionar Aluno</a>
-        </button>
+      <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+        <h1>Cadastrar Aluno</h1>
+        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
+          {/* ...demais campos continuam iguais */}
+          <button type="submit" disabled={loading}>
+            {loading ? "Salvando..." : "Salvar"}
+          </button>
+        </form>
       </div>
     </AdminGuard>
   );

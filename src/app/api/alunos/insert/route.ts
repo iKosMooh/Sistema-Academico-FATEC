@@ -133,7 +133,8 @@ export async function POST(req: NextRequest) {
 
     // 9. Retornar o objeto completo (Aluno + ContatoAluno + fotoPath se houver)
     return NextResponse.json(alunoComFoto);
-  } catch (err: any) {
+    } catch (_err: unknown) {
+    const err = _err as Error;
     console.error("🔥 Erro em /api/alunos/insert:", err);
     const message = err.message || "Erro interno no servidor";
     return NextResponse.json({ error: message }, { status: 500 });

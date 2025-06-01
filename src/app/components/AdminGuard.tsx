@@ -13,8 +13,13 @@ export function AdminGuard({ children }: AdminGuardProps) {
     return <p>Carregando...</p>;
   }
 
-  if (!session || (session.user as any).tipo !== "Admin") {
-    return <div><p>Acesso negado. Apenas administradores podem acessar.</p><a href="/pages/login">Fazer Login</a></div>;
+  if (!session || session.user.tipo !== "Admin") {
+    return (
+      <div>
+        <p>Acesso negado. Apenas administradores podem acessar.</p>
+        <a href="/pages/login">Fazer Login</a>
+      </div>
+    );
   }
 
   return <>{children}</>;

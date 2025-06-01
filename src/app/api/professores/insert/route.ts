@@ -1,4 +1,4 @@
-// src\app\api\professores\insert\route.ts
+// src/app/api/professores/insert/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
     const rg = formData.get("rg")?.toString();
 
     if (!idProfessor) {
-      return NextResponse.json({ error: "CPF (idProfessor) não enviado" }, { status: 400 });
+      return NextResponse.json(
+        { error: "CPF (idProfessor) não enviado" },
+        { status: 400 }
+      );
     }
 
     if (!rg) {
@@ -28,17 +31,15 @@ export async function POST(req: NextRequest) {
     // ✅ Verificação de duplicidade
     const existe = await prisma.professores.findFirst({
       where: {
-        OR: [
-          { idProfessor: idProfessor },
-          { rg: rg }
-        ]
-      }
+        OR: [{ idProfessor: idProfessor }, { rg: rg }],
+      },
     });
 
     if (existe) {
-      return NextResponse.json({ 
-        error: "Já existe um professor com este CPF ou RG" 
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: "Já existe um professor com este CPF ou RG" },
+        { status: 400 }
+      );
     }
 
     const baseDir = path.join(process.cwd(), "public", "pastas");
@@ -71,18 +72,18 @@ export async function POST(req: NextRequest) {
 
     for (const field of ["nome", "sobrenome", "rg", "dataNasc", "cargo"]) {
       if (!payload[field as keyof typeof payload]) {
-        return NextResponse.json({ 
-          error: `Campo obrigatório ausente: ${field}` 
-        }, { status: 400 });
+        return NextResponse.json(
+          { error: `Campo obrigatório ausente: ${field}` },
+          { status: 400 }
+        );
       }
     }
 
     const novo = await prisma.professores.create({ data: payload });
     return NextResponse.json(novo);
-
-  } catch (err: any) {
+  } catch (_err: unknown) {
+    const err = _err as Error;
     console.error("🔥 Erro em /api/professores:", err);
-
     const message = err.message || "Erro interno no servidor";
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -2,31 +2,26 @@
 import { useEffect, useState, FormEvent } from "react";
 
 interface EditModalProps<T> {
-  isOpen: boolean;
-  onClose: () => void;
   data: T | null;
+  onClose: () => void;
   onSave: (updatedData: T) => void;
   fields: (keyof T)[];
+  isOpen: boolean;
 }
 
-export function EditModal<T extends { [key: string]: any }>(
-  {
-    isOpen,
-    onClose,
-    data,
-    onSave,
-    fields,
-  }: EditModalProps<T>
+
+export function EditModal<T extends Record<string, unknown>>(
+  { isOpen, onClose, data, onSave, fields }: EditModalProps<T>
 ) {
-  const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen && data) {
-      const initialValues: { [key: string]: any } = {};
+      const initialValues: Record<string, string> = {};
       fields.forEach((key) => {
-        const value = (data as any)[key];
+        const raw = data[key];
         initialValues[key as string] =
-          value !== null && value !== undefined ? String(value) : "";
+          raw !== null && raw !== undefined ? String(raw) : "";
       });
       setFormValues(initialValues);
     }
@@ -46,9 +41,10 @@ export function EditModal<T extends { [key: string]: any }>(
     e.preventDefault();
     if (!data) return;
 
-    const updatedData: any = { ...data };
+    const updatedData: Record<string, unknown> = { ...data } as Record<string, unknown>;
+
     fields.forEach((key) => {
-      const originalValue = (data as any)[key];
+      const originalValue = data[key];
       const newVal = formValues[key as string];
       if (typeof originalValue === "number") {
         updatedData[key as string] = Number(newVal);
@@ -65,7 +61,7 @@ export function EditModal<T extends { [key: string]: any }>(
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="relative max-w-lg w-full max-h-[90vh] bg-black rounded-lg shadow-lg overflow-y-auto p-6">
+      <div className="relative max-w-lg w-full max-h-[90vh] bg-white rounded-lg shadow-lg overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Editar Registro</h2>
           <button
@@ -84,14 +80,15 @@ export function EditModal<T extends { [key: string]: any }>(
             if (keyLower.includes("email")) {
               inputType = "email";
             } else if (
-              typeof (data as any)[key] === "number" ||
+              typeof (data[key] as unknown) === "number" ||
               keyLower.includes("id")
             ) {
               inputType = keyLower.includes("cpf") || keyLower.includes("id")
                 ? "text"
                 : "number";
             } else if (
-              keyLower.includes("telefone") || keyLower.includes("tel")
+              keyLower.includes("telefone") ||
+              keyLower.includes("tel")
             ) {
               inputType = "tel";
             } else if (keyLower.includes("senha")) {

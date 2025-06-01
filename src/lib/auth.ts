@@ -1,6 +1,6 @@
-// app/lib/auth.ts
+// src/app/lib/auth.ts
 
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
@@ -50,11 +50,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Usuário não encontrado");
         }
 
-        const isValid = await bcrypt.compare(credentials.senha, user.senhaHash);
+        const isValid = await bcrypt.compare(
+          credentials.senha,
+          user.senhaHash
+        );
         if (!isValid) {
           throw new Error("Senha incorreta");
         }
 
+        // Retornamos um objeto que satisfaça a interface `User` estendida
         return {
           id: user.cpf,
           tipo: user.tipo,
@@ -67,8 +71,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
+      // Quando o usuário acabou de fazer login, `user` estará definido
       if (user) {
-        token.tipo = (user as any).tipo;
+        token.tipo = user.tipo;
       }
       return token;
     },

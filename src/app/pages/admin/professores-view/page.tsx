@@ -7,6 +7,7 @@ import { EditModal } from "@/app/components/ui/EditModal";
 import { AdminGuard } from "@/app/components/AdminGuard";
 
 interface Professor {
+  [key: string]: unknown;
   idProfessor: number;
   nome: string;
   sobrenome: string;
@@ -125,7 +126,7 @@ export default function ProfessoresPage() {
           </tbody>
         </table>
 
-        <EditModal
+        <EditModal<Professor>
           isOpen={isModalOpen}
           onClose={closeModal}
           data={selectedProfessor}
@@ -134,12 +135,15 @@ export default function ProfessoresPage() {
             "idProfessor",
             "nome",
             "sobrenome",
+            "rg",
+            "dataNasc",
             "cargo",
-            "disciplina",
-            "email",
-            "telefone",
+            "descricao",
+            "tel",
+            "foto",
           ]}
         />
+
         <button><a href="/pages/admin/cadastrar-professor">Adicionar Professor</a></button>
       </div>
     </AdminGuard>
