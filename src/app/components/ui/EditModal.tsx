@@ -64,18 +64,17 @@ export function EditModal<T extends { [key: string]: any }>(
   if (!isOpen || !data) return null;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '500px',
-        backgroundColor: '#fff'
-      }}>
-        <div>
-          <h2>Editar Registro</h2>
-          <button onClick={onClose}>✕</button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="relative max-w-lg w-full max-h-[90vh] bg-black rounded-lg shadow-lg overflow-y-auto p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Editar Registro</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Fechar modal"
+          >
+            ✕
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           {fields.map((key) => {
@@ -84,9 +83,16 @@ export function EditModal<T extends { [key: string]: any }>(
             const keyLower = String(key).toLowerCase();
             if (keyLower.includes("email")) {
               inputType = "email";
-            } else if (typeof (data as any)[key] === "number" || keyLower.includes("id")) {
-              inputType = keyLower.includes("cpf") || keyLower.includes("id") ? "text" : "number";
-            } else if (keyLower.includes("telefone")) {
+            } else if (
+              typeof (data as any)[key] === "number" ||
+              keyLower.includes("id")
+            ) {
+              inputType = keyLower.includes("cpf") || keyLower.includes("id")
+                ? "text"
+                : "number";
+            } else if (
+              keyLower.includes("telefone") || keyLower.includes("tel")
+            ) {
               inputType = "tel";
             } else if (keyLower.includes("senha")) {
               inputType = "password";
@@ -95,24 +101,37 @@ export function EditModal<T extends { [key: string]: any }>(
             const isPrimary = key === fields[0];
 
             return (
-              <div key={String(key)}>
-                <label htmlFor={String(key)}>{String(key)}</label>
+              <div key={String(key)} className="mb-4">
+                <label
+                  htmlFor={String(key)}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  {String(key)}
+                </label>
                 <input
                   id={String(key)}
                   type={inputType}
                   value={value}
                   onChange={(e) => handleChange(String(key), e.target.value)}
                   disabled={isPrimary}
+                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             );
           })}
 
-          <div>
-            <button type="button" onClick={onClose}>
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded"
+            >
               Cancelar
             </button>
-            <button type="submit">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            >
               Salvar
             </button>
           </div>

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       const ext = path.extname(fotoFile.name) || ".png";
       const filename = `profile${ext}`;
       await fs.writeFile(path.join(pasta, filename), buffer);
-      fotoPath = `/pastas/${idProfessor}/${filename}`;
+      fotoPath = `/pastas/professores/${idProfessor}/${filename}`;
     }
 
     const payload = {
