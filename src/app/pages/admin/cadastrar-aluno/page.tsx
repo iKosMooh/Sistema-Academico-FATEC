@@ -1,9 +1,6 @@
-// src\app\pages\admin\cadastrar-professor\page.tsx
-
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   isValidCPF,
@@ -13,18 +10,30 @@ import {
 } from "@/utils/cpf-rg/route";
 import { AdminGuard } from "@/app/components/AdminGuard";
 
-export default function CadastrarProfessor() {
+interface FormDataAluno {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  rg: string;
+  nomeMae: string;
+  nomePai: string;
+  dataNasc: string;
+  descricao: string;
+  foto: File | null;
+}
+
+export default function CadastrarAluno() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    idProfessor: "",
+  const [formData, setFormData] = useState<FormDataAluno>({
     nome: "",
     sobrenome: "",
+    cpf: "",
     rg: "",
+    nomeMae: "",
+    nomePai: "",
     dataNasc: "",
-    cargo: "",
     descricao: "",
-    tel: "",
-    foto: null as File | null,
+    foto: null,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +43,7 @@ export default function CadastrarProfessor() {
   ) {
     const { name, value } = e.target;
     let val = value;
-    if (name === "idProfessor") val = formatCPF(value);
+    if (name === "cpf") val = formatCPF(value);
     if (name === "rg") val = formatRG(value);
     setFormData((prev) => ({ ...prev, [name]: val }));
   }
@@ -49,20 +58,22 @@ export default function CadastrarProfessor() {
     setLoading(true);
     setError("");
 
-    const missing = [];
-    if (!formData.idProfessor) missing.push("CPF");
-    if (!formData.nome) missing.push("Nome");
-    if (!formData.sobrenome) missing.push("Sobrenome");
-    if (!formData.rg) missing.push("RG");
-    if (!formData.dataNasc) missing.push("Data de Nascimento");
-    if (!formData.cargo) missing.push("Cargo");
-    if (missing.length) {
-      setError(`Você precisa preencher: ${missing.join(", ")}`);
+    // Validações de campos obrigatórios
+    const faltando: string[] = [];
+    if (!formData.nome) faltando.push("Nome");
+    if (!formData.sobrenome) faltando.push("Sobrenome");
+    if (!formData.cpf) faltando.push("CPF");
+    if (!formData.rg) faltando.push("RG");
+    if (!formData.nomeMae) faltando.push("Nome da Mãe");
+    if (!formData.dataNasc) faltando.push("Data de Nascimento");
+
+    if (faltando.length) {
+      setError(`Você precisa preencher: ${faltando.join(", ")}`);
       setLoading(false);
       return;
     }
 
-    if (!isValidCPF(formData.idProfessor)) {
+    if (!isValidCPF(formData.cpf)) {
       setError("CPF inválido");
       setLoading(false);
       return;
@@ -73,6 +84,7 @@ export default function CadastrarProfessor() {
       return;
     }
 
+    // Monta FormData para envio multipart/form-data
     const fd = new FormData();
     Object.entries(formData).forEach(([key, val]) => {
       if (key === "foto" && val instanceof File) {
@@ -82,7 +94,7 @@ export default function CadastrarProfessor() {
       }
     });
 
-    const res = await fetch("/api/professores/insert", {
+    const res = await fetch("/api/alunos/insert", {
       method: "POST",
       body: fd,
     });
@@ -94,38 +106,30 @@ export default function CadastrarProfessor() {
       return;
     }
 
+    // Limpa formulário e redireciona
     setFormData({
-      idProfessor: "",
       nome: "",
       sobrenome: "",
+      cpf: "",
       rg: "",
+      nomeMae: "",
+      nomePai: "",
       dataNasc: "",
-      cargo: "",
       descricao: "",
-      tel: "",
       foto: null,
     });
     setLoading(false);
-    router.push("/admin/dashboard");
+    router.push("/pages/admin/alunos-view");
   }
 
   return (
     <AdminGuard>
       <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-        <h1>Cadastrar Professor</h1>
-        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <label>
-            <span style={{ color: "red" }}>*</span> CPF
-          </label>
-          <input
-            name="idProfessor"
-            value={formData.idProfessor}
-            onChange={handleChange}
-            placeholder="123.456.789-09"
-            required
-          />
-
+        <h1>Cadastrar Aluno</h1>
+        {error && (
+          <div style={{ color: "red", marginBottom: 10 }}>{error}</div>
+        )}
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <label>
             <span style={{ color: "red" }}>*</span> Nome
           </label>
@@ -149,6 +153,17 @@ export default function CadastrarProfessor() {
           />
 
           <label>
+            <span style={{ color: "red" }}>*</span> CPF
+          </label>
+          <input
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            placeholder="123.456.789-09"
+            required
+          />
+
+          <label>
             <span style={{ color: "red" }}>*</span> RG
           </label>
           <input
@@ -157,6 +172,25 @@ export default function CadastrarProfessor() {
             onChange={handleChange}
             placeholder="12.345.678-9"
             required
+          />
+
+          <label>
+            <span style={{ color: "red" }}>*</span> Nome da Mãe
+          </label>
+          <input
+            name="nomeMae"
+            value={formData.nomeMae}
+            onChange={handleChange}
+            placeholder="Nome da Mãe"
+            required
+          />
+
+          <label>Nome do Pai (opcional)</label>
+          <input
+            name="nomePai"
+            value={formData.nomePai}
+            onChange={handleChange}
+            placeholder="Nome do Pai"
           />
 
           <label>
@@ -170,17 +204,6 @@ export default function CadastrarProfessor() {
             required
           />
 
-          <label>
-            <span style={{ color: "red" }}>*</span> Cargo
-          </label>
-          <input
-            name="cargo"
-            value={formData.cargo}
-            onChange={handleChange}
-            placeholder="Prof./Coord./Diretor"
-            required
-          />
-
           <label>Foto (opcional)</label>
           <input
             type="file"
@@ -189,20 +212,12 @@ export default function CadastrarProfessor() {
             onChange={handleFileChange}
           />
 
-          <label>Descrição</label>
+          <label>Descrição (opcional)</label>
           <textarea
             name="descricao"
             value={formData.descricao}
             onChange={handleChange}
             placeholder="Descrição"
-          />
-
-          <label>Telefone</label>
-          <input
-            name="tel"
-            value={formData.tel}
-            onChange={handleChange}
-            placeholder="Telefone"
           />
 
           <button type="submit" disabled={loading}>

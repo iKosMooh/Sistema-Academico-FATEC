@@ -1,3 +1,4 @@
+// src\app\api\professores\get-delete\route.ts
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';  // ajuste conforme seu caminho real
 
