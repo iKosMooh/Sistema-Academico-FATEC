@@ -4,7 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import prisma from "@/lib/prisma/prisma";
+import prisma from "@/lib/prisma";
 
 // Estende tipos do next-auth para incluir 'tipo' no usuário e sessão
 declare module "next-auth" {

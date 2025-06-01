@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth/auth";
-import prisma from "@/lib/prisma/prisma";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
