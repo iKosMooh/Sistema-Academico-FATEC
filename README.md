@@ -1,148 +1,64 @@
-# 🎓 Sistema Acadêmico FATEC
+# Sistema Acadêmico FATEC
 
-![Banner](https://via.placeholder.com/1200x400/1e3a8a/ffffff?text=Sistema+Acadêmico+FATEC)
-*Sistema integrado de gestão acadêmica para Faculdades de Tecnologia*
+Sistema de gerenciamento acadêmico desenvolvido para a FATEC, visando facilitar o controle de alunos, disciplinas, notas, e demais informações acadêmicas de forma integrada e eficiente.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Node.js](https://img.shields.io/badge/Node.js-v18+-green)
-![Next.js](https://img.shields.io/badge/Next.js-v14-blue)
+---
 
-Sistema completo para gestão acadêmica da FATEC, integrando controle de alunos, disciplinas, notas e processos acadêmicos em uma plataforma eficiente e segura.
+## Sumário
 
-## 🌟 Funcionalidades Principais
+- [Descrição](#descrição)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
+- [Contato](#contato)
 
-- 👥 **Gestão de usuários** (alunos, professores, administradores)  
-- 📚 **Controle acadêmico** (disciplinas, turmas, horários)  
-- 📊 **Lançamento de notas** e frequências em tempo real  
-- 📈 **Relatórios acadêmicos** automatizados  
-- 🔐 **Autenticação segura** com níveis de acesso  
-- 📱 **Interface responsiva** para qualquer dispositivo  
+---
 
-## 🛠 Stack Tecnológica
+## Descrição
 
-| Área          | Tecnologias                                                                 |
-|---------------|-----------------------------------------------------------------------------|
-| **Frontend**  | Next.js, React, Tailwind CSS                                                |
-| **Backend**   | Node.js, Next.js API Routes                                                 |
-| **Banco de Dados** | Prisma ORM (PostgreSQL/MySQL/SQLite)                                        |
-| **Autenticação** | NextAuth.js                                                               |
-| **Ferramentas** | Git, GitHub, npm, Vercel                                                  |
+Este projeto é um sistema acadêmico que permite a gestão de dados como cadastro de alunos, professores, disciplinas, turmas, lançamento de notas, e geração de relatórios. Foi desenvolvido para apoiar os processos administrativos e pedagógicos da FATEC, com foco em usabilidade e segurança.
 
-## 🚀 Começando
+---
 
-### Pré-requisitos
+## Funcionalidades
 
-- Node.js v18+
-- npm v9+
-- Banco de dados (PostgreSQL recomendado)
-- Conta no GitHub
+- Cadastro e gerenciamento de usuários (alunos, professores, administradores)
+- Controle de disciplinas e turmas
+- Lançamento e consulta de notas e frequências
+- Geração de relatórios acadêmicos
+- Autenticação e controle de acesso
+- Interface responsiva e intuitiva
 
-### Instalação Passo a Passo
+---
 
-1. **Clonar o repositório**:
+## Tecnologias Utilizadas
+
+- Backend: (Informe aqui a linguagem e framework usado, ex: Node.js, PHP, Python, Java)
+- Banco de Dados: (Informe o SGBD utilizado, ex: MySQL, PostgreSQL)
+- Frontend: (Informe frameworks ou bibliotecas, ex: React, Angular, Vue)
+- Controle de versão: Git
+- Hospedagem do código: GitHub
+
+---
+
+## Instalação
+
+1. Clone o repositório:
+
    ```bash
    git clone https://github.com/iKosMooh/Sistema-Academico-FATEC.git
    cd Sistema-Academico-FATEC
-Instalar dependências:
 
-bash
-npm install
-Configurar ambiente:
+para instalar e rodar:
+Abra o vscode
+Clone o Repositorio
+Digite o comando ``npm install`` no terminal
+Digite o comando ```npx prisma generate``
+E use ```npm run dev`` para rodar o projeto
+Em seguida acesse no seu navegador o url http://localhost:3000
 
-bash
-cp .env.example .env
-# Edite o .env com suas configurações
-Configurar banco de dados:
-
-bash
-npx prisma generate
-npx prisma migrate dev --name init
-Iniciar servidor:
-
-bash
-npm run dev
-Acessar sistema:
-
-http://localhost:3000
-⚙️ Configuração
-Variáveis de Ambiente (/.env)
-Variável	Descrição	Exemplo
-DATABASE_URL	URL de conexão com o banco de dados	postgresql://user:pass@localhost:5432/db
-NEXTAUTH_SECRET	Segredo para criptografia de sessões	s3cretKey!
-NEXTAUTH_URL	URL base da aplicação	http://localhost:3000
-Estrutura de Pastas
-├── prisma/
-│   └── schema.prisma        # Modelos do banco de dados
-├── src/
-│   ├── app/                 # Rotas da aplicação
-│   ├── components/          # Componentes React
-│   ├── lib/                 # Utilitários
-│   └── styles/              # CSS global
-├── .env.example             # Modelo de configuração
-└── package.json             # Dependências
-📋 Guia de Uso
-Fluxos Principais
-Login:
-
-Acesse /login
-
-Use credenciais de administrador, professor ou aluno
-
-Dashboard Administrativo:
-
-Gerenciar usuários
-
-Criar disciplinas e turmas
-
-Gerar relatórios institucionais
-
-Painel do Professor:
-
-Lançar notas e faltas
-
-Gerenciar atividades
-
-Acompanhar desempenho da turma
-
-Portal do Aluno:
-
-Visualizar notas e frequência
-
-Acessar materiais de aula
-
-Ver histórico acadêmico
-
-Comandos Úteis
-Comando	Descrição
-npm run dev	Inicia servidor de desenvolvimento
-npm run build	Cria build de produção
-npm run start	Inicia build de produção
-npx prisma studio	Abre interface do banco de dados
-npx prisma migrate dev	Executa migrações de banco
-🤝 Como Contribuir
-Faça um fork do projeto
-
-Crie sua branch (git checkout -b feature/nova-funcionalidade)
-
-Commit suas alterações (git commit -m 'Adiciona recurso X')
-
-Push para a branch (git push origin feature/nova-funcionalidade)
-
-Abra um Pull Request
-
-Padrões:
-
-Siga Conventional Commits
-
-Documente novas funcionalidades
-
-Mantenha testes atualizados
-
-📄 Licença
-Distribuído sob licença MIT. Veja LICENSE para detalhes.
-
-✉️ Contato
-Equipe de Desenvolvimento
-
-GitHub: @iKosMooh
-
+verifique o projeto no github e crie o melhor e mais completo readme que você conseguir, sendo simples, informativo, instrutivo, e intuitivo, adicione emojis e tudo mais seja formal e importante
