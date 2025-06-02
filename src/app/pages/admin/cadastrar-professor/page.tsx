@@ -1,63 +1,96 @@
+// src/app/pages/admin/cadastrar-professor/page.tsx
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   isValidCPF,
   isValidRG,
-} from "@/utils/cpf-rg/route";
+  formatCPF,
+  formatRG,
+} from "@/utils/cpf-rg";
 import { AdminGuard } from "@/app/components/AdminGuard";
+import { useRouter } from "next/navigation";
 
-interface FormDataAluno {
+interface FormDataProfessor {
+  idProfessor: string;
   nome: string;
   sobrenome: string;
-  cpf: string;
   rg: string;
-  nomeMae: string;
-  nomePai: string;
   dataNasc: string;
+  cargo: string;
   descricao: string;
+  tel: string;
   foto: File | null;
-  nomeTel1: string;
-  tel1: string;
-  nomeTel2: string;
-  tel2: string;
 }
 
-export default function CadastrarAluno() {
+export default function CadastrarProfessorPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<FormDataAluno>({
+
+  const [formData, setFormData] = useState<FormDataProfessor>({
+    idProfessor: "",
     nome: "",
     sobrenome: "",
-    cpf: "",
     rg: "",
-    nomeMae: "",
-    nomePai: "",
     dataNasc: "",
+    cargo: "",
     descricao: "",
+    tel: "",
     foto: null,
-    nomeTel1: "",
-    tel1: "",
-    nomeTel2: "",
-    tel2: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData((prev) => ({ ...prev, foto: e.target.files![0] }));
+    }
+  };
+
+  const handleCpfBlur = () => {
+    if (formData.idProfessor && !isValidCPF(formData.idProfessor)) {
+      setError("CPF inválido");
+    } else {
+      setError("");
+      setFormData((prev) => ({
+        ...prev,
+        idProfessor: formatCPF(prev.idProfessor),
+      }));
+    }
+  };
+
+  const handleRgBlur = () => {
+    if (formData.rg && !isValidRG(formData.rg)) {
+      setError("RG inválido");
+    } else {
+      setError("");
+      setFormData((prev) => ({
+        ...prev,
+        rg: formatRG(prev.rg),
+      }));
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setMessage("");
 
     const faltando: string[] = [];
+    if (!formData.idProfessor) faltando.push("CPF");
     if (!formData.nome) faltando.push("Nome");
     if (!formData.sobrenome) faltando.push("Sobrenome");
-    if (!formData.cpf) faltando.push("CPF");
     if (!formData.rg) faltando.push("RG");
-    if (!formData.nomeMae) faltando.push("Nome da Mãe");
     if (!formData.dataNasc) faltando.push("Data de Nascimento");
-    if (!formData.nomeTel1) faltando.push("Nome do Telefone 1");
-    if (!formData.tel1) faltando.push("Telefone 1");
+    if (!formData.cargo) faltando.push("Cargo");
 
     if (faltando.length) {
       setError(`Você precisa preencher: ${faltando.join(", ")}`);
@@ -65,7 +98,7 @@ export default function CadastrarAluno() {
       return;
     }
 
-    if (!isValidCPF(formData.cpf)) {
+    if (!isValidCPF(formData.idProfessor)) {
       setError("CPF inválido");
       setLoading(false);
       return;
@@ -77,45 +110,44 @@ export default function CadastrarAluno() {
     }
 
     const fd = new FormData();
-    Object.entries(formData).forEach(([key, val]) => {
-      if (key === "foto" && val instanceof File) {
-        fd.append("foto", val);
-      } else if (typeof val === "string") {
-        fd.append(key, val);
-      }
-    });
+    fd.append("idProfessor", formData.idProfessor);
+    fd.append("nome", formData.nome);
+    fd.append("sobrenome", formData.sobrenome);
+    fd.append("rg", formData.rg);
+    fd.append("dataNasc", formData.dataNasc);
+    fd.append("cargo", formData.cargo);
+    fd.append("descricao", formData.descricao);
+    fd.append("tel", formData.tel);
+    if (formData.foto) {
+      fd.append("foto", formData.foto);
+    }
 
     try {
-      const res = await fetch("/api/alunos/insert", {
+      const res = await fetch("/api/professores/insert", {
         method: "POST",
         body: fd,
       });
 
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body.error || "Erro desconhecido");
-        setLoading(false);
-        return;
+      const result = await res.json();
+      if (res.ok) {
+        setMessage("Professor cadastrado com sucesso!");
+        setFormData({
+          idProfessor: "",
+          nome: "",
+          sobrenome: "",
+          rg: "",
+          dataNasc: "",
+          cargo: "",
+          descricao: "",
+          tel: "",
+          foto: null,
+        });
+        router.push("/pages/admin/professores-view");
+      } else {
+        setMessage(result.error || "Erro ao cadastrar professor.");
       }
-
-      setFormData({
-        nome: "",
-        sobrenome: "",
-        cpf: "",
-        rg: "",
-        nomeMae: "",
-        nomePai: "",
-        dataNasc: "",
-        descricao: "",
-        foto: null,
-        nomeTel1: "",
-        tel1: "",
-        nomeTel2: "",
-        tel2: "",
-      });
-      router.push("/pages/admin/alunos-view");
     } catch {
-      setError("Erro de rede ou do servidor.");
+      setMessage("Erro de rede ou servidor.");
     } finally {
       setLoading(false);
     }
@@ -124,13 +156,135 @@ export default function CadastrarAluno() {
   return (
     <AdminGuard>
       <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-        <h1>Cadastrar Aluno</h1>
-        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+        <h1>Cadastrar Professor</h1>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Aqui devem ser inseridos os campos de input correspondentes ao formData */}
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> CPF
+            </label>
+            <input
+              type="text"
+              name="idProfessor"
+              value={formData.idProfessor}
+              onChange={handleChange}
+              onBlur={handleCpfBlur}
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Nome
+            </label>
+            <input
+              type="text"
+              name="nome"
+              value={formData.nome}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Sobrenome
+            </label>
+            <input
+              type="text"
+              name="sobrenome"
+              value={formData.sobrenome}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> RG
+            </label>
+            <input
+              type="text"
+              name="rg"
+              value={formData.rg}
+              onChange={handleChange}
+              onBlur={handleRgBlur}
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Data de Nascimento
+            </label>
+            <input
+              type="date"
+              name="dataNasc"
+              value={formData.dataNasc}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Cargo
+            </label>
+            <input
+              type="text"
+              name="cargo"
+              value={formData.cargo}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label>Descrição</label>
+            <textarea
+              name="descricao"
+              value={formData.descricao}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>Telefone</label>
+            <input
+              type="text"
+              name="tel"
+              value={formData.tel}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>Foto</label>
+            <input
+              type="file"
+              name="foto"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </div>
+
+          {error && (
+            <div style={{ color: "red", marginBottom: 10 }}>{error}</div>
+          )}
+
           <button type="submit" disabled={loading}>
-            {loading ? "Salvando..." : "Salvar"}
+            {loading ? "Cadastrando..." : "Salvar"}
           </button>
+
+          {message && (
+            <p
+              style={{
+                color: message.includes("sucesso") ? "green" : "red",
+                marginTop: 10,
+              }}
+            >
+              {message}
+            </p>
+          )}
         </form>
       </div>
     </AdminGuard>

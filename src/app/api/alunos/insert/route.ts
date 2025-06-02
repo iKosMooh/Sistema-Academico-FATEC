@@ -1,36 +1,34 @@
+// src/app/api/alunos/insert/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Verificar sessão e tipo de usuário (somente Admin cadastra)
     const session = await getServerSession(authOptions);
     if (!session || session.user.tipo !== "Admin") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
     const formData = await req.formData();
+    const nome = formData.get("nome")?.toString() ?? "";
+    const sobrenome = formData.get("sobrenome")?.toString() ?? "";
+    const cpf = formData.get("cpf")?.toString() ?? "";
+    const rg = formData.get("rg")?.toString() ?? "";
+    const nomeMae = formData.get("nomeMae")?.toString() ?? "";
+    const nomePai = formData.get("nomePai")?.toString() ?? "";
+    const dataNascRaw = formData.get("dataNasc")?.toString() ?? "";
+    const descricao = formData.get("descricao")?.toString() ?? "";
+    const nomeTel1 = formData.get("nomeTel1")?.toString() ?? "";
+    const tel1 = formData.get("tel1")?.toString() ?? "";
+    const nomeTel2 = formData.get("nomeTel2")?.toString() ?? "";
+    const tel2 = formData.get("tel2")?.toString() ?? "";
 
-    // 2. Extrair campos de Alunos e ContatoAluno do FormData
-    const nome = formData.get("nome")?.toString()?.trim() || null;
-    const sobrenome = formData.get("sobrenome")?.toString()?.trim() || null;
-    const cpf = formData.get("cpf")?.toString()?.trim() || null;
-    const rg = formData.get("rg")?.toString()?.trim() || null;
-    const nomeMae = formData.get("nomeMae")?.toString()?.trim() || null;
-    const nomePai = formData.get("nomePai")?.toString()?.trim() || null;
-    const dataNascRaw = formData.get("dataNasc")?.toString() || null;
-    const descricao = formData.get("descricao")?.toString()?.trim() || null;
-
-    const nomeTel1 = formData.get("nomeTel1")?.toString()?.trim() || null;
-    const tel1 = formData.get("tel1")?.toString()?.trim() || null;
-    const nomeTel2 = formData.get("nomeTel2")?.toString()?.trim() || null;
-    const tel2 = formData.get("tel2")?.toString()?.trim() || null;
-
-    // 3. Verificar obrigatoriedade dos campos principais
+    // Campos obrigatórios
     const faltando: string[] = [];
     if (!nome) faltando.push("nome");
     if (!sobrenome) faltando.push("sobrenome");
@@ -38,8 +36,6 @@ export async function POST(req: NextRequest) {
     if (!rg) faltando.push("rg");
     if (!nomeMae) faltando.push("nomeMae");
     if (!dataNascRaw) faltando.push("dataNasc");
-
-    // Verificar obrigatoriedade do contato
     if (!nomeTel1) faltando.push("nomeTel1");
     if (!tel1) faltando.push("tel1");
 
@@ -50,90 +46,87 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Verificar duplicidade de CPF e RG na tabela Alunos
-    const existeAluno = await prisma.alunos.findFirst({
+    const dataNasc = new Date(dataNascRaw);
+    if (isNaN(dataNasc.getTime())) {
+      return NextResponse.json(
+        { error: "Data de nascimento inválida." },
+        { status: 400 }
+      );
+    }
+
+    // Verificar duplicidade de CPF ou RG
+    const existe = await prisma.alunos.findFirst({
       where: {
-        OR: [
-          { cpf: cpf! },
-          { rg: rg! },
-        ],
+        OR: [{ cpf }, { rg }],
       },
     });
-    if (existeAluno) {
+    if (existe) {
       return NextResponse.json(
         { error: "Já existe um aluno com este CPF ou RG" },
         { status: 400 }
       );
     }
 
-    // 5. Converter data de nascimento em Date
-    const dataNasc = new Date(dataNascRaw!);
-    if (isNaN(dataNasc.getTime())) {
-      return NextResponse.json(
-        { error: "Data de Nascimento inválida" },
-        { status: 400 }
-      );
-    }
+    // Preparar diretório para foto (opcional)
+    const baseDir = path.join(process.cwd(), "public", "pastas", "alunos");
+    await fs.mkdir(baseDir, { recursive: true });
+    const pasta = path.join(baseDir, cpf);
+    await fs.mkdir(pasta, { recursive: true });
 
-    // 6. Criar registro de Aluno + ContatoAluno em operação única (nested create)
-    //    A coluna fotoPath ficará null nesta etapa; atualizaremos após salvar o arquivo.
-    const novoAluno = await prisma.alunos.create({
-      data: {
-        nome: nome!,
-        sobrenome: sobrenome!,
-        cpf: cpf!,
-        rg: rg!,
-        nomeMae: nomeMae!,
-        nomePai: nomePai || null,
-        dataNasc,
-        descricao: descricao || null,
-        // Nested create de ContatoAluno
-        contato: {
-          create: {
-            nomeTel1: nomeTel1!,
-            tel1: tel1!,
-            nomeTel2: nomeTel2 || null,
-            tel2: tel2 || null,
-          },
-        },
-      },
-      include: {
-        contato: true, // para retornar também os dados de ContatoAluno
-      },
-    });
-
-    const idAluno = novoAluno.idAluno;
-
-    // 7. Processar upload de foto (se houver)
-    const fotoFile = formData.get("foto") as File | null;
     let fotoPath: string | null = null;
+    const fotoFile = formData.get("foto") as File | null;
     if (fotoFile) {
-      // Caminho base: public/pastas/alunos/{idAluno}
-      const baseDir = path.join(process.cwd(), "public", "pastas", "alunos");
-      const pastaAluno = path.join(baseDir, String(idAluno));
-      await fs.mkdir(pastaAluno, { recursive: true });
-
       const buffer = Buffer.from(await fotoFile.arrayBuffer());
       const ext = path.extname(fotoFile.name) || ".png";
-      const filename = `foto${ext}`;
-
-      await fs.writeFile(path.join(pastaAluno, filename), buffer);
-      fotoPath = `/pastas/alunos/${idAluno}/${filename}`;
+      const filename = `profile${ext}`;
+      await fs.writeFile(path.join(pasta, filename), buffer);
+      fotoPath = `/pastas/alunos/${cpf}/${filename}`;
     }
 
-    // 8. Se fotoPath não for nulo, atualizar o campo fotoPath no registro de Aluno
-    let alunoComFoto = novoAluno;
-    if (fotoPath) {
-      alunoComFoto = await prisma.alunos.update({
-        where: { idAluno },
-        data: { fotoPath },
-        include: { contato: true },
+    // Inserir nas três tabelas em transação
+    const novoAluno = await prisma.$transaction(async (tx) => {
+      // 1) Criar registro em Alunos
+      const aluno = await tx.alunos.create({
+        data: {
+          nome,
+          sobrenome,
+          cpf,
+          rg,
+          nomeMae,
+          nomePai: nomePai || null,
+          dataNasc,
+          descricao: descricao || null,
+          fotoPath,
+        },
       });
-    }
 
-    // 9. Retornar o objeto completo (Aluno + ContatoAluno + fotoPath se houver)
-    return NextResponse.json(alunoComFoto);
-    } catch (_err: unknown) {
+      // 2) Criar registro em ContatoAluno
+      await tx.contatoAluno.create({
+        data: {
+          idAluno: aluno.idAluno,
+          nomeTel1,
+          tel1,
+          nomeTel2: nomeTel2 || null,
+          tel2: tel2 || null,
+        },
+      });
+
+      // 3) Criar usuário na tabela Usuarios (senhaHash = bcrypt do CPF)
+      const salt = await bcrypt.genSalt(10);
+      const senhaHash = await bcrypt.hash(cpf, salt);
+      await tx.usuarios.create({
+        data: {
+          cpf: cpf,
+          senhaHash,
+          tipo: "Aluno",
+        },
+      });
+
+      return aluno;
+    });
+
+    return NextResponse.json(novoAluno);
+  } catch (_err: unknown) {
     const err = _err as Error;
     console.error("🔥 Erro em /api/alunos/insert:", err);
     const message = err.message || "Erro interno no servidor";

@@ -3,10 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  isValidCPF,
-  isValidRG
-} from "@/utils/cpf-rg/route";
+import { isValidCPF, isValidRG, formatCPF, formatRG } from "@/utils/cpf-rg";
 import { AdminGuard } from "@/app/components/AdminGuard";
 
 interface FormDataAluno {
@@ -42,8 +39,27 @@ export default function CadastrarAluno() {
     nomeTel2: "",
     tel2: "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleCpfBlur = () => {
+    if (formData.cpf && !isValidCPF(formData.cpf)) {
+      setError("CPF inválido");
+    } else if (formData.cpf) {
+      setError("");
+      setFormData((prev) => ({ ...prev, cpf: formatCPF(prev.cpf) }));
+    }
+  };
+
+  const handleRgBlur = () => {
+    if (formData.rg && !isValidRG(formData.rg)) {
+      setError("RG inválido");
+    } else if (formData.rg) {
+      setError("");
+      setFormData((prev) => ({ ...prev, rg: formatRG(prev.rg) }));
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,7 +130,8 @@ export default function CadastrarAluno() {
         nomeTel2: "",
         tel2: "",
       });
-      router.push("/admin/alunos-view");
+
+      router.push("/pages/admin/alunos-view");
     } catch {
       setError("Erro de rede ou do servidor.");
     } finally {
@@ -126,9 +143,181 @@ export default function CadastrarAluno() {
     <AdminGuard>
       <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
         <h1>Cadastrar Aluno</h1>
-        {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
         <form onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* ...demais campos continuam iguais */}
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Nome
+            </label>
+            <input
+              type="text"
+              value={formData.nome}
+              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+              placeholder="Digite o nome"
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Sobrenome
+            </label>
+            <input
+              type="text"
+              value={formData.sobrenome}
+              onChange={(e) =>
+                setFormData({ ...formData, sobrenome: e.target.value })
+              }
+              placeholder="Digite o sobrenome"
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> CPF
+            </label>
+            <input
+              type="text"
+              value={formData.cpf}
+              onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+              onBlur={handleCpfBlur}
+              placeholder="Digite o CPF"
+              pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> RG
+            </label>
+            <input
+              type="text"
+              value={formData.rg}
+              onChange={(e) => setFormData({ ...formData, rg: e.target.value })}
+              onBlur={handleRgBlur}
+              placeholder="Digite o RG"
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Nome da Mãe
+            </label>
+            <input
+              type="text"
+              value={formData.nomeMae}
+              onChange={(e) =>
+                setFormData({ ...formData, nomeMae: e.target.value })
+              }
+              placeholder="Digite o nome da mãe"
+              required
+            />
+          </div>
+
+          <div>
+            <label>Nome do Pai</label>
+            <input
+              type="text"
+              value={formData.nomePai}
+              placeholder="Digite o nome do pai"
+              onChange={(e) => setFormData({ ...formData, nomePai: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Data de Nascimento
+            </label>
+            <input
+              type="date"
+              value={formData.dataNasc}
+              onChange={(e) =>
+                setFormData({ ...formData, dataNasc: e.target.value })
+              }
+              placeholder="Selecione a data de nascimento"
+              required
+            />
+          </div>
+
+          <div>
+            <label>Descrição</label>
+            <textarea
+              value={formData.descricao}
+              onChange={(e) =>
+                setFormData({ ...formData, descricao: e.target.value })
+              }
+              placeholder="Digite uma descrição"
+            />
+          </div>
+
+          <div>
+            <label>Foto</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  foto: e.target.files ? e.target.files[0] : null,
+                })
+              }
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Nome do Telefone 1
+            </label>
+            <input
+              type="text"
+              value={formData.nomeTel1}
+              onChange={(e) =>
+                setFormData({ ...formData, nomeTel1: e.target.value })
+              }
+              placeholder="Digite o nome do telefone 1"
+              required
+            />
+          </div>
+
+          <div>
+            <label>
+              <span style={{ color: "red" }}>*</span> Telefone 1
+            </label>
+            <input
+              type="text"
+              value={formData.tel1}
+              onChange={(e) => setFormData({ ...formData, tel1: e.target.value })}
+              placeholder="Digite o telefone 1"
+              required
+            />
+          </div>
+
+          <div>
+            <label>Nome do Telefone 2</label>
+            <input
+              type="text"
+              value={formData.nomeTel2}
+              onChange={(e) =>
+                setFormData({ ...formData, nomeTel2: e.target.value })
+              }
+              placeholder="Digite o nome do telefone 2"
+            />
+          </div>
+
+          <div>
+            <label>Telefone 2</label>
+            <input
+              type="text"
+              value={formData.tel2}
+              onChange={(e) => setFormData({ ...formData, tel2: e.target.value })}
+              placeholder="Digite o telefone 2"
+            />
+          </div>
+
+          {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+
           <button type="submit" disabled={loading}>
             {loading ? "Salvando..." : "Salvar"}
           </button>

@@ -1,5 +1,8 @@
+// src/app/api/alunos/update/route.ts
+
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { isValidCPF, isValidRG, formatCPF, formatRG } from "@/utils/cpf-rg";
 
 export async function PUT(req: Request) {
   try {
@@ -29,7 +32,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    // 2. (Opcional) Validar formato de dataNasc
+    // 2. Validar formato de dataNasc
     const novaDataNasc = new Date(dataNasc);
     if (isNaN(novaDataNasc.getTime())) {
       return NextResponse.json(
@@ -38,20 +41,58 @@ export async function PUT(req: Request) {
       );
     }
 
-    // 3. Atualizar Aluno + ContatoAluno em uma única operação transacional
+    // 3. Validar CPF
+    if (!cpf || !isValidCPF(cpf)) {
+      return NextResponse.json({ error: "CPF inválido." }, { status: 400 });
+    }
+    const cpfFormatado = formatCPF(cpf);
+
+    // 4. Validar RG
+    if (!rg || !isValidRG(rg)) {
+      return NextResponse.json({ error: "RG inválido." }, { status: 400 });
+    }
+    const rgFormatado = formatRG(rg);
+
+    // ✅ 5. Verificar duplicidade de CPF na tabela Alunos (excluindo o próprio idAluno)
+    const alunoComMesmoCPF = await prisma.alunos.findFirst({
+      where: {
+        cpf: cpfFormatado,
+        NOT: { idAluno },
+      },
+    });
+
+    if (alunoComMesmoCPF) {
+      return NextResponse.json(
+        { error: "Já existe outro aluno cadastrado com este CPF." },
+        { status: 400 }
+      );
+    }
+
+    // ✅ 6. Verificar duplicidade de CPF na tabela Usuarios
+    const usuarioComMesmoCPF = await prisma.usuarios.findUnique({
+      where: { cpf: cpfFormatado },
+    });
+
+    if (usuarioComMesmoCPF) {
+      return NextResponse.json(
+        { error: "Já existe um usuário cadastrado com este CPF." },
+        { status: 400 }
+      );
+    }
+
+    // ✅ 7. Atualizar Aluno + ContatoAluno em uma única operação transacional
     const updatedAluno = await prisma.alunos.update({
       where: { idAluno },
       data: {
         nome,
         sobrenome,
-        cpf,
-        rg,
+        cpf: cpfFormatado,
+        rg: rgFormatado,
         nomeMae,
         nomePai: nomePai || null,
         dataNasc: novaDataNasc,
         descricao: descricao || null,
         contato: {
-          // Se o contato já existe, faz “update” do registro
           update: {
             nomeTel1,
             tel1,

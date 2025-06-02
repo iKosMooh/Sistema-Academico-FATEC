@@ -1,7 +1,9 @@
 // src/app/api/professores/insert/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -28,16 +30,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "RG não enviado" }, { status: 400 });
     }
 
-    // ✅ Verificação de duplicidade
-    const existe = await prisma.professores.findFirst({
+    // ✅ Verificação de duplicidade na tabela Professores
+    const professorExiste = await prisma.professores.findFirst({
       where: {
-        OR: [{ idProfessor: idProfessor }, { rg: rg }],
+        OR: [{ idProfessor }, { rg }],
       },
     });
 
-    if (existe) {
+    if (professorExiste) {
       return NextResponse.json(
-        { error: "Já existe um professor com este CPF ou RG" },
+        { error: "Já existe um professor com este CPF ou RG." },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Verificação de duplicidade na tabela Usuarios
+    const usuarioExiste = await prisma.usuarios.findUnique({
+      where: { cpf: idProfessor },
+    });
+
+    if (usuarioExiste) {
+      return NextResponse.json(
+        { error: "Já existe um usuário cadastrado com este CPF." },
         { status: 400 }
       );
     }
@@ -49,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     let fotoPath: string | null = null;
     const fotoFile = formData.get("foto") as File | null;
+
     if (fotoFile) {
       const buffer = Buffer.from(await fotoFile.arrayBuffer());
       const ext = path.extname(fotoFile.name) || ".png";
@@ -79,8 +94,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const novo = await prisma.professores.create({ data: payload });
-    return NextResponse.json(novo);
+    // ✅ Cria registro na tabela Professores
+    const novoProfessor = await prisma.professores.create({ data: payload });
+
+    // ✅ Cria usuário na tabela Usuarios (senhaHash = bcrypt do CPF)
+    const salt = await bcrypt.genSalt(10);
+    const senhaHash = await bcrypt.hash(idProfessor, salt);
+
+    await prisma.usuarios.create({
+      data: {
+        cpf: idProfessor,
+        senhaHash,
+        tipo: "Professor",
+      },
+    });
+
+    return NextResponse.json(novoProfessor);
+
   } catch (_err: unknown) {
     const err = _err as Error;
     console.error("🔥 Erro em /api/professores:", err);

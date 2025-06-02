@@ -13,6 +13,7 @@ export default async function DashboardPage() {
     <div className="p-8">
       <h1 className="text-3xl mb-2">Bem-vindo, {session.user?.name || session.user?.cpf}</h1>
       <p>Tipo de usuário: {session.user?.tipo}</p>
+      <a href="/pages/logout">Sair</a>
     </div>
   );
 }

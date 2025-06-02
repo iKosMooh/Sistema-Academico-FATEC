@@ -18,14 +18,28 @@ export async function GET() {
 export async function DELETE(req: Request) {
   try {
     const { idProfessor } = await req.json();
-    await prisma.professores.delete({
-      where: { idProfessor },
-    });
-    return NextResponse.json({ message: "Professor deletado com sucesso." });
+
+    if (!idProfessor) {
+      return NextResponse.json(
+        { error: "idProfessor não fornecido." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.$transaction([
+      prisma.professores.delete({
+        where: { idProfessor },
+      }),
+      prisma.usuarios.delete({
+        where: { cpf: idProfessor },
+      }),
+    ]);
+
+    return NextResponse.json({ message: "Professor e usuário deletados com sucesso." });
   } catch (_error: unknown) {
-    console.error("Erro ao deletar professor:", _error);
+    console.error("Erro ao deletar professor e usuário:", _error);
     return NextResponse.json(
-      { error: "Erro ao deletar professor." },
+      { error: "Erro ao deletar professor e usuário." },
       { status: 500 }
     );
   }
