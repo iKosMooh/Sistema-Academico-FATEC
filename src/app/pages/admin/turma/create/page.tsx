@@ -51,8 +51,12 @@ export default function CreateTurmaPage() {
                 semestre: 1,
                 cursoId: 0,
             });
-        } catch (err: any) {
-            setError(err.message || 'Erro desconhecido');
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Erro desconhecido');
+            }
         } finally {
             setLoading(false);
         }
