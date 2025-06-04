@@ -160,6 +160,9 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
             (a) => a.dataAula.slice(0, 10) === dataStr
           );
           const feriado = getFeriado(dataStr);
+
+          // Se for feriado, mostra o feriado como "cancelada" (vermelho)
+
           return (
             <div
               key={dataStr}
@@ -179,17 +182,39 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
                   {feriado.descricao || "Feriado"}
                 </span>
               )}
-              {aulasDoDia.map((a) => (
-                <span
-                  key={a.idAula}
-                  className={`mt-1 px-1 py-0.5 rounded text-xs w-full text-center truncate
-                    ${feriado || a.aulaConcluida ? "bg-red-600 text-white" : "bg-blue-700 text-white"}
-                  `}
-                  title={a.titulo + " " + a.horario}
-                >
-                  {a.titulo} {a.horario}
+              {/* Aulas */}
+              {aulasDoDia.map((a) => {
+                let cor = "bg-blue-700 text-white";
+                let label = "";
+                if (feriado) {
+                  cor = "bg-red-600 text-white";
+                  label = "Cancelada";
+                } else if (a.aulaConcluida) {
+                  cor = "bg-green-600 text-white";
+                  label = "Concluída";
+                } else {
+                  cor = "bg-blue-700 text-white";
+                  label = "Pendente";
+                }
+                return (
+                  <span
+                    key={a.idAula}
+                    className={`mt-1 px-1 py-0.5 rounded text-xs w-full text-center truncate ${cor}`}
+                    title={a.titulo + " " + a.horario}
+                  >
+                    {a.titulo} {a.horario}
+                    <span className="ml-1 text-xs font-bold">
+                      ({label})
+                    </span>
+                  </span>
+                );
+              })}
+              {/* Se for feriado e não houver aula, mostra o status de cancelada */}
+              {feriado && aulasDoDia.length === 0 && (
+                <span className="mt-1 px-1 py-0.5 rounded text-xs w-full text-center truncate bg-red-600 text-white font-bold">
+                  Cancelada (Feriado)
                 </span>
-              ))}
+              )}
               {/* Tooltip customizado */}
               {(aulasDoDia.length > 0 || feriado) && (
                 <div
@@ -220,11 +245,19 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
                       <div className="text-gray-900">
                         Horário: {a.horario}
                         {a.duracao && <> | Duração: {a.duracao}</>}
-                        {feriado || a.aulaConcluida ? (
+                        {feriado ? (
                           <span className="ml-2 text-red-700 font-semibold">
                             (Cancelada)
                           </span>
-                        ) : null}
+                        ) : a.aulaConcluida ? (
+                          <span className="ml-2 text-green-700 font-semibold">
+                            (Concluída)
+                          </span>
+                        ) : (
+                          <span className="ml-2 text-blue-700 font-semibold">
+                            (Pendente)
+                          </span>
+                        )}
                       </div>
                       {a.conteudo && (
                         <div className="mt-1 whitespace-pre-line break-words text-gray-900">

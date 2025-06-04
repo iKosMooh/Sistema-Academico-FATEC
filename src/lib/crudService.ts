@@ -149,10 +149,10 @@ export async function handleCrud({
                 prisma.alunos.findUnique?.({ where: { idAluno: Number(idAluno) } }),
                 prisma.professores.findUnique?.({ where: { idProfessor: String(idProfessor) } }),
               ]);
-              console.log("Depuração FK Presencas:");
-              console.log("Aula encontrada?", !!aula, aula);
-              console.log("Aluno encontrado?", !!aluno, aluno);
-              console.log("Professor encontrado?", !!professor, professor);
+              //console.log("Depuração FK Presencas:");
+              //console.log("Aula encontrada?", !!aula, aula);
+              //console.log("Aluno encontrado?", !!aluno, aluno);
+              //console.log("Professor encontrado?", !!professor, professor);
 
               if (!aula) {
                 throw new Error(`Aula não encontrada para idAula=${idAula}.`);

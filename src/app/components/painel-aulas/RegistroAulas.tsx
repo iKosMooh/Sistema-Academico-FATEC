@@ -201,7 +201,7 @@ export function RegistroAulas() {
           },
         };
         // Loga o payload para depuração
-        console.log("Enviando para CRUD:", JSON.stringify(payload));
+        //console.log("Enviando para CRUD:", JSON.stringify(payload));
         await fetch("/api/crud", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

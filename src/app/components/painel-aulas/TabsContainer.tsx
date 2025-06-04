@@ -2,7 +2,6 @@ import { useAppContext } from "./AppContext";
 import { useState } from "react";
 import { PlanejamentoAulas } from "./PlanejamentoAulas";
 import { GerenciarAulasRecorrentes } from "./GerenciarAulasRecorrentes";
-import { TemplatesAula } from "./TemplatesAula";
 import { RegistroAulas } from "./RegistroAulas";
 import { HistoricoModificacoes } from "./HistoricoModificacoes";
 import { VincularMateriasCurso } from "./VincularMateriasCurso"; // NOVO
@@ -21,7 +20,6 @@ export function TabsContainer() {
 
   const TABS = [
     { label: "Planejamento de Aulas", component: PlanejamentoAulas },
-    { label: "Templates e Projetos de Aula", component: TemplatesAula },
     { label: "Registro de Aulas / Frequência", component: RegistroAulas },
     { label: "Histórico de Modificações", component: HistoricoModificacoes },
     { label: "Vincular Matérias ao Curso", component: VincularMateriasCurso },
@@ -78,7 +76,7 @@ export function TabsContainer() {
           />
         ) : (
           ActiveComponent
-            ? <ActiveComponent reloadFlag={reloadFlag} {...(ActiveComponent === PlanejamentoAulas || ActiveComponent === TemplatesAula || ActiveComponent === RegistroAulas ? { forceReload } : {})} />
+            ? <ActiveComponent reloadFlag={reloadFlag} {...(ActiveComponent === PlanejamentoAulas || ActiveComponent === RegistroAulas ? { forceReload } : {})} />
             : null
         )}
       </div>
