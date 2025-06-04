@@ -190,7 +190,7 @@ export default function CadastrarProfessorPage() {
           tel: "",
           foto: null,
         });
-        router.push("/pages/admin/professores-view");
+        router.push("/pages/admin/usuarios/dashboard");
       } else {
         setMessage(result.error || "Erro ao cadastrar professor.");
       }
