@@ -132,11 +132,13 @@ model Aula {
   idAula             Int         @id @default(autoincrement())
   idTurma            Int
   idMateria          Int
+  dataAula           DateTime    @db.Date
+  horario            String      @db.VarChar(10)
   presencasAplicadas Boolean     @default(false)
   aulaConcluida      Boolean     @default(false)
   descricao          String?     @db.Text
   observacoes        String?     @db.Text
-  dataAula           DateTime    @db.DateTime(0)
+  duracaoMinutos     Int
   created_at         DateTime    @default(now()) @db.DateTime(0)
   updated_at         DateTime    @default(now()) @updatedAt @db.DateTime(0)
   materia            Materias    @relation(fields: [idMateria], references: [idMateria], map: "fk_aula_materias")
@@ -202,6 +204,12 @@ model Log {
   idLog    Int      @id @default(autoincrement())
   action   String   @db.Text
   dateTime DateTime @default(now()) @db.DateTime(0)
+}
+
+model DiasNaoLetivos {
+  id        Int      @id @default(autoincrement())
+  data      DateTime @db.Date
+  descricao String?  @db.VarChar(255)
 }
 
 enum StatusMatricula {
