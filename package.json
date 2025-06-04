@@ -16,6 +16,7 @@
     "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
+    "motion": "^12.16.0",
     "multiparty": "^4.2.3",
     "next": "15.1.8",
     "next-auth": "^4.24.11",
