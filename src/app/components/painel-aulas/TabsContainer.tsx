@@ -1,23 +1,30 @@
-import { GerenciarAulasRecorrentes } from "./GerenciarAulasRecorrentes";
+import { useAppContext } from "./AppContext";
 import { useState } from "react";
 import { PlanejamentoAulas } from "./PlanejamentoAulas";
-import { TemplatesAula } from "./TemplatesAula";
+import { GerenciarAulasRecorrentes } from "./GerenciarAulasRecorrentes";
 import { RegistroAulas } from "./RegistroAulas";
 import { HistoricoModificacoes } from "./HistoricoModificacoes";
 import { VincularMateriasCurso } from "./VincularMateriasCurso"; // NOVO
-import { useAppContext } from "./AppContext";
+import { ArquivosTurma } from "./ArquivosTurma";
+import { VincularAlunosTurma } from "./VincularAlunosTurma";
 
 export function TabsContainer() {
   const { turma } = useAppContext();
   const [active, setActive] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showGerenciarAulas, setShowGerenciarAulas] = useState(false);
+  // Novo: flag para forçar reload de todos os dados do TabsContainer
+  const [reloadFlag, setReloadFlag] = useState(0);
+
+  // Função para ser chamada após qualquer alteração relevante
+  const forceReload = () => setReloadFlag(f => f + 1);
 
   const TABS = [
     { label: "Planejamento de Aulas", component: PlanejamentoAulas },
-    { label: "Templates e Projetos de Aula", component: TemplatesAula },
     { label: "Registro de Aulas / Frequência", component: RegistroAulas },
     { label: "Histórico de Modificações", component: HistoricoModificacoes },
     { label: "Vincular Matérias ao Curso", component: VincularMateriasCurso },
+    { label: "Arquivos da Turma/Curso", component: ArquivosTurma },
+    { label: "Vincular Aluno à Turma", component: VincularAlunosTurma }, // NOVO
   ];
 
   if (!turma) {
@@ -37,27 +44,42 @@ export function TabsContainer() {
           <button
             key={tab.label}
             className={`px-4 py-2 font-medium border-b-2 transition ${
-              active === idx
+              active === idx && !showGerenciarAulas
                 ? "border-blue-600 text-blue-700"
                 : "border-transparent text-gray-600 hover:text-blue-600"
             }`}
-            onClick={() => setActive(idx)}
-            aria-current={active === idx ? "page" : undefined}
+            onClick={() => {
+              setShowGerenciarAulas(false);
+              setActive(idx);
+            }}
+            aria-current={active === idx && !showGerenciarAulas ? "page" : undefined}
           >
             {tab.label}
           </button>
         ))}
         <button
-          className="px-4 py-2 font-medium border-b-2 border-transparent text-gray-600 hover:text-blue-600"
-          onClick={() => setModalOpen(true)}
+          className={`px-4 py-2 font-medium border-b-2 transition ${
+            showGerenciarAulas
+              ? "border-blue-600 text-blue-700"
+              : "border-transparent text-gray-600 hover:text-blue-600"
+          }`}
+          onClick={() => setShowGerenciarAulas(true)}
         >
           Gerenciar Aulas Recorrentes
         </button>
       </nav>
       <div>
-        <ActiveComponent />
+        {showGerenciarAulas ? (
+          <GerenciarAulasRecorrentes
+            onClose={() => setShowGerenciarAulas(false)}
+            onAnyChange={forceReload}
+          />
+        ) : (
+          ActiveComponent
+            ? <ActiveComponent reloadFlag={reloadFlag} {...(ActiveComponent === PlanejamentoAulas || ActiveComponent === RegistroAulas ? { forceReload } : {})} />
+            : null
+        )}
       </div>
-      <GerenciarAulasRecorrentes isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

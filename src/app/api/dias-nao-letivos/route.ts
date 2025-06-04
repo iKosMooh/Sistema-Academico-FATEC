@@ -7,35 +7,43 @@ export async function POST(req: Request) {
     if (!data) {
       return NextResponse.json({ error: "Data obrigatória." }, { status: 400 });
     }
-    const dataObj = new Date(data);
-    if (isNaN(dataObj.getTime())) {
-      return NextResponse.json({ error: "Data inválida." }, { status: 400 });
-    }
-    const existente = await prisma.diasNaoLetivos.findFirst({
-      where: { data: dataObj }
-    });
-    if (existente) {
-      return NextResponse.json({ error: "Data já cadastrada." }, { status: 400 });
-    }
-    const novo = await prisma.diasNaoLetivos.create({
-      data: { data: dataObj, descricao }
+    // Cria o feriado
+    const feriado = await prisma.diasNaoLetivos.create({
+      data: {
+        data: new Date(data),
+        descricao: descricao || null
+      }
     });
 
-    // Marca como canceladas todas as aulas já agendadas para essa data
+    // Cancela todas as aulas do dia (marca aulaConcluida = true)
+    const dataISO = new Date(data).toISOString().slice(0, 10);
     await prisma.aula.updateMany({
       where: {
-        // Replace 'dataAula' with the actual date field name in your 'aula' model
         dataAula: {
-          gte: new Date(dataObj.setHours(0, 0, 0, 0)),
-          lte: new Date(dataObj.setHours(23, 59, 59, 999))
+          gte: new Date(`${dataISO}T00:00:00.000Z`),
+          lte: new Date(`${dataISO}T23:59:59.999Z`)
         }
       },
-      data: { aulaConcluida: true }
+      data: {
+        aulaConcluida: true
+      }
     });
 
-    return NextResponse.json(novo);
+    return NextResponse.json({ feriado, aulasCanceladas: true });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Erro ao cadastrar data." }, { status: 500 });
+    console.error("Erro ao cadastrar feriado:", error);
+    return NextResponse.json({ error: "Erro ao cadastrar feriado." }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const feriados = await prisma.diasNaoLetivos.findMany({
+      orderBy: { data: "asc" }
+    });
+    return NextResponse.json(feriados);
+  } catch (error) {
+    console.error("Erro ao buscar dias não letivos:", error);
+    return NextResponse.json([], { status: 200 });
   }
 }

@@ -109,6 +109,52 @@ export default function CadastrarProfessorPage() {
       return;
     }
 
+    // Verifica se já existe usuário com o CPF informado
+    let usuarioExiste = false;
+    try {
+      const resUsuario = await fetch("/api/crud", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operation: "get",
+          table: "usuarios",
+          data: { cpf: formData.idProfessor },
+        }),
+      });
+      const resultUsuario = await resUsuario.json();
+      usuarioExiste = Array.isArray(resultUsuario.data) && resultUsuario.data.length > 0;
+    } catch {
+      // Se der erro, ignora e tenta criar normalmente
+    }
+
+    // Verifica se já existe professor com o CPF informado
+    let professorExiste = false;
+    try {
+      const resProf = await fetch("/api/crud", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operation: "get",
+          table: "professores",
+          data: { idProfessor: formData.idProfessor },
+        }),
+      });
+      const resultProf = await resProf.json();
+      professorExiste = Array.isArray(resultProf.data) && resultProf.data.length > 0;
+    } catch {
+      // Se der erro, ignora e tenta criar normalmente
+    }
+
+    // Se já existe usuário e professor, erro
+    if (usuarioExiste && professorExiste) {
+      setError("Já existe um professor cadastrado com este CPF.");
+      setLoading(false);
+      return;
+    }
+
+    // Se já existe usuário mas não professor, cria apenas na tabela professores
+    // Se não existe usuário, backend pode criar em ambas se necessário
+    // Monta FormData para envio
     const fd = new FormData();
     fd.append("idProfessor", formData.idProfessor);
     fd.append("nome", formData.nome);
@@ -123,6 +169,8 @@ export default function CadastrarProfessorPage() {
     }
 
     try {
+      // Se já existe usuário, cria apenas na tabela professores
+      // Se não existe usuário, backend pode criar em ambas se necessário
       const res = await fetch("/api/professores/insert", {
         method: "POST",
         body: fd,
