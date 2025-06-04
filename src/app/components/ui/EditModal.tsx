@@ -7,11 +7,37 @@ interface EditModalProps<T> {
   onSave: (updatedData: T) => void;
   fields: (keyof T)[];
   isOpen: boolean;
+  renderField?: (
+    field: keyof T,
+    value: string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
+  ) => React.ReactNode;
 }
 
+// Função utilitária para mapear nomes de campos para labels amigáveis automaticamente
+function autoLabel(field: string) {
+  // Remove prefixos comuns e camelCase para Espaço
+  const label = field
+    .replace(/^id([A-Z])/, (_, c) => c) // idCurso -> Curso
+    .replace(/([A-Z])/g, " $1")        // nomeTurma -> nome Turma
+    .replace(/^./, (str) => str.toUpperCase()) // primeira letra maiúscula
+    .trim();
+
+  // Ajustes para nomes conhecidos
+  if (label.toLowerCase() === "id") return "ID";
+  if (label.toLowerCase() === "cpf") return "CPF";
+  if (label.toLowerCase() === "rg") return "RG";
+  if (label.toLowerCase() === "ano letivo") return "Ano Letivo";
+  if (label.toLowerCase() === "nome turma") return "Nome da Turma";
+  if (label.toLowerCase() === "nome curso") return "Nome do Curso";
+  if (label.toLowerCase() === "carga horaria total") return "Carga Horária Total";
+  if (label.toLowerCase() === "descricao") return "Descrição";
+  if (label.toLowerCase() === "docs path") return "Caminho de Documentos";
+  return label;
+}
 
 export function EditModal<T extends Record<string, unknown>>(
-  { isOpen, onClose, data, onSave, fields }: EditModalProps<T>
+  { isOpen, onClose, data, onSave, fields, renderField }: EditModalProps<T>
 ) {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
@@ -30,10 +56,10 @@ export function EditModal<T extends Record<string, unknown>>(
     }
   }, [isOpen, data, fields]);
 
-  const handleChange = (key: string, value: string) => {
+  const handleInputChange = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormValues((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: e.target.value,
     }));
   };
 
@@ -75,6 +101,13 @@ export function EditModal<T extends Record<string, unknown>>(
         <form onSubmit={handleSubmit}>
           {fields.map((key) => {
             const value = formValues[key as string] ?? "";
+
+            // Permite customização do campo pelo parent
+            if (renderField) {
+              const custom = renderField(key, value, handleInputChange(String(key)));
+              if (custom !== undefined) return custom;
+            }
+
             let inputType = "text";
             const keyLower = String(key).toLowerCase();
             if (keyLower.includes("email")) {
@@ -103,13 +136,13 @@ export function EditModal<T extends Record<string, unknown>>(
                   htmlFor={String(key)}
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  {String(key)}
+                  {autoLabel(String(key))}
                 </label>
                 <input
                   id={String(key)}
                   type={inputType}
                   value={value}
-                  onChange={(e) => handleChange(String(key), e.target.value)}
+                  onChange={handleInputChange(String(key))}
                   disabled={isPrimary}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
