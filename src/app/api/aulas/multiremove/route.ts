@@ -12,15 +12,17 @@ export async function DELETE(req: Request) {
     if (isNaN(dtIni.getTime()) || isNaN(dtFim.getTime()) || dtIni > dtFim) {
       return NextResponse.json({ error: "Intervalo de datas inválido." }, { status: 400 });
     }
+
+    // nomeMateriaExcluir agora é idMateria (string ou number)
     const aulasRemovidas = await prisma.aula.deleteMany({
       where: {
-        materia: nomeMateriaExcluir,
-        // Substitua 'data' pelo nome correto do campo de data em seu modelo Prisma, por exemplo 'dataAula'
+        idMateria: Number(nomeMateriaExcluir),
         dataAula: { gte: dtIni, lte: dtFim }
       }
     });
     return NextResponse.json({ removidas: aulasRemovidas.count });
-  } catch {
+  } catch (error) {
+    console.error("Erro ao remover aulas:", error);
     return NextResponse.json({ error: "Erro ao remover aulas." }, { status: 500 });
   }
 }

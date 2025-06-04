@@ -66,25 +66,40 @@ export async function POST(req: Request) {
       if (excecoesSet.has(dataStr)) {
         puladas.push({ data: dataStr, motivo: "data excluída" });
       } else {
-        // Verifica duplicidade
-        const existe = await prisma.aula.findFirst({
+        // Verifica conflito de horário na turma (sobreposição de horários)
+        const inicioNova = new Date(`${dataStr}T${horaInicio}:00.000Z`);
+        const fimNova = new Date(inicioNova.getTime() + duracaoMinutos * 60000);
+
+        // Busca todas as aulas da turma nesse dia
+        const aulasMesmoDia = await prisma.aula.findMany({
           where: {
-            idMateria: Number(idMateria),
             idTurma: Number(idTurma),
-            dataAula: new Date(`${dataStr}T${horaInicio}:00.000Z`)
+            dataAula: {
+              gte: new Date(`${dataStr}T00:00:00.000Z`),
+              lte: new Date(`${dataStr}T23:59:59.999Z`)
+            }
           }
         });
-        if (existe) {
-          puladas.push({ data: dataStr, motivo: "já existente" });
+
+        // Verifica se há sobreposição de horários
+        const conflito = aulasMesmoDia.some(aula => {
+          const inicioExistente = new Date(`${dataStr}T${aula.horario}:00.000Z`);
+          const fimExistente = new Date(inicioExistente.getTime() + (aula.duracaoMinutos || 0) * 60000);
+          // Sobreposição: início < fimOutro && fim > inícioOutro
+          return inicioNova < fimExistente && fimNova > inicioExistente;
+        });
+
+        if (conflito) {
+          puladas.push({ data: dataStr, motivo: "Já existe uma aula neste horário ou sobreposição de duração" });
         } else {
           const aula = await prisma.aula.create({
             data: {
               idMateria: Number(idMateria),
               idTurma: Number(idTurma),
-              dataAula: new Date(`${dataStr}T${horaInicio}:00.000Z`),
+              dataAula: inicioNova,
+              horario: horaInicio,
               duracaoMinutos,
-              aulaConcluida: false,
-              horario: horaInicio // Adiciona o campo obrigatório 'horario'
+              aulaConcluida: false
             }
           });
           criadas.push({ id: aula.idAula, data: dataStr, horaInicio });
