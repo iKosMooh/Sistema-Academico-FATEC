@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAppContext } from "./AppContext";
 import { useSession } from "next-auth/react";
 
@@ -37,7 +37,7 @@ export function RegistroAulas() {
   const [confirmForaHoje, setConfirmForaHoje] = useState(false);
 
   // Função para carregar aulas
-  const carregarAulas = async () => {
+  const carregarAulas = useCallback(async () => {
     if (!turma?.id) {
       setAulas([]);
       return;
@@ -80,12 +80,12 @@ export function RegistroAulas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [turma?.id]); // Adicionada dependência turma.id
 
   // Carrega aulas da turma
   useEffect(() => {
     carregarAulas();
-  }, [turma]);
+  }, [carregarAulas]); // Atualizado para usar carregarAulas como dependência
 
   // Carrega alunos vinculados à turma
   useEffect(() => {
