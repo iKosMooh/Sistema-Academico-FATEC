@@ -1,161 +1,46 @@
 // src\app\api\crud\route.ts
 import { NextResponse } from 'next/server';
 import { handleCrud } from '@/lib/crudService';
-import fs from "fs";
-import path from "path";
+import { z } from 'zod';
+
+// Schema de validação para payload
+const requestSchema = z.object({
+  operation: z.enum(['get', 'insert', 'update', 'delete', 'upsert']),
+  table: z.string(),
+  primaryKey: z.string().optional(),
+  data: z.record(z.unknown()).optional(),
+  relations: z.record(z.union([z.boolean(), z.object({})])).optional(),
+  where: z.record(z.unknown()).optional(),
+});
 
 export async function POST(req: Request) {
   try {
-    const { operation, table, primaryKey, data, relations } = await req.json();
-
-    if (!operation || !table) {
-      return NextResponse.json({ error: "Operação e tabela são obrigatórios" }, { status: 400 });
+    const payload = await req.json();
+    
+    // Valida o payload
+    const validatedData = requestSchema.safeParse(payload);
+    if (!validatedData.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Payload inválido',
+        details: validatedData.error.issues
+      }, { status: 400 });
     }
 
-    // Criação de pasta ao criar turma
-    if (operation === "insert" && table === "turmas" && data?.nomeTurma) {
-      // Chama o CRUD normalmente
-      type CrudResult = { idTurma?: number|string; insertId?: number|string; id?: number|string; [key: string]: number | string | undefined };
-      const result = await handleCrud({
-        operation,
-        table,
-        primaryKey,
-        data,
-        relations,
-      }) as CrudResult;
+    // Executa operação CRUD através do service
+    const result = await handleCrud(payload);
 
-      // Após criar, cria a pasta
-      const idTurma = result?.idTurma || result?.insertId || result?.id; // depende do retorno do seu CRUD
-      const nomeTurma = data.nomeTurma.replace(/[\\/:*?"<>|]/g, "_");
-      if (idTurma && nomeTurma) {
-        const dirPath = path.join(process.cwd(), "public", "pastas", `id-${idTurma}${nomeTurma}`);
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
-        }
-      }
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    // Criação de pasta ao criar usuário (Admin, Professor, Aluno)
-    if (
-      operation === "insert" &&
-      table === "usuarios" &&
-      data?.cpf
-    ) {
-      const result = await handleCrud({
-        operation,
-        table,
-        primaryKey,
-        data,
-        relations,
-      });
-
-      // Cria pasta para o usuário
-      const cpf = String(data.cpf).replace(/[\\/:*?"<>|]/g, "_");
-      if (cpf) {
-        const dirPath = path.join(process.cwd(), "public", "pastas", "Usuarios", cpf);
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
-        }
-      }
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    // Criação de pasta ao criar aluno
-    if (
-      operation === "insert" &&
-      table === "alunos" &&
-      data?.cpf
-    ) {
-      const result = await handleCrud({
-        operation,
-        table,
-        primaryKey,
-        data,
-        relations,
-      });
-
-      // Cria pasta para o aluno
-      const cpf = String(data.cpf).replace(/[\\/:*?"<>|]/g, "_");
-      if (cpf) {
-        const dirPath = path.join(process.cwd(), "public", "pastas", "Usuarios", cpf);
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
-        }
-      }
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    // Criação de pasta ao criar professor
-    if (
-      operation === "insert" &&
-      table === "professores" &&
-      data?.idProfessor
-    ) {
-      const result = await handleCrud({
-        operation,
-        table,
-        primaryKey,
-        data,
-        relations,
-      });
-
-      // Cria pasta para o professor
-      const cpf = String(data.idProfessor).replace(/[\\/:*?"<>|]/g, "_");
-      if (cpf) {
-        const dirPath = path.join(process.cwd(), "public", "pastas", "Usuarios", cpf);
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
-        }
-      }
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    // Deleção de usuário (Admin, Professor, Aluno) - remove pasta também
-    if (
-      operation === "delete" &&
-      (
-        (table === "usuarios" && data?.cpf) ||
-        (table === "alunos" && data?.cpf) ||
-        (table === "professores" && data?.idProfessor)
-      )
-    ) {
-      const result = await handleCrud({
-        operation,
-        table,
-        primaryKey,
-        data,
-        relations,
-      });
-
-      // Remove pasta do usuário
-      let cpf = "";
-      if (table === "usuarios" && data?.cpf) cpf = String(data.cpf);
-      if (table === "alunos" && data?.cpf) cpf = String(data.cpf);
-      if (table === "professores" && data?.idProfessor) cpf = String(data.idProfessor);
-      cpf = cpf.replace(/[\\/:*?"<>|]/g, "_");
-      if (cpf) {
-        const dirPath = path.join(process.cwd(), "public", "pastas", "Usuarios", cpf);
-        if (fs.existsSync(dirPath)) {
-          fs.rmSync(dirPath, { recursive: true, force: true });
-        }
-      }
-      return NextResponse.json({ success: true, data: result });
-    }
-
-    const result = await handleCrud({
-      operation,
-      table,
-      primaryKey,
-      data,
-      relations,
+    return NextResponse.json({
+      success: true,
+      data: result
     });
 
-    return NextResponse.json({ success: true, data: result });
-    
   } catch (error) {
-    console.error('Erro no CRUD:', error);
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    console.error('Erro na operação:', error);
+    const message = error instanceof Error ? error.message : 'Erro interno do servidor';
+    return NextResponse.json({ 
+      success: false, 
+      error: message 
+    }, { status: 500 });
   }
 }

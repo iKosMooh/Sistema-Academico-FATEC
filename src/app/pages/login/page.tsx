@@ -29,7 +29,7 @@ export default function LoginPage() {
     });
 
     if (result?.ok) {
-      router.push("/pages/dashboard");
+      router.push("/pages/admin/painel-aulas");
     } else {
       alert("Falha no login: " + result?.error);
     }

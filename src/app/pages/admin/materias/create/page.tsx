@@ -4,11 +4,9 @@ import { useRouter } from "next/navigation";
 
 export default function CreateMateriaPage() {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     nomeMateria: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -28,7 +26,7 @@ export default function CreateMateriaPage() {
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/crud", {
+      const response = await fetch("/api/crud", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40,17 +38,16 @@ export default function CreateMateriaPage() {
         }),
       });
 
-      const result = await res.json();
-
-      if (!result.success) throw new Error(result.error || "Erro ao criar matéria");
+      const result = await response.json();
+      if (!result.success) throw new Error(result.error || "Erro ao criar a matéria.");
 
       setSuccess(true);
-      router.push("/pages/admin/materias/view");
+      router.push("/pages/admin/academico/dashboard");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Erro desconhecido ao criar matéria.");
+        setError("Erro desconhecido ao criar a matéria.");
       }
     } finally {
       setLoading(false);
@@ -58,30 +55,29 @@ export default function CreateMateriaPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
+    <div className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Criar Nova Matéria</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block mb-1">Nome da Matéria</label>
+          <label className="block mb-1 font-medium">Nome da Matéria</label>
           <input
             type="text"
             name="nomeMateria"
             value={formData.nomeMateria}
             onChange={handleChange}
+            className="w-full border rounded p-2"
             required
-            className="border px-2 py-1 w-full"
-            placeholder="Ex: Matemática"
           />
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Salvando..." : "Criar Matéria"}
+          {loading ? "Salvando..." : "Salvar"}
         </button>
-        {error && <p className="text-red-600">{error}</p>}
-        {success && <p className="text-green-600">Matéria criada com sucesso!</p>}
+        {error && <p className="text-red-500 mt-2">{error}</p>}
+        {success && <p className="text-green-500 mt-2">Matéria criada com sucesso!</p>}
       </form>
     </div>
   );

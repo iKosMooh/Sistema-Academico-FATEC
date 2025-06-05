@@ -1,6 +1,7 @@
 // lib/crudService.ts
 import { prisma } from '@/lib/prisma';
 import { PrismaClient, Prisma } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 type ModelName = keyof typeof prisma;
 
@@ -14,6 +15,7 @@ interface PrismaArgs {
 // Interface para os métodos comuns do Prisma com tipos seguros
 interface PrismaModelMethods {
   findMany: (args?: PrismaArgs) => Promise<unknown[]>;
+  create: (args: { data: Record<string, unknown>; include?: Record<string, boolean | object> }) => Promise<unknown>;
   update: (args: Required<Pick<PrismaArgs, 'where' | 'data'>>) => Promise<unknown>;
   delete: (args: Required<Pick<PrismaArgs, 'where'>>) => Promise<unknown>;
   upsert: (args: Required<Pick<PrismaArgs, 'where'>> & {
@@ -70,6 +72,37 @@ export async function handleCrud<T>({ operation, table, primaryKey, data, relati
 
         return await model.findMany({
           where: data || undefined,
+          include: relations || undefined,
+        }) as T;
+
+      case 'insert':
+        if (!data) {
+          throw new Error('Dados são obrigatórios para inserção.');
+        }
+
+        // Tratamento especial para usuários
+        if (table === 'usuarios') {
+          const { cpf, senha, tipo } = data as {
+            cpf: string;
+            senha: string;
+            tipo: 'Admin' | 'Professor' | 'Aluno';
+          };
+
+          // Gera hash da senha
+          const senhaHash = await bcrypt.hash(senha, 10);
+
+          return await prisma.usuarios.create({
+            data: {
+              cpf,
+              senhaHash,
+              tipo
+            }
+          }) as T;
+        }
+
+        // Inserção genérica para outras tabelas
+        return await model.create({
+          data,
           include: relations || undefined,
         }) as T;
 

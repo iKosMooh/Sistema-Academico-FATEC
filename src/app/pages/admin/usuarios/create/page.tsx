@@ -55,7 +55,7 @@ export default function CreateUsuarioPage() {
           table: "usuarios",
           data: {
             cpf: formData.cpf,
-            senha: formData.senha,
+            senha: formData.senha, // Envia senha sem hash
             tipo: formData.tipo,
           },
         }),
