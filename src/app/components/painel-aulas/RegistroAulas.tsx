@@ -287,7 +287,7 @@ export function RegistroAulas() {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded shadow p-6 mb-8">
-      <h2 className="text-xl font-bold mb-4 text-gray-900">Registro de Aulas / Frequência</h2>
+      <h2 className="text-xl font-bold mb-4 text-blue-800">Registro de Aulas / Frequência</h2>
       <div className="mb-4">
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
@@ -299,41 +299,49 @@ export function RegistroAulas() {
             : "Aplicar Presença para Selecionadas"}
         </button>
       </div>
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Data</th>
-            <th>Horário</th>
-            <th>Matéria</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {aulas.map((aula) => (
-            <tr key={aula.idAula} className={aula.presencasAplicadas ? "bg-green-100" : ""}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedAulas.includes(aula.idAula)}
-                  onChange={() => toggleAula(aula.idAula)}
-                  // Agora permite selecionar aulas já aplicadas para edição
-                />
-              </td>
-              <td>{aula.dataAula.slice(0, 10)}</td>
-              <td>{aula.horario}</td>
-              <td>{aula.materia?.nomeMateria || "-"}</td>
-              <td>
-                {aula.presencasAplicadas ? (
-                  <span className="text-green-700 font-semibold">Presença Aplicada</span>
-                ) : (
-                  <span className="text-gray-700">Pendente</span>
-                )}
-              </td>
+      <div className="bg-gray-200 rounded-xl p-6 shadow border border-gray-300 mb-6">
+        <table className="min-w-full text-sm border border-gray-200 rounded-2xl bg-white bg-opacity-60 shadow-sm">
+          <thead>
+            <tr>
+              <th></th>
+              <th className="text-blue-900">Data</th>
+              <th className="text-blue-900">Horário</th>
+              <th className="text-blue-900">Matéria</th>
+              <th className="text-blue-900">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {aulas.map((aula, idx) => (
+              <tr key={aula.idAula}>
+                <td className={idx % 2 === 0 ? "bg-gray-200" : "bg-gray-50"}>
+                  <input
+                    type="checkbox"
+                    checked={selectedAulas.includes(aula.idAula)}
+                    onChange={() => toggleAula(aula.idAula)}
+                    className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-400 focus:ring-blue-500 transition"
+                  />
+                </td>
+                <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900" : "bg-gray-50 text-blue-900"}>
+                  {aula.dataAula.slice(0, 10)}
+                </td>
+                <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900" : "bg-gray-50 text-blue-900"}>
+                  {aula.horario}
+                </td>
+                <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900" : "bg-gray-50 text-blue-900"}>
+                  {aula.materia?.nomeMateria || "-"}
+                </td>
+                <td className={idx % 2 === 0 ? "bg-gray-200" : "bg-gray-50"}>
+                  {aula.presencasAplicadas ? (
+                    <span className="text-green-700 font-semibold">Presença Aplicada</span>
+                  ) : (
+                    <span className="text-blue-900">Pendente</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Confirmação para aplicar presença em data diferente de hoje */}
       {confirmForaHoje && (
@@ -367,8 +375,8 @@ export function RegistroAulas() {
       {/* Modal de presença */}
       {showPresencaModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded shadow-lg p-6 max-w-2xl w-full">
-            <h3 className="text-lg font-bold mb-4 text-gray-900">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full border border-gray-300">
+            <h3 className="text-lg font-bold mb-4 text-blue-800">
               Aplicar Presença para {presencaAulaIds.length > 1 ? "Aulas Selecionadas" : "Aula"}
             </h3>
             {presencaAulaIds.map((idAula) => (
@@ -380,23 +388,27 @@ export function RegistroAulas() {
                 <table className="min-w-full text-sm mb-2">
                   <thead>
                     <tr>
-                      <th>Aluno</th>
-                      <th>CPF</th>
-                      <th>Presente</th>
+                      <th className="text-blue-900">Aluno</th>
+                      <th className="text-blue-900">CPF</th>
+                      <th className="text-blue-900">Presente</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {alunos.map((aluno) => (
-                      <tr key={aluno.idAluno}>
-                        <td>
+                    {alunos.map((aluno, idx) => (
+                      <tr
+                        key={aluno.idAluno}
+                        className={idx % 2 === 0 ? "bg-gray-50" : "bg-gray-100"}
+                      >
+                        <td className="text-blue-900">
                           {aluno.nome} {aluno.sobrenome}
                         </td>
-                        <td>{aluno.cpf}</td>
+                        <td className="text-blue-900">{aluno.cpf}</td>
                         <td>
                           <input
                             type="checkbox"
                             checked={!!presencas[idAula]?.[aluno.idAluno]}
                             onChange={() => togglePresenca(idAula, aluno.idAluno)}
+                            className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-400 focus:ring-blue-500 transition"
                           />
                         </td>
                       </tr>
