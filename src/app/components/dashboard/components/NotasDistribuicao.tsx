@@ -59,8 +59,8 @@ export function NotasDistribuicao({ data }: NotasDistribuicaoProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold mb-6">Distribuição de Notas</h3>
-      
+      <h3 className="text-lg font-semibold mb-6 text-gray-800">Distribuição de Notas</h3>
+
       <div className="h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 

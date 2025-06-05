@@ -128,19 +128,19 @@ export function VincularMateriasCurso() {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded shadow p-6">
-      <h2 className="text-xl font-bold mb-4">Vincular Matérias ao Curso</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Vincular Matérias ao Curso</h2>
       <div className="flex flex-col md:flex-row gap-8">
         {/* Lista de cursos */}
         <div className="w-full md:w-1/3">
-          <h3 className="font-semibold mb-2">Cursos</h3>
+          <h3 className="font-semibold mb-2 text-gray-800">Cursos</h3>
           <input
             type="text"
             placeholder="Filtrar cursos..."
-            className="mb-2 w-full border rounded px-2 py-1"
+            className="w-full border border-gray-300 rounded px-2 py-1 bg-white"
             value={cursoFiltro}
             onChange={(e) => setCursoFiltro(e.target.value)}
           />
-          <ul className="divide-y border rounded">
+          <ul className="divide-y mt-4">
             {cursos
               .filter((c) =>
                 c.nomeCurso.toLowerCase().includes(cursoFiltro.toLowerCase())
@@ -148,9 +148,17 @@ export function VincularMateriasCurso() {
               .map((c) => (
                 <li
                   key={c.idCurso}
-                  className={`p-3 cursor-pointer hover:bg-blue-50 transition ${
-                    cursoSelecionado === c.idCurso ? "bg-blue-100 font-bold" : ""
-                  }`}
+                  className={`p-3 cursor-pointer transition text-center
+                    ${
+                      cursoSelecionado === null || cursoSelecionado === c.idCurso
+                        ? "font-bold"
+                        : "hover:bg-blue-50"
+                    }`}
+                  style={
+                    cursoSelecionado === null || cursoSelecionado === c.idCurso
+                      ? { padding: 0 }
+                      : undefined
+                  }
                   onClick={() => {
                     setCursoSelecionado(c.idCurso);
                     setSuccess(null);
@@ -159,7 +167,17 @@ export function VincularMateriasCurso() {
                   tabIndex={0}
                   aria-label={`Selecionar curso ${c.nomeCurso}`}
                 >
-                  {c.nomeCurso}
+                  {cursoSelecionado === null || cursoSelecionado === c.idCurso ? (
+                    <button
+                      type="button"
+                      className="w-full font-bold"
+                      style={{ border: "none", outline: "none", boxShadow: "none" }}
+                    >
+                      {c.nomeCurso}
+                    </button>
+                  ) : (
+                    c.nomeCurso
+                  )}
                 </li>
               ))}
           </ul>
@@ -167,33 +185,60 @@ export function VincularMateriasCurso() {
         {/* Vinculação de matérias */}
         <div className="flex-1">
           {cursoSelecionado ? (
-            <form onSubmit={handleVincular}>
+            <form
+              onSubmit={handleVincular}
+              className="bg-gray-200 rounded-xl p-6 shadow border border-gray-300 mb-6"
+            >
               <div className="mb-4">
-                <label className="block mb-1 font-medium">Matérias do Curso</label>
+                <label className="block mb-1 font-medium ">Matérias do Curso</label>
                 <input
                   type="text"
                   placeholder="Filtrar matérias..."
-                  className="mb-2 w-full border rounded px-2 py-1"
+                  className="mb-2 w-full border border-gray-300 rounded px-2 py-1 bg-white"
                   value={materiaFiltro}
                   onChange={(e) => setMateriaFiltro(e.target.value)}
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border rounded p-2">
-                  {materias
-                    .filter((m) =>
-                      m.nomeMateria.toLowerCase().includes(materiaFiltro.toLowerCase())
-                    )
-                    .map((m) => (
-                      <label key={m.idMateria} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={materiasSelecionadas.includes(m.idMateria)}
-                          onChange={() => handleMateriaToggle(m.idMateria)}
-                          className="accent-blue-600"
-                          disabled={loading}
-                        />
-                        {m.nomeMateria}
-                      </label>
-                    ))}
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm border border-gray-200 rounded-2xl bg-white bg-opacity-60 shadow-sm">
+                    <thead>
+                      <tr>
+                        <th className="text-gray-900">Selecionar</th>
+                        <th className="text-gray-900">Matéria</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {materias
+                        .filter((m) =>
+                          m.nomeMateria.toLowerCase().includes(materiaFiltro.toLowerCase())
+                        )
+                        .map((m, idx) => (
+                          <tr key={m.idMateria}>
+                            <td className={idx % 2 === 0 ? "bg-gray-200 py-2 text-center align-middle" : "bg-gray-50 py-2 text-center align-middle"}>
+                              <input
+                                type="checkbox"
+                                checked={materiasSelecionadas.includes(m.idMateria)}
+                                onChange={() => handleMateriaToggle(m.idMateria)}
+                                className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-400 focus:ring-blue-500 transition"
+                                disabled={loading}
+                                style={{ verticalAlign: "middle" }}
+                              />
+                            </td>
+                            <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900 px-6 py-2" : "bg-gray-50 text-blue-900 px-6 py-2"}>
+                              {m.nomeMateria}
+                            </td>
+                          </tr>
+                        ))}
+                      {materias.filter((m) =>
+                        m.nomeMateria.toLowerCase().includes(materiaFiltro.toLowerCase())
+                      ).length === 0 && (
+                        <tr>
+                          <td colSpan={2} className="px-6 py-4 text-center text-gray-500">
+                            Nenhuma matéria encontrada.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <button

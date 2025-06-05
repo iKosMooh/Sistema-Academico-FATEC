@@ -22,13 +22,14 @@ const menuGroups = [
       { label: "Vincular Alunos à Turma", key: "alunos", component: VincularAlunosTurma },
       { label: "Lançamento de Notas", key: "lancamento-notas", component: LancamentoNotas },
       { label: "Visualizar Notas", key: "visualizar-notas", component: VisualizarNotas },
+      { label: "Disciplinas", key: "disciplinas", component: VincularMateriasCurso },
       { label: "Arquivos", key: "arquivos", component: ArquivosTurma },
     ],
   },
   {
     label: "Outros",
     items: [
-      { label: "Disciplinas", key: "disciplinas", component: VincularMateriasCurso },
+
       { label: "Professores", key: "professores", component: () => <div>Em desenvolvimento...</div> },
       { label: "Turmas", key: "turmas", component: () => <div>Em desenvolvimento...</div> },
       { label: "Presenças", key: "presencas", component: () => <div>Em desenvolvimento...</div> },
@@ -71,10 +72,10 @@ export function SidebarTurmas() {
 
   const handleSelect = (key: string) => {
     setSelectedKey(key);
-    
+
     if ((key === 'lancamento-notas' || key === 'visualizar-notas') && turma?.id) {
       console.log('Buscando disciplinas para turma:', turma);
-      
+
       fetch("/api/crud", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -104,34 +105,34 @@ export function SidebarTurmas() {
           }
         })
       })
-      .then(res => res.json())
-      .then(result => {
-        console.log('Resposta disciplinas:', result);
-        if (result.success && result.data) {
-          interface CursoMateria {
-            materia: {
-              idMateria: number;
-              nomeMateria: string;
-            } | null;
+        .then(res => res.json())
+        .then(result => {
+          console.log('Resposta disciplinas:', result);
+          if (result.success && result.data) {
+            interface CursoMateria {
+              materia: {
+                idMateria: number;
+                nomeMateria: string;
+              } | null;
+            }
+
+            const disciplinasFormatadas = result.data
+              .filter((cm: CursoMateria) => cm.materia)
+              .map((cm: CursoMateria) => ({
+                idMateria: cm.materia!.idMateria,
+                nomeMateria: cm.materia!.nomeMateria
+              }));
+            console.log('Disciplinas formatadas:', disciplinasFormatadas);
+            setDisciplinas(disciplinasFormatadas);
+          } else {
+            console.error('Erro ao buscar disciplinas:', result.error);
+            setDisciplinas([]);
           }
-          
-          const disciplinasFormatadas = result.data
-            .filter((cm: CursoMateria) => cm.materia)
-            .map((cm: CursoMateria) => ({
-              idMateria: cm.materia!.idMateria,
-              nomeMateria: cm.materia!.nomeMateria
-            }));
-          console.log('Disciplinas formatadas:', disciplinasFormatadas);
-          setDisciplinas(disciplinasFormatadas);
-        } else {
-          console.error('Erro ao buscar disciplinas:', result.error);
+        })
+        .catch(error => {
+          console.error('Erro na requisição:', error);
           setDisciplinas([]);
-        }
-      })
-      .catch(error => {
-        console.error('Erro na requisição:', error);
-        setDisciplinas([]);
-      });
+        });
     }
   };
 
@@ -204,9 +205,8 @@ export function SidebarTurmas() {
                       <li key={item.key}>
                         <button
                           onClick={() => handleSelect(item.key)}
-                          className={`block w-full text-left text-sm px-2 py-1 rounded ${
-                            selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
-                          }`}
+                          className={`block w-full text-left text-sm px-2 py-1 rounded ${selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
+                            }`}
                         >
                           {item.label}
                         </button>
@@ -219,7 +219,7 @@ export function SidebarTurmas() {
           </ul>
         </nav>
       </aside>
-      <main className="flex-1 p-4">{CurrentComponent && <CurrentComponent onClose={() => {}} />}</main>
+      <main className="flex-1 p-4">{CurrentComponent && <CurrentComponent onClose={() => { }} />}</main>
     </div>
   );
 }

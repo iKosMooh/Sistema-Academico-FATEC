@@ -88,10 +88,10 @@ export function TurmaDashboard() {
   if (!data) return null;
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 ">
       <header>
-        <h2 className="text-2xl font-bold">Dashboard da Turma {turma.nome}</h2>
-        <p className="text-gray-600">Análise de desempenho e frequência</p>
+        <h2 className="text-2xl font-bold text-gray-800">Dashboard da Turma {turma.nome}</h2>
+        <p className="text-gray-800">Análise de desempenho e frequência</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

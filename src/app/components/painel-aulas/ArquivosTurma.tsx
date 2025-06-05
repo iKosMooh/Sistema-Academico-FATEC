@@ -208,13 +208,13 @@ export const ArquivosTurma: FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded shadow p-6 mb-8">
+    <div className="max-w-4xl mx-auto bg-white rounded shadow p-8 mb-12">
       <h2 className="text-xl font-bold mb-4 text-gray-900">Arquivos da Turma</h2>
-      <form onSubmit={handleUpload} className="mb-4 flex gap-2">
-        <input type="file" ref={fileInputRef} className="border rounded px-2 py-1 text-gray-900" required />
+      <form onSubmit={handleUpload} className="mb-6 flex gap-3 bg-gray-300 rounded-xl p-6 shadow border border-gray-300">
+        <input type="file" ref={fileInputRef} className="border border-gray-300 rounded px-3 py-2 text-gray-900 bg-white" required />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="bg-gray-800 text-white px-5 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           disabled={uploading}
         >
           {uploading ? "Enviando..." : "Anexar Arquivo"}
@@ -222,54 +222,102 @@ export const ArquivosTurma: FC = () => {
       </form>
       <div>
         <h3 className="font-semibold mb-2 text-gray-900">Arquivos da Turma</h3>
-        <ul className="mb-4">
-          {arquivosTurma.map((arq) => (
-            <li key={arq.name} className="flex items-center gap-2 mb-2">
-              {renderFilePreview(arq)}
-              <a
-                href={arq.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-800 underline flex-1 truncate font-medium"
-              >
-                {arq.name}
-              </a>
-              <button
-                className="ml-auto text-red-700 hover:bg-red-100 rounded p-1 px-3 py-1 font-semibold"
-                title="Remover arquivo"
-                onClick={() => handleRemove(arq.name, "turma")}
-              >
-                Excluir
-              </button>
-            </li>
-          ))}
-          {arquivosTurma.length === 0 && <li className="text-gray-800">Nenhum arquivo enviado para esta turma.</li>}
-        </ul>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border border-gray-200 rounded-2xl bg-white bg-opacity-60 shadow-sm">
+            <thead>
+              <tr>
+                <th className="text-gray-900">Arquivo</th>
+                <th className="text-gray-900">Nome</th>
+                <th className="text-gray-900">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {arquivosTurma.length > 0 ? (
+                arquivosTurma.map((arq, idx) => (
+                  <tr key={arq.name}>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>
+                      {renderFilePreview(arq)}
+                    </td>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900 px-6 py-2" : "bg-gray-50 text-blue-900 px-6 py-2"}>
+                      <a
+                        href={arq.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-800 underline flex-1 truncate font-medium"
+                      >
+                        {arq.name}
+                      </a>
+                    </td>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>
+                      <button
+                        className="ml-auto text-red-700 hover:bg-red-100 rounded p-1 px-3 py-1 font-semibold"
+                        title="Remover arquivo"
+                        onClick={() => handleRemove(arq.name, "turma")}
+                      >
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 bg-gray-50 rounded-xl">
+                    Nenhum arquivo enviado para esta turma.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
         <hr className="my-4" />
         <h3 className="font-semibold mb-2 text-gray-900">Arquivos do Curso Relacionado</h3>
-        <ul>
-          {arquivosCurso.map((arq) => (
-            <li key={arq.name} className="flex items-center gap-2 mb-2">
-              {renderFilePreview(arq)}
-              <a
-                href={arq.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-800 underline flex-1 truncate font-medium"
-              >
-                {arq.name}
-              </a>
-              <button
-                className="ml-auto text-red-700 hover:bg-red-100 rounded p-1 px-3 py-1 font-semibold"
-                title="Remover arquivo"
-                onClick={() => handleRemove(arq.name, "curso")}
-              >
-                Excluir
-              </button>
-            </li>
-          ))}
-          {arquivosCurso.length === 0 && <li className="text-gray-800">Nenhum arquivo enviado para o curso.</li>}
-        </ul>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border border-gray-200 rounded-2xl bg-white bg-opacity-60 shadow-sm">
+            <thead>
+              <tr>
+                <th className="text-gray-900">Arquivo</th>
+                <th className="text-gray-900">Nome</th>
+                <th className="text-gray-900">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {arquivosCurso.length > 0 ? (
+                arquivosCurso.map((arq, idx) => (
+                  <tr key={arq.name}>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>
+                      {renderFilePreview(arq)}
+                    </td>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900 px-6 py-2" : "bg-gray-50 text-blue-900 px-6 py-2"}>
+                      <a
+                        href={arq.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-800 underline flex-1 truncate font-medium"
+                      >
+                        {arq.name}
+                      </a>
+                    </td>
+                    <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>
+                      <button
+                        className="ml-auto text-red-700 hover:bg-red-100 rounded p-1 px-3 py-1 font-semibold"
+                        title="Remover arquivo"
+                        onClick={() => handleRemove(arq.name, "curso")}
+                      >
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 bg-gray-50 rounded-xl">
+                    Nenhum arquivo enviado para o curso.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       {/* Modal de confirmação de exclusão */}
       {confirmModal.open && (

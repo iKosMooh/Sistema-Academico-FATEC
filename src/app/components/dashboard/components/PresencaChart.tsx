@@ -12,7 +12,7 @@ export function PresencaChart({ frequencia }: PresencaChartProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold mb-4">Taxa de Presença</h3>
+      <h3 className="text-lg font-semibold mb-4 text-gray-800">Taxa de Presença</h3>
       <div className="relative pt-1">
         <div className="flex mb-2 items-center justify-between">
           <div>
