@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useAppContext } from "./AppContext";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
@@ -35,7 +35,7 @@ function getCursoNome(turma: Turma) {
   return turma?.nomeCurso || turma?.cursoNome || "";
 }
 
-export function ArquivosTurma() {
+export const ArquivosTurma: FC = () => {
   const { turma } = useAppContext();
   const [arquivosTurma, setArquivosTurma] = useState<{ name: string; url: string }[]>([]);
   const [arquivosCurso, setArquivosCurso] = useState<{ name: string; url: string }[]>([]);
@@ -56,7 +56,7 @@ export function ArquivosTurma() {
       return;
     }
     const idTurmaNome = `id-${turma.id}${String(getTurmaNome(turma)).replace(/[\\/:*?"<>|]/g, "_")}`;
-    fetch(`/api/arquivos/turma/${idTurmaNome}`)
+    fetch(`/api/arquivos?tipo=turma&id=${idTurmaNome}`)
       .then((res) => res.json())
       .then(setArquivosTurma);
 
@@ -64,11 +64,9 @@ export function ArquivosTurma() {
     const cursoNome = getCursoNome(turma);
     if (cursoId && cursoNome) {
       const idCursoNome = `id-${cursoId}${String(cursoNome).replace(/[\\/:*?"<>|]/g, "_")}`;
-      fetch(`/api/arquivos/curso/${idCursoNome}`)
+      fetch(`/api/arquivos?tipo=curso&id=${idCursoNome}`)
         .then((res) => res.json())
         .then(setArquivosCurso);
-    } else {
-      setArquivosCurso([]);
     }
   }, [turma]);
 
@@ -80,14 +78,16 @@ export function ArquivosTurma() {
     const idTurmaNome = `id-${turma.id}${String(getTurmaNome(turma)).replace(/[\\/:*?"<>|]/g, "_")}`;
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("tipo", "turma");
+    formData.append("id", idTurmaNome);
 
-    await fetch(`/api/arquivos/turma/${idTurmaNome}`, {
+    await fetch("/api/arquivos", {
       method: "POST",
       body: formData,
     });
     fileInputRef.current.value = "";
     setUploading(false);
-    fetch(`/api/arquivos/turma/${idTurmaNome}`)
+    fetch(`/api/arquivos?tipo=turma&id=${idTurmaNome}`)
       .then((res) => res.json())
       .then(setArquivosTurma);
   };
@@ -118,15 +118,15 @@ export function ArquivosTurma() {
       setConfirmModal({ open: false, fileName: "", tipo: "turma" });
       return;
     }
-    await fetch(`/api/arquivos/${tipo}/${idNome}?file=${encodeURIComponent(fileName)}`, {
+    await fetch(`/api/arquivos?tipo=${tipo}&id=${idNome}&file=${encodeURIComponent(fileName)}`, {
       method: "DELETE",
     });
     if (tipo === "turma") {
-      fetch(`/api/arquivos/turma/${idNome}`)
+      fetch(`/api/arquivos?tipo=turma&id=${idNome}`)
         .then((res) => res.json())
         .then(setArquivosTurma);
     } else {
-      fetch(`/api/arquivos/curso/${idNome}`)
+      fetch(`/api/arquivos?tipo=curso&id=${idNome}`)
         .then((res) => res.json())
         .then(setArquivosCurso);
     }
@@ -298,4 +298,4 @@ export function ArquivosTurma() {
       )}
     </div>
   );
-}
+};

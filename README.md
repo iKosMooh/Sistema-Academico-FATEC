@@ -95,8 +95,8 @@ Este projeto é um sistema acadêmico completo que permite a gestão de dados co
 
 | Variável         | Descrição                                 | Exemplo                                      |
 |------------------|-------------------------------------------|----------------------------------------------|
-| DATABASE_URL     | URL de conexão com o banco de dados       | `postgresql://user:pass@localhost:5432/db`   |
-| NEXTAUTH_SECRET  | Segredo para criptografia de sessões      | `s3cretKey!`                                 |
+| DATABASE_URL     | URL de conexão com o banco de dados       | `mysql://user:password@localhost:3306/database`   |
+| NEXTAUTH_SECRET  | Segredo para criptografia de sessões      | `your-secret-key-here`                      |
 | NEXTAUTH_URL     | URL base da aplicação                     | `http://localhost:3000`                      |
 
 ---

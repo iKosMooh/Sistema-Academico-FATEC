@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
  * Função genérica para operações CRUD com Prisma.
  * Suporta inserção, consulta, atualização, exclusão e “pseudo-upsert” para presenças.
  */
-export async function handleCrud({
+export async function handleCrud<T>({
   operation,
   table,
   primaryKey,
@@ -17,7 +17,7 @@ export async function handleCrud({
   primaryKey?: string | number;
   data?: Record<string, unknown>;
   relations?: Record<string, boolean>;
-}) {
+}): Promise<T> {
   // Acesso dinâmico ao modelo Prisma
   const model = prisma[table as keyof typeof prisma] as {
     create?: (args: { data: Record<string, unknown> }) => Promise<unknown>;
@@ -39,16 +39,16 @@ export async function handleCrud({
         if (typeof model.create !== 'function') {
           throw new Error('Método create não disponível no modelo.');
         }
-        return await model.create({ data: data ?? {} });
+        return (await model.create({ data: data ?? {} })) as T;
 
       case 'get':
         if (typeof model.findMany !== 'function') {
           throw new Error('Método findMany não disponível no modelo.');
         }
-        return await model.findMany({
+        return (await model.findMany({
           include: relations || undefined,
           where: data || undefined,
-        });
+        })) as T;
 
       case 'update':
         if (!primaryKey) {
@@ -60,10 +60,10 @@ export async function handleCrud({
         if (typeof model.update !== 'function') {
           throw new Error('Método update não disponível no modelo.');
         }
-        return await model.update({
+        return (await model.update({
           where: { [primaryKey as string]: data[primaryKey as string] },
           data,
-        });
+        })) as T;
 
       case 'delete':
         // Suporte a chave composta em turmaAluno
@@ -72,11 +72,11 @@ export async function handleCrud({
           if (typeof model.delete !== 'function') {
             throw new Error('Método delete não disponível no modelo.');
           }
-          return await model.delete({
+          return (await model.delete({
             where: {
               idTurma_idAluno: { idTurma, idAluno },
             },
-          });
+          })) as T;
         }
         // Exclusão genérica
         if (!primaryKey) {
@@ -88,9 +88,9 @@ export async function handleCrud({
         if (typeof model.delete !== 'function') {
           throw new Error('Método delete não disponível no modelo.');
         }
-        return await model.delete({
+        return (await model.delete({
           where: { [primaryKey as string]: data[primaryKey as string] },
-        });
+        })) as T;
 
       case 'upsert':
         if (!data) {
@@ -121,7 +121,7 @@ export async function handleCrud({
             if (typeof model.update !== 'function') {
               throw new Error('Método update não disponível no modelo Presencas.');
             }
-            return await model.update({
+            return (await model.update({
               where: { [pkName]: (existing as Record<string, unknown>)[pkName] },
               data: {
                 idAula: Number(idAula),
@@ -129,7 +129,7 @@ export async function handleCrud({
                 idProfessor: String(idProfessor),
                 ...rest,
               },
-            });
+            })) as T;
           } else {
             if (typeof model.create !== 'function') {
               throw new Error('Método create não disponível no modelo Presencas.');
@@ -164,14 +164,14 @@ export async function handleCrud({
                 throw new Error(`Professor não encontrado para idProfessor=${idProfessor}.`);
               }
 
-              return await model.create({
+              return (await model.create({
                 data: {
                   idAula: Number(idAula),
                   idAluno: Number(idAluno),
                   idProfessor: String(idProfessor),
                   ...rest,
                 },
-              });
+              })) as T;
             } catch (err: unknown) {
               // Prisma erro de constraint
               if (
@@ -202,11 +202,11 @@ export async function handleCrud({
         if (typeof model.upsert !== 'function') {
           throw new Error('Método upsert não disponível no modelo.');
         }
-        return await model.upsert({
+        return (await model.upsert({
           where: { [primaryKey as string]: (data as Record<string, unknown>)[primaryKey as string] },
           update: data,
           create: data,
-        });
+        })) as T;
 
       default:
         throw new Error(`Operação "${operation}" não suportada.`);

@@ -8,6 +8,10 @@ export async function POST(req: Request) {
   try {
     const { operation, table, primaryKey, data, relations } = await req.json();
 
+    if (!operation || !table) {
+      return NextResponse.json({ error: "Operação e tabela são obrigatórios" }, { status: 400 });
+    }
+
     // Criação de pasta ao criar turma
     if (operation === "insert" && table === "turmas" && data?.nomeTurma) {
       // Chama o CRUD normalmente
@@ -148,7 +152,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, data: result });
-  } catch (error: unknown) {
+    
+  } catch (error) {
     console.error('Erro no CRUD:', error);
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ success: false, error: message }, { status: 500 });

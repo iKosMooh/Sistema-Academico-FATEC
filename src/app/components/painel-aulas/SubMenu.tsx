@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAppContext } from '../painel-aulas/AppContext';
+import { useAppContext } from './AppContext';
 
 const menuGroups = [
     {

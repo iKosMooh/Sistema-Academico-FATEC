@@ -7,13 +7,15 @@ import { useAppContext } from "../painel-aulas/AppContext";
  * além de gerenciar feriados/dias não letivos.
  * Agora tudo fica em um modal acionado por botão, junto dos outros submenus.
  */
+export interface GerenciarAulasRecorrentesProps {
+  onClose: () => void;
+  onAnyChange?: () => void;
+}
+
 export function GerenciarAulasRecorrentes({
   onClose,
   onAnyChange,
-}: {
-  onClose: () => void;
-  onAnyChange?: () => void;
-}) {
+}: GerenciarAulasRecorrentesProps) {
   // States para agendamento
   const [nomeMateria, setNomeMateria] = useState("");
   const [diaSemana, setDiaSemana] = useState<number>(5);
@@ -257,7 +259,9 @@ export function GerenciarAulasRecorrentes({
     setFeriadoMsg(null);
     setFeriadoLoading(true);
     try {
-      const res = await fetch(`/api/dias-nao-letivos/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/dias-nao-letivos?id=${id}`, {
+        method: "DELETE"
+      });
       const result = await res.json();
       if (res.ok && result.removida) {
         setFeriadoMsg("Feriado removido.");
