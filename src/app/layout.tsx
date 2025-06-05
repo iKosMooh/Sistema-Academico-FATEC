@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from '@/app/components/Header/Header';
 import Footer from '@/app/components/Footer/Footer';
+import { AppContextProvider } from '@/app/components/painel-aulas/AppContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,9 @@ export default function RootLayout({
       >
         <Header />
         <AuthProvider>
-          {children}
+          <AppContextProvider>
+            {children}
+          </AppContextProvider>
         </AuthProvider>
 
         <Footer /> 

@@ -1,33 +1,46 @@
-import React, { createContext, useContext, useState } from "react";
+'use client';
 
-export interface Turma { id: string; nome: string; }
-export interface Disciplina { id: string; nome: string; }
-export interface Usuario { nome: string; tipo: string; }
+import React, { createContext, useContext, useState, ReactNode } from "react";
+
+interface Turma { id: string; nome: string; idCurso?: number; }
+interface Disciplina { idMateria: number; nomeMateria: string; }
 
 interface AppContextType {
   turma: Turma | null;
-  setTurma: (t: Turma | null) => void;
+  setTurma: (turma: Turma | null) => void;
   disciplina: Disciplina | null;
-  setDisciplina: (d: Disciplina | null) => void;
-  usuario: Usuario;
+  setDisciplina: (disciplina: Disciplina | null) => void;
+  disciplinas: Disciplina[];
+  setDisciplinas: (disciplinas: Disciplina[]) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppContextProvider({ children }: { children: ReactNode }) {
   const [turma, setTurma] = useState<Turma | null>(null);
   const [disciplina, setDisciplina] = useState<Disciplina | null>(null);
-  const usuario = { nome: "Administrador", tipo: "Admin" };
+  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
 
   return (
-    <AppContext.Provider value={{ turma, setTurma, disciplina, setDisciplina, usuario }}>
+    <AppContext.Provider
+      value={{
+        turma,
+        setTurma,
+        disciplina,
+        setDisciplina,
+        disciplinas,
+        setDisciplinas,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );
 }
 
 export function useAppContext() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useAppContext deve ser usado dentro de AppProvider");
-  return ctx;
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext deve ser usado dentro de um AppContextProvider');
+  }
+  return context;
 }

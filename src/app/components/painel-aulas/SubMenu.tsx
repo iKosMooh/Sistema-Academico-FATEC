@@ -29,7 +29,7 @@ export default function SubMenu({ onSelect, selectedKey }: { onSelect: (key: str
 
     // Turmas do contexto global
     const { turma, setTurma, setDisciplina } = useAppContext();
-    const [turmas, setTurmas] = useState<{ id: string, nome: string }[]>([]);
+    const [turmas, setTurmas] = useState<{ id: string, nome: string, idCurso: number }[]>([]);
 
     useEffect(() => {
         // Busca turmas do banco
@@ -45,9 +45,10 @@ export default function SubMenu({ onSelect, selectedKey }: { onSelect: (key: str
             .then((result) => {
                 if (result.success) {
                     setTurmas(
-                        result.data.map((t: { idTurma: number | string; nomeTurma: string }) => ({
+                        result.data.map((t: { idTurma: number | string; nomeTurma: string; idCurso: number }) => ({
                             id: String(t.idTurma),
                             nome: t.nomeTurma,
+                            idCurso: t.idCurso
                         }))
                     );
                 }
@@ -70,7 +71,8 @@ export default function SubMenu({ onSelect, selectedKey }: { onSelect: (key: str
                         className="w-full border rounded px-2 py-1 text-white-900"
                         value={turma?.id || ""}
                         onChange={e => {
-                            const t = turmas.find(t => t.id === e.target.value) || null;
+                            const selectedTurma = turmas.find(t => t.id === e.target.value);
+                            const t = selectedTurma ? { id: selectedTurma.id, nome: selectedTurma.nome, idCurso: selectedTurma.idCurso } : null;
                             setTurma(t);
                             setDisciplina(null);
                         }}

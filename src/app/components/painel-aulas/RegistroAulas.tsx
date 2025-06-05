@@ -36,49 +36,55 @@ export function RegistroAulas() {
   const [loading, setLoading] = useState(false);
   const [confirmForaHoje, setConfirmForaHoje] = useState(false);
 
-  // Carrega aulas da turma
-  useEffect(() => {
+  // Função para carregar aulas
+  const carregarAulas = async () => {
     if (!turma?.id) {
       setAulas([]);
       return;
     }
     setLoading(true);
-    fetch("/api/crud", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        operation: "get",
-        table: "aula",
-        relations: { materia: true },
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
-          interface AulaAPI {
-            idAula: number;
-            idTurma: number;
-            dataAula: string;
-            horario: string;
-            materia?: { nomeMateria?: string };
-            presencasAplicadas?: boolean;
-            aulaConcluida?: boolean;
-          }
-          setAulas(
-            (result.data as AulaAPI[])
-              .filter((a: AulaAPI) => String(a.idTurma) === String(turma.id))
-              .map((a: AulaAPI) => ({
-                idAula: a.idAula,
-                dataAula: a.dataAula,
-                horario: a.horario,
-                materia: a.materia,
-                presencasAplicadas: !!a.presencasAplicadas,
-                aulaConcluida: !!a.aulaConcluida,
-              }))
-          );
+    try {
+      const res = await fetch("/api/crud", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operation: "get",
+          table: "aula",
+          relations: { materia: true },
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        interface AulaAPI {
+          idAula: number;
+          idTurma: number;
+          dataAula: string;
+          horario: string;
+          materia?: { nomeMateria?: string };
+          presencasAplicadas?: boolean;
+          aulaConcluida?: boolean;
         }
-      })
-      .finally(() => setLoading(false));
+        setAulas(
+          (result.data as AulaAPI[])
+            .filter((a: AulaAPI) => String(a.idTurma) === String(turma.id))
+            .map((a: AulaAPI) => ({
+              idAula: a.idAula,
+              dataAula: a.dataAula,
+              horario: a.horario,
+              materia: a.materia,
+              presencasAplicadas: !!a.presencasAplicadas,
+              aulaConcluida: !!a.aulaConcluida,
+            }))
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Carrega aulas da turma
+  useEffect(() => {
+    carregarAulas();
   }, [turma]);
 
   // Carrega alunos vinculados à turma
@@ -182,88 +188,46 @@ export function RegistroAulas() {
   const salvarPresencas = async () => {
     setLoading(true);
     const idProfessor = session?.user?.cpf || "";
+    
     if (!idProfessor) {
-      alert("Não foi possível identificar o usuário logado (idProfessor). Faça login novamente.");
+      alert("Não foi possível identificar o professor. Faça login novamente.");
       setLoading(false);
       return;
     }
-    for (const idAula of presencaAulaIds) {
-      for (const aluno of alunos) {
-        const presente = presencas[idAula]?.[aluno.idAluno] || false;
-        const payload = {
-          operation: "upsert",
-          table: "presencas",
-          data: {
-            idAula,
-            idAluno: aluno.idAluno,
-            idProfessor,
-            presente,
-          },
-        };
-        // Loga o payload para depuração
-        //console.log("Enviando para CRUD:", JSON.stringify(payload));
-        await fetch("/api/crud", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-      }
-      // Marca aula como presencasAplicadas
-      await fetch("/api/crud", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operation: "update",
-          table: "aula",
-          primaryKey: "idAula",
-          data: {
-            idAula,
-            presencasAplicadas: true,
-            aulaConcluida: true,
-          },
-        }),
-      });
-    }
-    setShowPresencaModal(false);
-    setSelectedAulas([]);
-    setLoading(false);
-    // Recarrega aulas e presenças manualmente
-    fetch("/api/crud", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        operation: "get",
-        table: "aula",
-        relations: { materia: true },
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
-          interface AulaAPI {
-            idAula: number;
-            idTurma: number;
-            dataAula: string;
-            horario: string;
-            materia?: { nomeMateria?: string };
-            presencasAplicadas?: boolean;
-            aulaConcluida?: boolean;
+
+    try {
+      for (const idAula of presencaAulaIds) {
+        for (const aluno of alunos) {
+          const presente = presencas[idAula]?.[aluno.idAluno] || false;
+          
+          const response = await fetch("/api/presencas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idAula,
+              idAluno: aluno.idAluno,
+              idProfessor,
+              presente
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Erro ao salvar presença');
           }
-          setAulas(
-            (result.data as AulaAPI[])
-              .filter((a: AulaAPI) => String(a.idTurma) === String(turma?.id))
-              .map((a: AulaAPI) => ({
-                idAula: a.idAula,
-                dataAula: a.dataAula,
-                horario: a.horario,
-                materia: a.materia,
-                presencasAplicadas: !!a.presencasAplicadas,
-                aulaConcluida: !!a.aulaConcluida,
-              }))
-          );
         }
-      });
-    setPresencas({});
+      }
+
+      setShowPresencaModal(false);
+      setSelectedAulas([]);
+      setPresencas({});
+      await carregarAulas();
+
+    } catch (error) {
+      console.error("Erro ao salvar presenças:", error);
+      alert("Erro ao salvar presenças. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Atualiza presença de um aluno em uma aula (permite editar sempre)

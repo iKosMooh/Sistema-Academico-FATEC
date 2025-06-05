@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import SubMenu from '../painel-aulas/SubMenu';
-import { AppProvider } from '../painel-aulas/AppContext';
+import { AppContextProvider } from '../painel-aulas/AppContext';
 
 export default function HomePage() {
   const [selectedKey, setSelectedKey] = useState('home');
@@ -12,8 +12,8 @@ export default function HomePage() {
   };
 
   return (
-    <AppProvider>
+    <AppContextProvider>
       <SubMenu onSelect={handleSelect} selectedKey={selectedKey} />
-    </AppProvider>
+    </AppContextProvider>
   );
 }
