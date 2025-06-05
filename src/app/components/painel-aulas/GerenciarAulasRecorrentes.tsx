@@ -284,24 +284,25 @@ export function GerenciarAulasRecorrentes({
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded shadow p-6 mb-8">
+    <div className="max-w-4xl mx-auto bg-blue-200 rounded shadow p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Gerenciar Aulas Recorrentes e Feriados</h2>
+        <h2 className="text-xl text-blue-700 font-bold">Gerenciar Aulas Recorrentes e Feriados</h2>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 text-2xl"
+          className="text-white-0 hover:text-blue-800 text-2xl"
           aria-label="Fechar"
         >
           ✕
         </button>
       </div>
       {/* Agendamento de aulas recorrentes */}
-      <form onSubmit={handleAgendar} className="mb-8 space-y-3">
+      <form onSubmit={handleAgendar} className="mb-8 space-y-3 bg-gray-200 rounded-xl p-6 shadow border border-gray-300">
+        <h3 className="font-semibold mb-2 text-blue-700">Agendar Aulas Recorrentes</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block font-medium">Matéria</label>
             <select
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={nomeMateria}
               onChange={(e) => setNomeMateria(e.target.value)}
               required
@@ -321,7 +322,7 @@ export function GerenciarAulasRecorrentes({
           <div>
             <label className="block font-medium">Dia da Semana</label>
             <select
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={diaSemana}
               onChange={(e) => setDiaSemana(Number(e.target.value))}
               required
@@ -337,7 +338,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Horário de Início</label>
             <input
               type="time"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={horaInicio}
               onChange={(e) => setHoraInicio(e.target.value)}
               required
@@ -347,7 +348,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Duração (minutos)</label>
             <input
               type="number"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={duracaoMinutos}
               min={1}
               onChange={(e) => setDuracaoMinutos(Number(e.target.value))}
@@ -358,7 +359,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Inicial</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={dataInicial}
               onChange={(e) => setDataInicial(e.target.value)}
               required
@@ -368,7 +369,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Final</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={dataFinal}
               onChange={(e) => setDataFinal(e.target.value)}
               required
@@ -381,7 +382,7 @@ export function GerenciarAulasRecorrentes({
           <div className="flex gap-2 mb-2">
             <input
               type="date"
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 bg-white text-gray-300"
               value={excecaoInput}
               onChange={(e) => setExcecaoInput(e.target.value)}
             />
@@ -441,13 +442,13 @@ export function GerenciarAulasRecorrentes({
       </form>
 
       {/* Exclusão em massa */}
-      <form onSubmit={handleRemover} className="mb-8 space-y-3">
-        <h3 className="font-semibold mb-2">Remover Aulas em Massa</h3>
+      <form onSubmit={handleRemover} className="mb-8 space-y-3 bg-gray-200 rounded-xl p-6 shadow border border-gray-300">
+        <h3 className="font-semibold mb-2 text-blue-700">Remover Aulas em Massa</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label className="block font-medium">Matéria</label>
             <select
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={nomeMateriaExcluir}
               onChange={(e) => setNomeMateriaExcluir(e.target.value)}
               required
@@ -468,7 +469,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Inicial</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={dataInicialExcluir}
               onChange={(e) => setDataInicialExcluir(e.target.value)}
               required
@@ -478,7 +479,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Final</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={dataFinalExcluir}
               onChange={(e) => setDataFinalExcluir(e.target.value)}
               required
@@ -512,14 +513,14 @@ export function GerenciarAulasRecorrentes({
       </form>
 
       {/* Gerenciar feriados */}
-      <form onSubmit={handleAddFeriado} className="mb-8 space-y-3">
-        <h3 className="font-semibold mb-2">Cadastrar Feriado/Dia Não Letivo</h3>
+      <form onSubmit={handleAddFeriado} className="mb-8 space-y-3 bg-gray-200 rounded-xl p-6 shadow border border-gray-300">
+        <h3 className="font-semibold mb-2 text-blue-700">Cadastrar Feriado/Dia Não Letivo</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label className="block font-medium">Data</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={feriadoData}
               onChange={(e) => setFeriadoData(e.target.value)}
               required
@@ -529,7 +530,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Descrição</label>
             <input
               type="text"
-              className="w-full border rounded px-2 py-1"
+              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
               value={feriadoDescricao}
               onChange={(e) => setFeriadoDescricao(e.target.value)}
             />
@@ -551,15 +552,15 @@ export function GerenciarAulasRecorrentes({
 
       {/* Lista de feriados cadastrados */}
       <div>
-        <h3 className="font-semibold mb-2">Feriados/Dias Não Letivos Cadastrados</h3>
+        <h3 className="font-semibold mb-2 text-blue-500">Feriados/Dias Não Letivos Cadastrados</h3>
         <ul className="divide-y border rounded">
           {feriados.map((f) => (
-            <li key={f.id} className="flex items-center justify-between p-2">
+            <li key={f.id} className="flex items-center justify-between p-2 text-black">
               <span>
                 {f.data.slice(0, 10)} {f.descricao && `- ${f.descricao}`}
               </span>
               <button
-                className="text-red-600 px-2 py-1 rounded hover:bg-red-100"
+                className="text-white-600 px-2 py-1 rounded hover:bg-red-100"
                 onClick={() => handleRemoveFeriado(f.id)}
                 disabled={feriadoLoading}
               >
