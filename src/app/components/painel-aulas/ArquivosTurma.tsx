@@ -137,7 +137,7 @@ export function ArquivosTurma() {
   function renderFilePreview(file: { name: string; url: string }) {
     const type = getFileTypeIcon(file.name);
     if (type === "image") {
-      // eslint-disable-next-line @next/next/no-img-element
+      // Use o componente <Image /> do next/image para imagens
       return (
         <Image
           src={file.url}
@@ -145,6 +145,7 @@ export function ArquivosTurma() {
           width={40}
           height={40}
           className="w-10 h-10 object-cover rounded border"
+          // priority pode ser usado se desejar
         />
       );
     }
