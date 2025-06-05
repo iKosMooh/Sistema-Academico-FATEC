@@ -1,8 +1,13 @@
 "use client";
+<<<<<<< HEAD
 import { useState } from "react";
 import Header from "@/app/components/Header/Header";
 import Footer from "@/app/components/Footer/Footer";
 import SubMenu from "@/app/components/SubMenu/SubMenu";
+=======
+import { SidebarTurmas } from "@/app/components/painel-aulas/SidebarTurmas";
+import { TabsContainer } from "@/app/components/painel-aulas/TabsContainer";
+>>>>>>> fb153fc094883ac9f35ef0db382dccd434208828
 import { AppProvider } from "@/app/components/painel-aulas/AppContext";
 import { PlanejamentoAulas } from "@/app/components/painel-aulas/PlanejamentoAulas";
 import { RegistroAulas } from "@/app/components/painel-aulas/RegistroAulas";
@@ -29,6 +34,7 @@ export default function PainelAulasPage() {
   const [selectedKey, setSelectedKey] = useState<string>("");
 
   return (
+<<<<<<< HEAD
     <AppProvider>
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
@@ -44,5 +50,19 @@ export default function PainelAulasPage() {
         <Footer />
       </div>
     </AppProvider>
+=======
+    <AdminGuard>
+      <AppProvider>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <div className="flex flex-1">
+            <SidebarTurmas />
+            <main className="flex-1 p-4 overflow-x-auto">
+              <TabsContainer />
+            </main>
+          </div>
+        </div>
+      </AppProvider>
+    </AdminGuard>
+>>>>>>> fb153fc094883ac9f35ef0db382dccd434208828
   );
 }

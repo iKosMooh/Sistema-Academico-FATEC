@@ -131,7 +131,7 @@ export default function CadastrarAluno() {
         tel2: "",
       });
 
-      router.push("/pages/admin/alunos-view");
+      router.push("/pages/admin/usuarios/dashboard");
     } catch {
       setError("Erro de rede ou do servidor.");
     } finally {
