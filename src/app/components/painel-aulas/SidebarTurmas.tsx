@@ -43,25 +43,32 @@ export function SidebarTurmas() {
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
 
   useEffect(() => {
-    // Busca turmas do banco
+    // Busca turmas do banco - seguindo padrão dos outros arquivos
     fetch("/api/crud", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         operation: "get",
-        table: "turmas",
+        table: "turmas", // Usar nome correto baseado nos outros arquivos
       }),
     })
       .then((res) => res.json())
       .then((result) => {
+        console.log('Resultado busca turmas sidebar:', result);
         if (result.success) {
           setTurmas(
-            result.data.map((t: { idTurma: number | string; nomeTurma: string }) => ({
+            result.data.map((t: { idTurma: number | string; nomeTurma: string; idCurso?: number }) => ({
               id: String(t.idTurma),
               nome: t.nomeTurma,
+              idCurso: t.idCurso || 0
             }))
           );
+        } else {
+          console.error('Erro ao buscar turmas:', result.error);
         }
+      })
+      .catch(error => {
+        console.error('Erro na requisição turmas:', error);
       });
   }, []);
 
@@ -80,7 +87,7 @@ export function SidebarTurmas() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           operation: "get",
-          table: "cursoMaterias",
+          table: "CursoMaterias", // Usar nome correto do modelo Prisma
           relations: {
             materia: true,
             curso: {
