@@ -123,6 +123,92 @@ export async function POST(req: Request) {
         : 0;
     });
 
+    // Calcular frequência por turma e matéria - CORRIGIDO
+    const frequenciaData = await Promise.all(
+      turmasAluno.map(async (turmaAluno) => {
+        const { turma } = turmaAluno;
+        
+        // Buscar todas as matérias da turma
+        const materiasNaTurma = await prisma.aula.findMany({
+          where: { idTurma: turma.idTurma },
+          select: { 
+            idMateria: true,
+            materia: { select: { nomeMateria: true } }
+          },
+          distinct: ['idMateria']
+        });
+
+        return Promise.all(
+          materiasNaTurma.map(async (materiaInfo) => {
+            // Buscar total de aulas agendadas para a matéria
+            const totalAulasAgendadas = await prisma.aula.count({
+              where: {
+                idTurma: turma.idTurma,
+                idMateria: materiaInfo.idMateria
+              }
+            });
+
+            // Buscar apenas aulas já ministradas (aulaConcluida = true)
+            const aulasMinistradas = await prisma.aula.count({
+              where: {
+                idTurma: turma.idTurma,
+                idMateria: materiaInfo.idMateria,
+                aulaConcluida: true
+              }
+            });
+
+            // Buscar presenças do aluno nas aulas ministradas
+            const presencasDoAluno = await prisma.presencas.count({
+              where: {
+                idAluno: aluno.idAluno,
+                presente: true,
+                aula: {
+                  idTurma: turma.idTurma,
+                  idMateria: materiaInfo.idMateria,
+                  aulaConcluida: true
+                }
+              }
+            });
+
+            // Buscar total de ausências nas aulas ministradas
+            const ausenciasDoAluno = await prisma.presencas.count({
+              where: {
+                idAluno: aluno.idAluno,
+                presente: false,
+                aula: {
+                  idTurma: turma.idTurma,
+                  idMateria: materiaInfo.idMateria,
+                  aulaConcluida: true
+                }
+              }
+            });
+
+            // Calcular taxa de presença apenas com base nas aulas ministradas
+            const taxaPresenca = aulasMinistradas > 0 
+              ? (presencasDoAluno / aulasMinistradas) * 100 
+              : 0;
+
+            return {
+              turma: {
+                idTurma: turma.idTurma,
+                nomeTurma: turma.nomeTurma
+              },
+              materia: {
+                nomeMateria: materiaInfo.materia.nomeMateria
+              },
+              totalAulas: totalAulasAgendadas,
+              aulasMinistradas: aulasMinistradas,
+              presencas: presencasDoAluno,
+              ausencias: ausenciasDoAluno,
+              taxaPresenca: Math.round(taxaPresenca * 100) / 100
+            };
+          })
+        );
+      })
+    );
+
+    const frequencia = frequenciaData.flat();
+
     const dashboardData = {
       aluno: {
         idAluno: aluno.idAluno,
@@ -153,7 +239,7 @@ export async function POST(req: Request) {
           nomeTurma: nota.turma.nomeTurma
         }
       })),
-      frequencia: Array.from(frequenciaPorMateria.values()),
+      frequencia: frequencia, // Usar apenas a frequência detalhada corrigida
       aulas: aulas.map(aula => ({
         idAula: aula.idAula,
         dataAula: aula.dataAula.toISOString(),

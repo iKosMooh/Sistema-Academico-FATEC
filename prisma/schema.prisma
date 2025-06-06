@@ -25,7 +25,8 @@ model Alunos {
   historico  HistoricoEscolar[]
   presencas  Presencas[]
   turmaAluno TurmaAluno[]
-  notas      Notas[]            // Nova relação reversa
+  notas      Notas[]
+  atestados  AtestadosMedicos[] // Nova relação
 }
 
 model Enderecos {
@@ -102,7 +103,8 @@ model Professores {
   created_at  DateTime    @default(now()) @db.DateTime(0)
   updated_at  DateTime    @default(now()) @updatedAt @db.DateTime(0)
   presencas   Presencas[]
-  notas      Notas[]           // Nova relação reversa
+  notas      Notas[]
+  atestadosAvaliados AtestadosMedicos[] // Nova relação
 }
 
 model Turmas {
@@ -155,6 +157,7 @@ model Aula {
   materia               Materias    @relation(fields: [idMateria], references: [idMateria], onDelete: Cascade)
   presencas             Presencas[]
   docsAula              DocsAula[]
+  atestadoAulas         AtestadoAulas[] // Nova relação
 
   @@map("Aula")
 }
@@ -239,7 +242,7 @@ enum TipoUsuario {
 
 model Notas {
   idNota         Int      @id @default(autoincrement())
-  nome           String   @db.VarChar(100) // Novo campo
+  nome           String   @db.VarChar(100)
   idAluno        Int
   idMateria      Int
   idTurma        Int
@@ -256,4 +259,46 @@ model Notas {
 
   @@unique([idAluno, idMateria, idTurma, tipoAvaliacao], name: "uc_aluno_materia_turma_tipo")
   @@index([idProfessor], map: "fk_notas_professor")
+}
+
+model AtestadosMedicos {
+  idAtestado     Int      @id @default(autoincrement())
+  idAluno        Int
+  dataInicio     DateTime @db.Date
+  dataFim        DateTime @db.Date
+  motivo         String   @db.VarChar(255)
+  arquivoPath    String   @db.VarChar(500)
+  dataEnvio      DateTime @default(now()) @db.DateTime(0)
+  status         StatusAtestado @default(Pendente)
+  observacoes    String?  @db.Text
+  avaliadoPor    String?  @db.VarChar(14)
+  dataAvaliacao  DateTime? @db.DateTime(0)
+  justificativaRejeicao String? @db.Text
+  
+  aluno          Alunos   @relation(fields: [idAluno], references: [idAluno], onDelete: Cascade)
+  avaliador      Professores? @relation(fields: [avaliadoPor], references: [idProfessor])
+  aulasJustificadas AtestadoAulas[]
+
+  @@index([idAluno], map: "fk_atestados_aluno")
+  @@index([avaliadoPor], map: "fk_atestados_avaliador")
+}
+
+model AtestadoAulas {
+  idAtestado     Int
+  idAula         Int
+  aplicado       Boolean  @default(false)
+  dataAplicacao  DateTime? @db.DateTime(0)
+  
+  atestado       AtestadosMedicos @relation(fields: [idAtestado], references: [idAtestado], onDelete: Cascade)
+  aula           Aula @relation(fields: [idAula], references: [idAula], onDelete: Cascade)
+
+  @@id([idAtestado, idAula])
+  @@index([idAula], map: "fk_atestado_aulas_aula")
+}
+
+enum StatusAtestado {
+  Pendente
+  Aprovado
+  Rejeitado
+  Analisando
 }

@@ -94,7 +94,7 @@ export default function LoginPage() {
             router.push("/pages/admin/painel-aulas");
             break;
           case "Aluno":
-            router.push("/");
+            router.push("/pages/aluno/dashboard");
             break;
           default:
             router.push("/");

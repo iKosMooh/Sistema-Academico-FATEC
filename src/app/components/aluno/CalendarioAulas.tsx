@@ -1,6 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface DocsAula {
+  idDocAula: number;
+  src: string;
+  nomeArquivo?: string;
+}
 
 interface Aula {
   idAula: number;
@@ -15,6 +21,7 @@ interface Aula {
   aulaConcluida: boolean;
   conteudoMinistrado?: string;
   observacoesAula?: string;
+  docsAula?: DocsAula[]; // Nova propriedade
 }
 
 interface CalendarioAulasProps {
@@ -28,6 +35,38 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
   });
 
   const [aulaDetalhes, setAulaDetalhes] = useState<Aula | null>(null);
+  const [arquivosAula, setArquivosAula] = useState<DocsAula[]>([]);
+  const [carregandoArquivos, setCarregandoArquivos] = useState(false);
+
+  // Buscar arquivos da aula quando modal é aberto
+  useEffect(() => {
+    const buscarArquivosAula = async () => {
+      if (!aulaDetalhes) {
+        setArquivosAula([]);
+        return;
+      }
+
+      setCarregandoArquivos(true);
+      try {
+        const response = await fetch(`/api/aulas/arquivos?idAula=${aulaDetalhes.idAula}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          setArquivosAula(result.data || []);
+        } else {
+          console.error('Erro ao buscar arquivos:', result.error);
+          setArquivosAula([]);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar arquivos da aula:', error);
+        setArquivosAula([]);
+      } finally {
+        setCarregandoArquivos(false);
+      }
+    };
+
+    buscarArquivosAula();
+  }, [aulaDetalhes]);
 
   // Filtrar aulas do mês atual
   const aulasDoMes = aulas.filter(aula => {
@@ -73,7 +112,7 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
   };
 
   const obterAulasDoDia = (data: Date) => {
-    return aulasDoMes.filter(aula => {
+    return aulas.filter(aula => {
       const dataAula = new Date(aula.dataAula);
       return dataAula.toDateString() === data.toDateString();
     });
@@ -84,6 +123,42 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
+
+  const baixarArquivo = (arquivo: DocsAula) => {
+    // Criar link para download
+    const link = document.createElement('a');
+    link.href = arquivo.src;
+    link.download = arquivo.nomeArquivo || `arquivo_${arquivo.idDocAula}`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const obterNomeArquivo = (src: string) => {
+    return src.split('/').pop() || 'arquivo';
+  };
+
+  const obterTipoArquivo = (src: string) => {
+    const extensao = src.split('.').pop()?.toLowerCase();
+    switch (extensao) {
+      case 'pdf': return { tipo: 'PDF', cor: 'text-red-600', icone: '📄' };
+      case 'doc':
+      case 'docx': return { tipo: 'Word', cor: 'text-blue-600', icone: '📝' };
+      case 'ppt':
+      case 'pptx': return { tipo: 'PowerPoint', cor: 'text-orange-600', icone: '📊' };
+      case 'xls':
+      case 'xlsx': return { tipo: 'Excel', cor: 'text-green-600', icone: '📈' };
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif': return { tipo: 'Imagem', cor: 'text-purple-600', icone: '🖼️' };
+      case 'mp4':
+      case 'avi':
+      case 'mov': return { tipo: 'Vídeo', cor: 'text-pink-600', icone: '🎥' };
+      default: return { tipo: 'Arquivo', cor: 'text-gray-600', icone: '📎' };
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -202,11 +277,11 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
         )}
       </div>
 
-      {/* Modal de detalhes da aula */}
+      {/* Modal de detalhes da aula - ATUALIZADO */}
       {aulaDetalhes && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
              onClick={() => setAulaDetalhes(null)}>
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
                onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold">Detalhes da Aula</h3>
@@ -218,7 +293,7 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
               </button>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-600">Matéria</p>
                 <p className="font-medium">{aulaDetalhes.materia.nomeMateria}</p>
@@ -257,6 +332,57 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
                   <p className="text-sm">{aulaDetalhes.observacoesAula}</p>
                 </div>
               )}
+
+              {/* Seção de Arquivos da Aula - NOVA */}
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-md font-semibold text-gray-900">📎 Materiais da Aula</h4>
+                  {carregandoArquivos && (
+                    <div className="text-sm text-gray-500">Carregando...</div>
+                  )}
+                </div>
+                
+                {carregandoArquivos ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin h-6 w-6 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                  </div>
+                ) : arquivosAula.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">
+                    <div className="text-2xl mb-2">📚</div>
+                    <p className="text-sm">Nenhum material disponível para esta aula</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {arquivosAula.map((arquivo) => {
+                      const tipoArquivo = obterTipoArquivo(arquivo.src);
+                      return (
+                        <div
+                          key={arquivo.idDocAula}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-xl">{tipoArquivo.icone}</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                {obterNomeArquivo(arquivo.src)}
+                              </p>
+                              <p className={`text-xs ${tipoArquivo.cor}`}>
+                                {tipoArquivo.tipo}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => baixarArquivo(arquivo)}
+                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                          >
+                            Baixar
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

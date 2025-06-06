@@ -240,12 +240,12 @@ export const ArquivosTurma: FC = () => {
                     </td>
                     <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900 px-6 py-2" : "bg-gray-50 text-blue-900 px-6 py-2"}>
                       <a
-                        href={arq.url}
+                        href={`/api/uploads?path=${encodeURIComponent(arq.url.replace('/uploads/', ''))}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-800 underline flex-1 truncate font-medium"
+                        className="text-blue-600 hover:underline"
                       >
-                        {arq.name}
+                        {arq.url.split('/').pop()}
                       </a>
                     </td>
                     <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>
@@ -289,12 +289,12 @@ export const ArquivosTurma: FC = () => {
                     </td>
                     <td className={idx % 2 === 0 ? "bg-gray-200 text-blue-900 px-6 py-2" : "bg-gray-50 text-blue-900 px-6 py-2"}>
                       <a
-                        href={arq.url}
+                        href={`/api/uploads?path=${encodeURIComponent(arq.url.replace('/uploads/', ''))}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-800 underline flex-1 truncate font-medium"
+                        className="text-blue-600 hover:underline"
                       >
-                        {arq.name}
+                        {arq.url.split('/').pop()}
                       </a>
                     </td>
                     <td className={idx % 2 === 0 ? "bg-gray-200 text-center" : "bg-gray-50 text-center"}>

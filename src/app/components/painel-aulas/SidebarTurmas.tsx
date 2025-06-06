@@ -1,15 +1,16 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useAppContext } from "./AppContext";
-import { PlanejamentoAulas } from "./PlanejamentoAulas";
-import { RegistroAulas } from "./RegistroAulas";
-import { GerenciarAulasRecorrentes } from "./GerenciarAulasRecorrentes";
-import { VincularAlunosTurma } from "./VincularAlunosTurma";
-import { VincularMateriasCurso } from "./VincularMateriasCurso";
-import { ArquivosTurma } from "./ArquivosTurma";
-import { TurmaDashboard } from '../dashboard/TurmaDashboard';
-import { LancamentoNotas } from './LancamentoNotas';
-import { VisualizarNotas } from './VisualizarNotas';
+import { useAppContext } from "@/app/components/painel-aulas/AppContext";
+import { PlanejamentoAulas } from "@/app/components/painel-aulas/PlanejamentoAulas";
+import { RegistroAulas } from "@/app/components/painel-aulas/RegistroAulas";
+import { GerenciarAulasRecorrentes } from "@/app/components/painel-aulas/GerenciarAulasRecorrentes";
+import { VincularAlunosTurma } from "@/app/components/painel-aulas/VincularAlunosTurma";
+import { VincularMateriasCurso } from "@/app/components/painel-aulas/VincularMateriasCurso";
+import { ArquivosTurma } from "@/app/components/painel-aulas/ArquivosTurma";
+import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
+import { LancamentoNotas } from "@/app/components/painel-aulas/LancamentoNotas";
+import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
+import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 
 const menuGroups = [
@@ -43,6 +44,7 @@ export function SidebarTurmas() {
   const { turma, setTurma, setDisciplina } = useAppContext();
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'turmas' | 'calendario' | 'atestados'>('turmas');
 
   useEffect(() => {
     // Busca turmas do banco - seguindo padrão dos outros arquivos
@@ -193,6 +195,44 @@ export function SidebarTurmas() {
             </select>
           </div>
         )}
+        {/* Menu de navegação */}
+        <div className="mb-6">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setActiveView('turmas')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeView === 'turmas'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📚 Turmas
+            </button>
+            <button
+              onClick={() => {
+                setActiveView('calendario');
+                setSelectedKey('planejamento'); // Definir a chave para Planejamento de Aulas
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeView === 'calendario'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📅 Calendário
+            </button>
+            <button
+              onClick={() => setActiveView('atestados')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeView === 'atestados'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              🏥 Atestados
+            </button>
+          </div>
+        </div>
         <nav>
           <ul className="space-y-2">
             {menuGroups.map((group) => (
@@ -228,7 +268,13 @@ export function SidebarTurmas() {
       </aside>
       {/* Conteúdo principal */}
       <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-72" : ""}`}>
-        {CurrentComponent &&
+        {activeView === 'atestados' ? (
+          <AtestadosProfessor />
+        ) : activeView === 'calendario' ? (
+          <TurmaGuard>
+            <PlanejamentoAulas />
+          </TurmaGuard>
+        ) : CurrentComponent &&
           (selectedKey === "dashboard" ? (
             <CurrentComponent onClose={() => { }} />
           ) : exigeTurma.includes(selectedKey) ? (

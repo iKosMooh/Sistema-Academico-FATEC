@@ -55,7 +55,7 @@ export function FrequenciaSection({ frequencia }: FrequenciaSectionProps) {
             ⚠️ Alunos com Baixa Frequência ({"<"} 75%)
           </h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {frequencia.alunosComBaixaFrequencia.map((aluno) => (
+            {frequencia.alunosComBaixaFrequencia.map((aluno: AlunoFrequencia) => (
               <div key={aluno.idAluno} className="flex justify-between items-center bg-red-50 p-3 rounded-lg border-l-4 border-red-500">
                 <div className="flex-1">
                   <span className="font-medium text-gray-800">

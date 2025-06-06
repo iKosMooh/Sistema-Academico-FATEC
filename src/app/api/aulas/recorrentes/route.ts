@@ -15,11 +15,13 @@ const AulasRecorrentesSchema = z.object({
   dataInicial: z.string().transform(val => {
     const date = new Date(val);
     if (isNaN(date.getTime())) throw new Error('Data inicial inválida');
+    date.setHours(0, 0, 0, 0); // Início do dia
     return date;
   }),
   dataFinal: z.string().transform(val => {
     const date = new Date(val);
     if (isNaN(date.getTime())) throw new Error('Data final inválida');
+    date.setHours(23, 59, 59, 999); // Final do dia
     return date;
   }),
   listaExcecoes: z.array(z.string()).default([]).transform(arr => 

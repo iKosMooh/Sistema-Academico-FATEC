@@ -46,6 +46,41 @@ interface PresencaAPI {
   dataRegistro: string;
 }
 
+interface AulaAPI {
+  idAula: number;
+  idTurma: number;
+  dataAula: string;
+  horario: string;
+  titulo?: string;
+  duracao?: string;
+  conteudo?: string;
+  planejamento?: string;
+  metodologia?: string;
+  conteudoMinistrado?: string;
+  metodologiaAplicada?: string;
+  observacoesAula?: string;
+  materia?: { nomeMateria?: string };
+  presencasAplicadas?: boolean;
+  aulaConcluida?: boolean;
+}
+
+interface TurmaAlunoAPI {
+  idAluno: number;
+  aluno?: {
+    nome?: string;
+    sobrenome?: string;
+    cpf?: string;
+  };
+}
+
+interface TurmaAlunoResponse {
+  aluno: {
+    idAluno: number;
+    nome: string;
+    sobrenome: string;
+  };
+}
+
 export function RegistroAulas() {
   const { turma } = useAppContext();
   const { data: session } = useSession();
@@ -77,23 +112,6 @@ export function RegistroAulas() {
       });
       const result = await res.json();
       if (result.success) {
-        interface AulaAPI {
-          idAula: number;
-          idTurma: number;
-          dataAula: string;
-          horario: string;
-          titulo?: string;
-          duracao?: string;
-          conteudo?: string;
-          planejamento?: string;
-          metodologia?: string;
-          conteudoMinistrado?: string;
-          metodologiaAplicada?: string;
-          observacoesAula?: string;
-          materia?: { nomeMateria?: string };
-          presencasAplicadas?: boolean;
-          aulaConcluida?: boolean;
-        }
         setAulas(
           (result.data as AulaAPI[])
             .filter((a: AulaAPI) => String(a.idTurma) === String(turma.id))
@@ -144,14 +162,6 @@ export function RegistroAulas() {
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {
-          interface TurmaAlunoAPI {
-            idAluno: number;
-            aluno?: {
-              nome?: string;
-              sobrenome?: string;
-              cpf?: string;
-            };
-          }
           setAlunos(
             (result.data as TurmaAlunoAPI[]).map((ta: TurmaAlunoAPI) => ({
               idAluno: ta.idAluno,
@@ -196,14 +206,6 @@ export function RegistroAulas() {
         const result = await res.json();
         
         if (result.success && result.data) {
-          interface TurmaAlunoResponse {
-            aluno: {
-              idAluno: number;
-              nome: string;
-              sobrenome: string;
-            };
-          }
-
           // Buscar presenças existentes para esta aula (se houver)
           const presencasExistentes = await fetch("/api/crud", {
             method: "POST",

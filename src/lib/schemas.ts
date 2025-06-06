@@ -5,6 +5,7 @@ import { z } from 'zod';
 // =========================
 export const StatusMatriculaEnum = z.enum(['Ativa', 'Trancada', 'Cancelada']);
 export const TipoUsuarioEnum = z.enum(['Admin', 'Coordenador', 'Professor', 'Aluno']);
+export const StatusAtestadoEnum = z.enum(['Pendente', 'Aprovado', 'Rejeitado', 'Analisando']);
 
 // =========================
 // SCHEMAS BASE DAS TABELAS (Baseado no schema.prisma exato)
@@ -295,59 +296,56 @@ export const RegistroPresencaSchema = z.object({
   idProfessor: z.string().min(11, 'CPF do professor é obrigatório').max(14)
 });
 
-// Schema para resposta da API
-export const ApiResponseSchema = z.object({
-  success: z.boolean(),
-  data: z.unknown().optional(),
-  error: z.string().optional(),
-  details: z.array(z.string()).optional(),
-  message: z.string().optional(),
+// Schema para AtestadosMedicos
+export const AtestadosMedicosSchema = z.object({
+  idAtestado: z.number().int().positive().optional(),
+  idAluno: z.number().int().positive(),
+  dataInicio: z.union([z.string(), z.date()]).transform(val => new Date(val)),
+  dataFim: z.union([z.string(), z.date()]).transform(val => new Date(val)),
+  motivo: z.string().min(1, 'Motivo é obrigatório').max(255, 'Motivo muito longo'),
+  arquivoPath: z.string().min(1, 'Arquivo é obrigatório').max(500, 'Path muito longo'),
+  dataEnvio: z.union([z.string(), z.date()]).optional(),
+  status: StatusAtestadoEnum.default('Pendente'),
+  observacoes: z.string().optional().nullable(),
+  avaliadoPor: z.string().min(11).max(14).optional().nullable(),
+  dataAvaliacao: z.union([z.string(), z.date()]).optional().nullable(),
+  justificativaRejeicao: z.string().optional().nullable(),
+}).refine(data => data.dataInicio <= data.dataFim, {
+  message: 'Data de início deve ser anterior ou igual à data de fim',
+  path: ['dataFim']
 });
 
-// Schema para resposta do dashboard com frequência atualizada
-export const DashboardResponseSchema = z.object({
-  success: z.boolean(),
-  data: z.object({
-    turma: z.object({
-      id: z.number(),
-      nome: z.string(),
-      anoLetivo: z.number(),
-      curso: z.object({ nome: z.string() }),
-    }),
-    alunos: z.object({
-      total: z.number(),
-      ativos: z.number(),
-      dados: z.array(z.object({
-        idAluno: z.number(),
-        nome: z.string(),
-        sobrenome: z.string(),
-      })).optional(),
-    }),
-    notas: z.object({
-      mediaGeral: z.number(),
-      distribuicao: z.array(z.object({
-        faixa: z.string(),
-        quantidade: z.number(),
-      })),
-      aprovados: z.number(),
-    }),
-    frequencia: z.object({
-      taxaPresenca: z.number(),
-      totalAulas: z.number(),
-      aulasRealizadas: z.number(),
-      alunosComBaixaFrequencia: z.array(z.object({
-        idAluno: z.number(),
-        nome: z.string(),
-        sobrenome: z.string(),
-        totalAulas: z.number(),
-        presencas: z.number(),
-        frequencia: z.number(),
-      })).optional(),
-    }),
-    presencas: z.array(PresencasSchema).optional(),
-    notasLancadas: z.array(z.unknown()),
-  }).optional(),
-  error: z.string().optional(),
+// Schema para AtestadoAulas
+export const AtestadoAulasSchema = z.object({
+  idAtestado: z.number().int().positive(),
+  idAula: z.number().int().positive(),
+  aplicado: z.boolean().default(false),
+  dataAplicacao: z.union([z.string(), z.date()]).optional().nullable(),
+});
+
+// Schema para envio de atestado (formulário) - CORRIGIDO
+export const EnvioAtestadoSchema = z.object({
+  idAluno: z.number().int().positive(),
+  dataInicio: z.string().min(1, 'Data de início é obrigatória'),
+  dataFim: z.string().min(1, 'Data de fim é obrigatória'),
+  motivo: z.string().min(1, 'Motivo é obrigatório').max(255, 'Motivo muito longo'), // Reduzido de 5 para 1
+  aulasAfetadas: z.array(z.number().int().positive()).min(1, 'Selecione pelo menos uma aula'),
+  observacoes: z.string().optional(),
+  idTurma: z.number().int().positive().optional(), // Adicionar idTurma como opcional
+}).refine(data => new Date(data.dataInicio) <= new Date(data.dataFim), {
+  message: 'Data de início deve ser anterior ou igual à data de fim',
+  path: ['dataFim']
+});
+
+// Schema específico para upload de atestado (usado na API)
+export const UploadAtestadoSchema = z.object({
+  idAluno: z.number().int().positive(),
+  dataInicio: z.string().min(1, 'Data de início é obrigatória'),
+  dataFim: z.string().min(1, 'Data de fim é obrigatória'),
+  motivo: z.string().min(1, 'Motivo é obrigatório').max(255, 'Motivo muito longo'),
+  aulasAfetadas: z.array(z.number().int().positive()).min(1, 'Selecione pelo menos uma aula'),
+  observacoes: z.string().optional().nullable(),
+  idTurma: z.number().int().positive().optional(),
 });
 
 // =========================
@@ -371,6 +369,9 @@ export type UsuariosData = z.infer<typeof UsuariosSchema>;
 export type LogData = z.infer<typeof LogSchema>;
 export type DiasNaoLetivosData = z.infer<typeof DiasNaoLetivosSchema>;
 export type NotasData = z.infer<typeof NotasSchema>;
+export type AtestadosMedicosData = z.infer<typeof AtestadosMedicosSchema>;
+export type AtestadoAulasData = z.infer<typeof AtestadoAulasSchema>;
+export type EnvioAtestadoData = z.infer<typeof EnvioAtestadoSchema>;
 
 // Tipos para formulários (mantidos para compatibilidade)
 export type TurmaData = z.infer<typeof TurmaSchema>;
@@ -378,11 +379,22 @@ export type TurmaFormData = z.infer<typeof TurmaFormSchema>;
 export type CreateUserData = z.infer<typeof CreateUserSchema>;
 export type UploadArquivoData = z.infer<typeof UploadArquivoSchema>;
 export type RegistroPresencaData = z.infer<typeof RegistroPresencaSchema>;
+export type UploadAtestadoData = z.infer<typeof UploadAtestadoSchema>;
+
+// Schema para resposta da API
+export const ApiResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.unknown().optional(),
+  error: z.string().optional(),
+  message: z.string().optional(),
+});
+
 export type ApiResponse = z.infer<typeof ApiResponseSchema>;
 
 // Tipos de enum
 export type StatusMatricula = z.infer<typeof StatusMatriculaEnum>;
 export type TipoUsuario = z.infer<typeof TipoUsuarioEnum>;
+export type StatusAtestado = z.infer<typeof StatusAtestadoEnum>;
 
 // =========================
 // HIERARQUIA DE PERMISSÕES
@@ -452,9 +464,13 @@ export const TABLE_MAPPING = {
   'DiasNaoLetivos': 'diasNaoLetivos',
   'notas': 'notas',
   'Notas': 'notas',
+  'atestadosMedicos': 'atestadosMedicos',
+  'AtestadosMedicos': 'atestadosMedicos',
+  'atestadoAulas': 'atestadoAulas',
+  'AtestadoAulas': 'atestadoAulas',
 } as const;
 
-// Mapeamento de schemas por tabela
+// Atualizar mapeamento de schemas
 export const SCHEMA_MAPPING = {
   alunos: AlunosSchema,
   enderecos: EnderecosSchema,
@@ -473,6 +489,8 @@ export const SCHEMA_MAPPING = {
   log: LogSchema,
   diasNaoLetivos: DiasNaoLetivosSchema,
   notas: NotasSchema,
+  atestadosMedicos: AtestadosMedicosSchema,
+  atestadoAulas: AtestadoAulasSchema,
 } as const;
 
 // =========================

@@ -6,6 +6,7 @@ import { CalendarioAulas } from "@/app/components/aluno/CalendarioAulas";
 import { TurmasAluno } from "@/app/components/aluno/TurmasAluno";
 import { NotasAluno } from "@/app/components/aluno/NotasAluno";
 import { FrequenciaAluno } from "@/app/components/aluno/FrequenciaAluno";
+import { EnvioAtestado } from "@/app/components/aluno/EnvioAtestado";
 import { AlunoGuard } from "@/app/components/guards/AlunoGuard";
 
 interface DashboardData {
@@ -47,7 +48,9 @@ interface DashboardData {
       nomeMateria: string;
     };
     totalAulas: number;
+    aulasMinistradas: number;
     presencas: number;
+    ausencias: number;
     taxaPresenca: number;
   }>;
   aulas: Array<{
@@ -71,7 +74,7 @@ export default function AlunoDashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'turmas' | 'notas' | 'frequencia' | 'calendario'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'turmas' | 'notas' | 'frequencia' | 'calendario' | 'atestados'>('overview');
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -186,11 +189,12 @@ export default function AlunoDashboardPage() {
                 { key: 'turmas', label: '🎓 Minhas Turmas', icon: '🎓' },
                 { key: 'notas', label: '📝 Notas', icon: '📝' },
                 { key: 'frequencia', label: '📅 Frequência', icon: '📅' },
-                { key: 'calendario', label: '🗓️ Calendário', icon: '🗓️' }
+                { key: 'calendario', label: '🗓️ Calendário', icon: '🗓️' },
+                { key: 'atestados', label: '🏥 Atestados', icon: '🏥' }
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as 'overview' | 'turmas' | 'notas' | 'frequencia' | 'calendario')}
+                  onClick={() => setActiveTab(tab.key as typeof activeTab)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                     activeTab === tab.key
                       ? "border-blue-500 text-blue-600"
@@ -245,6 +249,13 @@ export default function AlunoDashboardPage() {
                       <p className="text-sm font-medium text-gray-600">Frequência</p>
                       <p className={`text-2xl font-bold ${frequenciaGeral >= 75 ? 'text-green-600' : 'text-red-600'}`}>
                         {frequenciaGeral.toFixed(1)}%
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {frequencia.length > 0 && 
+                          `${frequencia.reduce((acc, freq) => acc + freq.presencas, 0)} de ${
+                            frequencia.reduce((acc, freq) => acc + freq.aulasMinistradas, 0)
+                          } aulas ministradas`
+                        }
                       </p>
                     </div>
                   </div>
@@ -302,6 +313,10 @@ export default function AlunoDashboardPage() {
 
           {activeTab === 'calendario' && (
             <CalendarioAulas aulas={aulas} />
+          )}
+
+          {activeTab === 'atestados' && (
+            <EnvioAtestado />
           )}
         </div>
       </div>

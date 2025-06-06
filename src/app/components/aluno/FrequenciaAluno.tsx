@@ -11,7 +11,9 @@ interface FrequenciaItem {
     nomeMateria: string;
   };
   totalAulas: number;
+  aulasMinistradas: number;
   presencas: number;
+  ausencias: number;
   taxaPresenca: number;
 }
 
@@ -30,13 +32,13 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
     return !filtroTurma || item.turma.nomeTurma === filtroTurma;
   });
 
-  // Calcular estatísticas
+  // Calcular estatísticas - CORRIGIDO
   const frequenciaGeral = frequenciaFiltrada.length > 0
     ? frequenciaFiltrada.reduce((acc, item) => acc + item.taxaPresenca, 0) / frequenciaFiltrada.length
     : 0;
 
   const materiasComRisco = frequenciaFiltrada.filter(item => item.taxaPresenca < 75).length;
-  const totalAulas = frequenciaFiltrada.reduce((acc, item) => acc + item.totalAulas, 0);
+  const totalAulasMinistradas = frequenciaFiltrada.reduce((acc, item) => acc + item.aulasMinistradas, 0);
   const totalPresencas = frequenciaFiltrada.reduce((acc, item) => acc + item.presencas, 0);
 
   return (
@@ -64,8 +66,8 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-600">{totalAulas}</p>
-            <p className="text-sm text-gray-600">Total de Aulas</p>
+            <p className="text-2xl font-bold text-gray-600">{totalAulasMinistradas}</p>
+            <p className="text-sm text-gray-600">Aulas Ministradas</p>
           </div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
@@ -134,46 +136,84 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-            {frequenciaFiltrada.map((item, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{item.materia.nomeMateria}</h3>
-                    <p className="text-sm text-gray-600">{item.turma.nomeTurma}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    item.taxaPresenca >= 75 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {item.taxaPresenca.toFixed(1)}%
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Presenças:</span>
-                    <span className="font-medium">{item.presencas}/{item.totalAulas}</span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        item.taxaPresenca >= 75 ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                      style={{ width: `${Math.min(100, item.taxaPresenca)}%` }}
-                    ></div>
-                  </div>
-
-                  {item.taxaPresenca < 75 && (
-                    <p className="text-xs text-red-600 mt-1">
-                      ⚠️ Frequência abaixo do mínimo exigido (75%)
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Turma
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Matéria
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Presenças
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aulas Ministradas
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Frequência
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {frequenciaFiltrada.map((freq) => (
+                  <tr key={`${freq.turma.idTurma}-${freq.materia.nomeMateria}`} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {freq.turma.nomeTurma}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {freq.materia.nomeMateria}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{freq.presencas}</span>
+                        <span className="text-xs text-gray-500">
+                          {freq.ausencias || 0} ausência{(freq.ausencias || 0) !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{freq.aulasMinistradas}</span>
+                        <span className="text-xs text-gray-500">
+                          {freq.totalAulas > freq.aulasMinistradas && 
+                            `${freq.totalAulas - freq.aulasMinistradas} agendada${freq.totalAulas - freq.aulasMinistradas !== 1 ? 's' : ''}`
+                          }
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className={`text-sm font-bold ${
+                          freq.taxaPresenca >= 75 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {freq.taxaPresenca.toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {freq.presencas} de {freq.aulasMinistradas} ministradas
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        freq.taxaPresenca >= 75
+                          ? 'bg-green-100 text-green-800'
+                          : freq.taxaPresenca >= 50
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {freq.taxaPresenca >= 75 ? 'Adequada' : freq.taxaPresenca >= 50 ? 'Atenção' : 'Crítica'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
