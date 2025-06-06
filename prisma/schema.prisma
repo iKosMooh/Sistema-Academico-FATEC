@@ -133,37 +133,42 @@ model TurmaAluno {
 }
 
 model Aula {
-  idAula             Int         @id @default(autoincrement())
-  idTurma            Int
-  idMateria          Int
-  dataAula           DateTime    @db.Date
-  horario            String      @db.VarChar(10)
-  presencasAplicadas Boolean     @default(false)
-  aulaConcluida      Boolean     @default(false)
-  planejamento       String?     @db.Text         // O que pretende apresentar
-  metodologia        String?     @db.Text         // Como será feito
-  conteudoMinistrado String?     @db.Text         // O que foi realmente apresentado
-  descricao          String?     @db.Text         // Manter para compatibilidade
-  observacoes        String?     @db.Text         // Observações gerais
-  duracaoMinutos     Int
-  created_at         DateTime    @default(now()) @db.DateTime(0)
-  updated_at         DateTime    @default(now()) @updatedAt @db.DateTime(0)
-  materia            Materias    @relation(fields: [idMateria], references: [idMateria], map: "fk_aula_materias")
-  turma              Turmas      @relation(fields: [idTurma], references: [idTurma], onDelete: Cascade, map: "fk_aula_turmas")
-  docsAula           DocsAula[]
-  presencas          Presencas[]
+  idAula                Int         @id @default(autoincrement())
+  idTurma               Int
+  idMateria             Int
+  dataAula              DateTime
+  horario               String?
+  duracaoMinutos        Int?
+  aulaConcluida         Boolean     @default(false)
+  presencasAplicadas    Boolean     @default(false)
+  observacoes           String?     @db.Text
+  descricao             String?
+  planejamento          String?     @db.Text
+  metodologia           String?     @db.Text
+  conteudoMinistrado    String?     @db.Text
+  metodologiaAplicada   String?     @db.Text
+  observacoesAula       String?     @db.Text
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
 
-  @@index([idMateria], map: "fk_aula_materias")
-  @@index([idTurma], map: "fk_aula_turmas")
+  turma                 Turmas      @relation(fields: [idTurma], references: [idTurma], onDelete: Cascade)
+  materia               Materias    @relation(fields: [idMateria], references: [idMateria], onDelete: Cascade)
+  presencas             Presencas[]
+  docsAula              DocsAula[]
+
+  @@map("Aulas")
 }
 
 model DocsAula {
-  idDocAula Int    @id @default(autoincrement())
-  idAula    Int
-  src       String @db.VarChar(255)
-  aula      Aula   @relation(fields: [idAula], references: [idAula], onDelete: Cascade, map: "fk_docsaula_aula")
+  idDocAula             Int      @id @default(autoincrement())
+  idAula                Int
+  src                   String
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
 
-  @@index([idAula], map: "fk_docsaula_aula")
+  aula                  Aula     @relation(fields: [idAula], references: [idAula], onDelete: Cascade)
+
+  @@map("DocsAulas")
 }
 
 model Presencas {
