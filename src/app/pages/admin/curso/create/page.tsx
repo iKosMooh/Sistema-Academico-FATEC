@@ -52,7 +52,7 @@ export default function CreateCursoPage() {
       if (!result.success) throw new Error(result.error || 'Erro ao criar o curso.');
 
       setSuccess(true);
-      router.push('/cursos');  // Redireciona para a listagem de cursos
+      router.push('/pages/academico/dashboard');  // Redireciona para a listagem de cursos
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

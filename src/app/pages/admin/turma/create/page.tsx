@@ -28,7 +28,7 @@ export default function CreateTurmaPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             operation: 'get',
-            table: 'curso',
+            table: 'curso', // Mantendo consistência
           }),
         });
         const result = await res.json();
@@ -37,7 +37,8 @@ export default function CreateTurmaPage() {
         } else {
           setError('Erro ao carregar cursos');
         }
-      } catch {
+      } catch (error) {
+        console.error('Erro ao buscar cursos:', error);
         setError('Erro ao carregar cursos');
       }
     }

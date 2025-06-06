@@ -36,12 +36,14 @@ export default function TurmasPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             operation: "get",
-            table: "curso",
+            table: "curso", // Mantendo consistência
           }),
         });
         const result = await res.json();
         if (result.success) setCursos(result.data);
-      } catch {}
+      } catch (error) {
+        console.error('Erro ao buscar cursos:', error);
+      }
     }
     fetchCursos();
   }, []);

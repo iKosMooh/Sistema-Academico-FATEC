@@ -3,15 +3,17 @@ import { useState } from "react";
 import { AdminGuard } from "@/app/components/AdminGuard";
 import { CursosDashboard } from "@/app/components/academico/CursosDashboard";
 import { MateriasDashboard } from "@/app/components/academico/MateriasDashboard";
+import { TurmasDashboard } from "@/app/components/academico/TurmasDashboard";
 
-type ActiveSection = "cursos" | "materias";
+type ActiveSection = "cursos" | "materias" | "turmas";
 
 export default function AcademicoDashboardPage() {
   const [activeSection, setActiveSection] = useState<ActiveSection>("cursos");
 
   const menuItems = [
     { key: "cursos" as const, label: "Gerenciar Cursos", icon: "📚" },
-    { key: "materias" as const, label: "Gerenciar Matérias", icon: "📖" }
+    { key: "materias" as const, label: "Gerenciar Matérias", icon: "📖" },
+    { key: "turmas" as const, label: "Gerenciar Turmas", icon: "👥" }
   ];
 
   return (
@@ -26,7 +28,7 @@ export default function AcademicoDashboardPage() {
                   Gestão Acadêmica
                 </h1>
                 <p className="mt-1 text-sm text-gray-500">
-                  Gerenciamento de cursos e matérias do sistema
+                  Gerenciamento de cursos, matérias e turmas do sistema
                 </p>
               </div>
             </div>
@@ -60,6 +62,7 @@ export default function AcademicoDashboardPage() {
           <div className="bg-white rounded-lg shadow">
             {activeSection === "cursos" && <CursosDashboard />}
             {activeSection === "materias" && <MateriasDashboard />}
+            {activeSection === "turmas" && <TurmasDashboard />}
           </div>
         </div>
       </div>
