@@ -25,7 +25,7 @@ export function Modal({
           <button
             onClick={onClose}
             aria-label="Fechar modal"
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-colors"
+            className="text-white-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-colors"
           >
             ✕
           </button>

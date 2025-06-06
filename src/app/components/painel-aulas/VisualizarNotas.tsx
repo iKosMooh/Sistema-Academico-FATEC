@@ -78,14 +78,14 @@ export function VisualizarNotas() {
   });
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Visualizar Notas da Turma</h2>
+    <div className="max-w-6xl mx-auto bg-blue-200 rounded shadow p-6 mb-8">
+      <h2 className="text-2xl font-bold mb-6 text-blue-700">Visualizar Notas da Turma</h2>
       
-      <div className="flex gap-4 mb-4">
-        <div className="flex-1">
-          <label className="block font-medium mb-1">Matéria</label>
+      <div className="mb-6 flex flex-wrap gap-4 items-center bg-gray-200 rounded-xl p-6 shadow border border-gray-300">
+        <div className="flex-1 min-w-[220px]">
+          <label className="block font-medium mb-1 text-blue-700">Matéria</label>
           <select
-            className="w-full border rounded px-2 py-1"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             value={materiaFiltro}
             onChange={(e) => setMateriaFiltro(e.target.value)}
           >
@@ -97,11 +97,10 @@ export function VisualizarNotas() {
             ))}
           </select>
         </div>
-
-        <div className="flex-1">
-          <label className="block font-medium mb-1">Filtrar por</label>
+        <div className="flex-1 min-w-[180px]">
+          <label className="block font-medium mb-1 text-blue-700">Filtrar por</label>
           <select
-            className="w-full border rounded px-2 py-1"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             value={tipoFiltro}
             onChange={(e) => setTipoFiltro(e.target.value as 'nome' | 'cpf')}
           >
@@ -109,14 +108,13 @@ export function VisualizarNotas() {
             <option value="cpf">CPF</option>
           </select>
         </div>
-        
-        <div className="flex-1">
-          <label className="block font-medium mb-1">
+        <div className="flex-1 min-w-[220px]">
+          <label className="block font-medium mb-1 text-blue-700">
             {tipoFiltro === 'nome' ? 'Nome do Aluno' : 'CPF do Aluno'}
           </label>
           <input
             type="text"
-            className="w-full border rounded px-2 py-1"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
             placeholder={tipoFiltro === 'nome' ? "Digite o nome..." : "Digite o CPF..."}
@@ -127,43 +125,68 @@ export function VisualizarNotas() {
       {loading ? (
         <div className="text-center py-4">Carregando...</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-2">Nome do Aluno</th>
-                <th className="text-left p-2">CPF</th>
-                <th className="text-left p-2">Matéria</th>
-                <th className="text-left p-2">Avaliação</th>
-                <th className="text-right p-2">Nota</th>
-                <th className="text-left p-2">Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              {notasFiltradas.map(nota => (
-                <tr key={nota.idNota} className="border-b hover:bg-gray-50">
-                  <td className="p-2">{`${nota.aluno.nome} ${nota.aluno.sobrenome}`}</td>
-                  <td className="p-2">{nota.aluno.cpf}</td>
-                  <td className="p-2">{nota.materia.nomeMateria}</td>
-                  <td className="p-2">
-                    <span className="font-medium">{nota.nome}</span>
-                    <span className="text-gray-500 text-sm ml-1">({nota.tipoAvaliacao})</span>
-                  </td>
-                  <td className="p-2 text-right font-medium">{nota.valorNota.toFixed(1)}</td>
-                  <td className="p-2 text-sm text-gray-600">
-                    {new Date(nota.dataLancamento).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-              {notasFiltradas.length === 0 && (
+        <div className="bg-gray-200 rounded-xl shadow-md border border-gray-300 overflow-hidden">
+          <h3 className="font-semibold text-lg text-white bg-blue-500 py-3 px-4">
+            Notas Lançadas
+          </h3>
+          <div className="overflow-auto max-h-[500px]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td colSpan={6} className="text-center py-4 text-gray-500">
-                    Nenhuma nota encontrada
-                  </td>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white-0 uppercase tracking-wider">
+                    Nome do Aluno
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white-0 uppercase tracking-wider">
+                    CPF
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white-0 uppercase tracking-wider">
+                    Matéria
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white-0 uppercase tracking-wider">
+                    Avaliação
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-white-0 uppercase tracking-wider">
+                    Nota
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white-0 uppercase tracking-wider">
+                    Data
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {notasFiltradas.map(nota => (
+                  <tr key={nota.idNota} className="hover:bg-blue-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-200">
+                      {`${nota.aluno.nome} ${nota.aluno.sobrenome}`}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 bg-gray-200">
+                      {nota.aluno.cpf}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900 bg-gray-200">
+                      {nota.materia.nomeMateria}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200">
+                      <span className="font-medium text-gray-800">{nota.nome}</span>
+                      <span className="text-gray-500 text-sm ml-1">({nota.tipoAvaliacao})</span>
+                    </td>
+                    <td className="px-6 py-4 text-right font-medium text-blue-900 bg-gray-200">
+                      {nota.valorNota.toFixed(1)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 bg-gray-200">
+                      {new Date(nota.dataLancamento).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+                {notasFiltradas.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-900 bg-gray-200">
+                      Nenhuma nota encontrada
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

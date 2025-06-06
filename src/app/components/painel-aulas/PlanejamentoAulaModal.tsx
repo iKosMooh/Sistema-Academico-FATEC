@@ -197,8 +197,8 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} title="Planejamento de Aula">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-blue-50 p-3 rounded-lg">
+        <form onSubmit={handleSubmit} className="bg-gray-100 rounded-xl p-6 shadow border border-gray-300 space-y-4">
+          <div className="bg-blue-50 p-3 rounded-lg mb-2">
             <h4 className="font-semibold text-blue-800">
               {aula.materia.nomeMateria} (ID: {aula.idAula})
             </h4>
@@ -208,7 +208,7 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
           </div>
 
           <div>
-            <label htmlFor="planejamento" className="block text-sm font-medium mb-2 text-gray-700">
+            <label htmlFor="planejamento" className="block text-sm font-medium mb-2 text-blue-700">
               O que pretende apresentar nesta aula?
             </label>
             <textarea
@@ -216,13 +216,13 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
               value={planejamento}
               onChange={(e) => setPlanejamento(e.target.value)}
               rows={4}
-              className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
               placeholder="Descreva o conteúdo que será abordado..."
             />
           </div>
 
           <div>
-            <label htmlFor="metodologia" className="block text-sm font-medium mb-2 text-gray-700">
+            <label htmlFor="metodologia" className="block text-sm font-medium mb-2 text-blue-700">
               Como será desenvolvida a aula?
             </label>
             <textarea
@@ -230,25 +230,25 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
               value={metodologia}
               onChange={(e) => setMetodologia(e.target.value)}
               rows={4}
-              className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
               placeholder="Descreva a metodologia, recursos que serão utilizados..."
             />
           </div>
-
+          
           {/* Arquivos existentes */}
           {arquivosExistentes.length > 0 && (
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">
+              <label className="block text-sm font-medium mb-2 text-blue-700">
                 Arquivos Anexados Atualmente ({arquivosExistentes.length})
               </label>
               {loadingArquivos ? (
                 <p className="text-sm text-gray-500">Carregando arquivos...</p>
               ) : (
-                <div className="space-y-2 max-h-40 overflow-y-auto border rounded p-2">
+                <div className="space-y-2 max-h-40 overflow-y-auto border rounded p-2 bg-gray-50">
                   {arquivosExistentes.map((arquivo) => (
                     <div 
                       key={arquivo.idDocAula} 
-                      className="flex items-center justify-between bg-gray-50 p-3 rounded border hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between bg-gray-100 p-3 rounded border hover:bg-gray-200 transition-colors"
                     >
                       <div className="flex items-center gap-2 flex-1">
                         <span className="text-lg">{getIconeArquivo(arquivo.tipoArquivo)}</span>
@@ -297,7 +297,7 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
           )}
 
           <div>
-            <label htmlFor="arquivos" className="block text-sm font-medium mb-2 text-gray-700">
+            <label htmlFor="arquivos" className="block text-sm font-medium mb-2 text-blue-700">
               Adicionar Novos Arquivos (opcional)
             </label>
             <input
@@ -305,7 +305,7 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
               id="arquivos"
               multiple
               onChange={(e) => setArquivos(e.target.files)}
-              className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -313,7 +313,6 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
             </p>
           </div>
 
-          {/* Debug: Mostrar o ID da aula */}
           <div className="text-xs text-gray-500 border-t pt-2">
             Debug - ID da Aula: {aula.idAula} | Arquivos: {arquivosExistentes.length}
           </div>
@@ -323,14 +322,14 @@ export function PlanejamentoAulaModal({ isOpen, onClose, aula, onSave }: Planeja
               type="button"
               onClick={onClose}
               disabled={uploading}
-              className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+              className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-xl hover:bg-gray-600 disabled:opacity-50 font-semibold shadow"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={uploading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow flex items-center justify-center"
             >
               {uploading ? (
                 <>
