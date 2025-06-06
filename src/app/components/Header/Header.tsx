@@ -18,7 +18,7 @@ export default function Header() {
 
     return (
         <>
-            <header className="bg-blue-800 rounded-xl shadow-lg px-4 py-2 w-full">
+            <header className="bg-blue-800  shadow-lg px-4 py-2 w-full">
                 <div className="flex items-center h-20">
                     {/* Logo + Nome */}
                     <div className="flex items-center flex-shrink-0">
