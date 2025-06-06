@@ -156,7 +156,7 @@ model Aula {
   presencas             Presencas[]
   docsAula              DocsAula[]
 
-  @@map("Aulas")
+  @@map("Aula")
 }
 
 model DocsAula {

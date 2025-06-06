@@ -1,29 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
 
 const prisma = new PrismaClient();
 
+// Schema de validação usando Zod
+const RegistroAulaSchema = z.object({
+  idAula: z.number().int().positive(),
+  presencas: z.array(z.object({
+    idAluno: z.number().int().positive(),
+    presente: z.boolean()
+  })),
+  conteudoMinistrado: z.string().optional(),
+  observacoesAula: z.string().optional(),
+  metodologiaAplicada: z.string().optional(),
+  idProfessor: z.string().min(11, 'CPF do professor é obrigatório').max(14)
+});
+
 interface PresencaInput {
-  idAluno: string | number;
+  idAluno: number;
   presente: boolean;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { idAula, presencas, conteudoMinistrado, observacoesAula } = await request.json();
-
-    console.log('Registrando aula:', { idAula, presencas: presencas.length, conteudoMinistrado });
-
-    if (!idAula) {
-      return NextResponse.json(
-        { success: false, error: 'ID da aula é obrigatório' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    
+    // Validação com Zod
+    const validatedData = RegistroAulaSchema.safeParse(body);
+    
+    if (!validatedData.success) {
+      return NextResponse.json({
+        success: false,
+        error: 'Dados inválidos',
+        details: validatedData.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
+      }, { status: 400 });
     }
+
+    const { idAula, presencas, conteudoMinistrado, observacoesAula, metodologiaAplicada, idProfessor } = validatedData.data;
+
+    console.log('Registrando aula:', { idAula, presencas: presencas.length, conteudoMinistrado, idProfessor });
 
     // Verificar se a aula existe
     const aulaExiste = await prisma.aula.findUnique({
-      where: { idAula: parseInt(idAula) }
+      where: { idAula }
     });
 
     if (!aulaExiste) {
@@ -33,29 +53,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar se o professor existe
+    const professorExiste = await prisma.professores.findUnique({
+      where: { idProfessor }
+    });
+
+    if (!professorExiste) {
+      return NextResponse.json(
+        { success: false, error: 'Professor não encontrado' },
+        { status: 404 }
+      );
+    }
+
     // Usar transação para garantir consistência
     const resultado = await prisma.$transaction(async (tx) => {
       try {
         // 1. Atualizar a aula com o conteúdo ministrado
         const aulaAtualizada = await tx.aula.update({
-          where: { idAula: parseInt(idAula) },
+          where: { idAula },
           data: {
             aulaConcluida: true,
             presencasAplicadas: true,
             conteudoMinistrado: conteudoMinistrado || null,
-            observacoes: observacoesAula || null,
+            metodologiaAplicada: metodologiaAplicada || null,
+            observacoesAula: observacoesAula || null,
           }
         });
 
         // 2. Deletar presenças existentes para esta aula
         await tx.presencas.deleteMany({
-          where: { idAula: parseInt(idAula) }
+          where: { idAula }
         });
 
-        // 3. Criar novas presenças
+        // 3. Criar novas presenças com idProfessor
         const presencasData = presencas.map((p: PresencaInput) => ({
-          idAula: parseInt(idAula),
-          idAluno: parseInt(p.idAluno.toString()),
+          idAula,
+          idAluno: p.idAluno,
+          idProfessor,
           presente: Boolean(p.presente)
         }));
 
@@ -78,6 +112,15 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Erro ao registrar aula:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Dados de entrada inválidos',
+        details: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
+      }, { status: 400 });
+    }
+    
     return NextResponse.json(
       { 
         success: false, 

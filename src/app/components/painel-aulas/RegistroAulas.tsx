@@ -33,6 +33,7 @@ interface RegistroPresencaData {
   conteudoMinistrado: string;
   metodologiaAplicada: string;
   observacoesAula: string;
+  idProfessor: string;
 }
 
 export function RegistroAulas() {
@@ -46,11 +47,7 @@ export function RegistroAulas() {
   const [metodologiaAplicada, setMetodologiaAplicada] = useState('');
   const [observacoesAula, setObservacoesAula] = useState('');
   const [salvando, setSalvando] = useState(false);
-  const [presencaAulaIds, setPresencaAulaIds] = useState<number[]>([]);
-  const [presencas, setPresencas] = useState<Record<number, Record<number, boolean>>>({});
   const [loading, setLoading] = useState(false);
-  const [confirmForaHoje, setConfirmForaHoje] = useState(false);
-  const [aulaSelectedId, setAulaSelectedId] = useState<number | null>(null);
   // Função para carregar aulas
   const carregarAulas = useCallback(async () => {
     if (!turma?.id) {
@@ -157,154 +154,12 @@ export function RegistroAulas() {
       });
   }, [turma]);
 
-  // Carrega presenças das aulas selecionadas
-  useEffect(() => {
-    if (!modalPresenca || presencaAulaIds.length === 0) return;
-    setLoading(true);
-    Promise.all(
-      presencaAulaIds.map((idAula) =>
-        fetch("/api/crud", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            operation: "get",
-            table: "presencas",
-            where: { idAula },
-          }),
-        })
-          .then((res) => res.json())
-          .then((result) => ({
-            idAula,
-            presencas: result.success ? result.data : [],
-          }))
-      )
-    ).then((results) => {
-      const map: Record<number, Record<number, boolean>> = {};
-      results.forEach(({ idAula, presencas }) => {
-        map[idAula] = {};
-        presencas.forEach((p: any) => {
-          map[idAula][p.idAluno] = !!p.presente;
-        });
-      });
-      setPresencas(map);
-      setLoading(false);
-    });
-  }, [modalPresenca, presencaAulaIds]);
-
-  // Seleção de aulas
-  const toggleAula = (idAula: number) => {
-    setAulaSelectedId((prev) =>
-      prev === idAula ? null : idAula
-    );
-  };
-
-  // Aplica presença em massa
-  const handleAplicarPresenca = () => {
-    if (aulaSelectedId === null) return;
-    // Verifica se alguma aula não é do dia atual
-    const hoje = new Date().toISOString().slice(0, 10);
-    const temForaHoje = aulas
-      .filter((a) => a.idAula === aulaSelectedId)
-      .some((a) => a.dataAula.slice(0, 10) !== hoje);
-    if (temForaHoje && !confirmForaHoje) {
-      setConfirmForaHoje(true);
-      return;
-    }
-    setPresencaAulaIds([aulaSelectedId]);
-    setModalPresenca(true);
-    setConfirmForaHoje(false);
-  };
-
-  // Salva presenças no banco (permite editar presença já aplicada)
-  const salvarPresencas = async () => {
-    setLoading(true);
-    const idProfessor = session?.user?.cpf || "";
-    
-    if (!idProfessor) {
-      alert("Não foi possível identificar o professor. Faça login novamente.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      for (const idAula of presencaAulaIds) {
-        for (const aluno of alunos) {
-          const presente = presencas[idAula]?.[aluno.idAluno] || false;
-          
-          const response = await fetch("/api/presencas", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              idAula,
-              idAluno: aluno.idAluno,
-              idProfessor,
-              presente
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error('Erro ao salvar presença');
-          }
-        }
-      }
-
-      setModalPresenca(false);
-      setAulaSelectedId(null);
-      setPresencas({});
-      await carregarAulas();
-
-    } catch (error) {
-      console.error("Erro ao salvar presenças:", error);
-      alert("Erro ao salvar presenças. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Atualiza presença de um aluno em uma aula (permite editar sempre)
-  const togglePresenca = (idAula: number, idAluno: number) => {
-    setPresencas((prev) => ({
-      ...prev,
-      [idAula]: {
-        ...prev[idAula],
-        [idAluno]: !prev[idAula]?.[idAluno],
-      },
-    }));
-  };
-
-  // Remove presença (desmarca) no banco para aulas já ministradas
-  // (opcional: pode ser removido se togglePresenca + salvarPresencas já faz upsert)
   // Função removerPresenca removida pois não está sendo utilizada.
 
   // Permite editar presenças mesmo para aulas já aplicadas
   // (não desabilite o checkbox e sempre permita togglePresenca)
   // O botão "Aplicar Presença para Selecionadas" pode ser usado para editar qualquer aula, inclusive já aplicada
 
-  const handleSaveConteudoMinistrado = async (conteudo: string) => {
-    if (!aulaSelected) return;
-
-    try {
-      const response = await fetch("/api/crud", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operation: "update",
-          table: "aula",
-          where: { idAula: aulaSelected.idAula },
-          data: { conteudoMinistrado: conteudo },
-        }),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        alert("Conteúdo ministrado salvo com sucesso!");
-        setAulaSelected({ ...aulaSelected, conteudoMinistrado: conteudo });
-      }
-    } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao salvar conteúdo");
-    }
-  };
 
   const handleAulaClick = (aula: Aula) => {
     setAulaSelected(aula);
@@ -321,7 +176,7 @@ export function RegistroAulas() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           operation: "get",
-          table: "turmaAlunos",
+          table: "turmaAluno",
           relations: { aluno: true },
           where: { idTurma: Number(turma.id) }
         }),
@@ -329,9 +184,16 @@ export function RegistroAulas() {
         .then((res) => res.json())
         .then((result) => {
           if (result.success && result.data) {
-            const alunosFormatados = result.data.map((ta: any) => ({
+            interface TurmaAlunoResponse {
+              aluno: {
+                idAluno: number;
+                nome: string;
+                sobrenome: string;
+              };
+            }
+            const alunosFormatados = (result.data as TurmaAlunoResponse[]).map((ta: TurmaAlunoResponse) => ({
               idAluno: ta.aluno.idAluno,
-              nomeAluno: ta.aluno.nomeAluno,
+              nomeAluno: `${ta.aluno.nome} ${ta.aluno.sobrenome}`,
               presente: false
             }));
             setAlunos(alunosFormatados);
@@ -354,6 +216,13 @@ export function RegistroAulas() {
   const handleSalvarPresenca = async () => {
     if (!aulaSelected) return;
 
+    const idProfessor = session?.user?.cpf || "";
+    
+    if (!idProfessor) {
+      alert("Não foi possível identificar o professor. Faça login novamente.");
+      return;
+    }
+
     setSalvando(true);
     try {
       const dadosRegistro: RegistroPresencaData = {
@@ -364,7 +233,8 @@ export function RegistroAulas() {
         })),
         conteudoMinistrado,
         metodologiaAplicada,
-        observacoesAula
+        observacoesAula,
+        idProfessor // Adicionar o ID do professor
       };
 
       const response = await fetch("/api/registro-aula", {
