@@ -134,16 +134,16 @@ export function VincularAlunosTurma() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-8 mb-8 border border-gray-200">
-      <h2 className="text-2xl font-bold mb-6 text-white bg-gradient-to-r from-blue-600 to-blue-500 py-3 px-6 rounded-lg shadow">
-        Vincular Alunos à Turma
+    <div className="max-w-6xl mx-auto bg-blue-200 rounded shadow p-6 mb-8">
+      <h2 className="text-2xl font-bold mb-6 text-blue-700">
+        Vincular Alunos à Turma {turma?.nome ?? ''}
       </h2>
       
-      <div className="mb-6 flex flex-wrap gap-4 items-center">
+      <div className="mb-6 flex flex-wrap gap-4 items-center bg-gray-200 rounded-xl p-6 shadow border border-gray-300">
         <input
           type="text"
           placeholder="Filtrar por nome"
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-full md:w-auto"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-full md:w-auto bg-white text-black"
           value={filtroNome}
           onChange={(e) => setFiltroNome(e.target.value)}
         />
@@ -151,12 +151,12 @@ export function VincularAlunosTurma() {
         <input
           type="text"
           placeholder="Filtrar por CPF"
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-full md:w-auto"
+          className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 w-full md:w-auto bg-white text-black"
           value={filtroCpf}
           onChange={(e) => setFiltroCpf(e.target.value)}
         />
         
-        <label className="flex items-center gap-2 text-gray-700 cursor-pointer">
+        <label className="flex items-center gap-2 text-gray-700 cursor-pointer bg-white px-4 py-2 rounded-lg">
           <input
             type="checkbox"
             checked={filtroSemTurma}
@@ -169,7 +169,7 @@ export function VincularAlunosTurma() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Lista de todos os alunos */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+        <div className="bg-gray-200 rounded-xl shadow-md border border-gray-300 overflow-hidden">
           <h3 className="font-semibold text-lg text-white bg-blue-500 py-3 px-4">
             Todos os Alunos
           </h3>
@@ -191,15 +191,15 @@ export function VincularAlunosTurma() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {alunosFiltrados.map((a) => (
                   <tr key={a.idAluno} className="hover:bg-blue-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-200">
                       {a.nome} {a.sobrenome}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 bg-gray-200">
                       {a.cpf}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200">
                       {vinculados.some((v) => v.idAluno === a.idAluno) ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
                           Vinculado
                         </span>
                       ) : (
@@ -215,7 +215,7 @@ export function VincularAlunosTurma() {
                 ))}
                 {alunosFiltrados.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-6 py-4 text-center text-sm text-white-500">
+                    <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-900 bg-gray-200">
                       Nenhum aluno encontrado.
                     </td>
                   </tr>
@@ -226,7 +226,7 @@ export function VincularAlunosTurma() {
         </div>
         
         {/* Lista de alunos vinculados */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+        <div className="bg-gray-200 rounded-xl shadow-md border border-gray-300 overflow-hidden">
           <h3 className="font-semibold text-lg text-white bg-blue-500 py-3 px-4">
             Alunos Vinculados
           </h3>
@@ -248,13 +248,13 @@ export function VincularAlunosTurma() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {vinculados.map((a) => (
                   <tr key={a.idAluno} className="hover:bg-blue-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-gray-200">
                       {a.nome} {a.sobrenome}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 bg-gray-200">
                       {a.cpf}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200">
                       <button
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
                         onClick={() => desvincularAluno(a.idAluno)}
@@ -266,7 +266,7 @@ export function VincularAlunosTurma() {
                 ))}
                 {vinculados.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
+                    <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-900 bg-gray-200">
                       Nenhum aluno vinculado à turma.
                     </td>
                   </tr>

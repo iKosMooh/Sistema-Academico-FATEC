@@ -252,17 +252,17 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
   if (!turma) {
     return (
       <div className="p-6">
-        <h2 className="text-2xl font-bold mb-6 text-white">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900">
           Planejamento de Aulas
         </h2>
-        <p className="text-white">Selecione uma turma para visualizar o planejamento de aulas.</p>
+        <p className="text-gray-700">Selecione uma turma para visualizar o planejamento de aulas.</p>
       </div>
     );
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-white">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">
         Planejamento de Aulas - {turma.nome}
       </h2>
 
@@ -325,16 +325,16 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-2">
           <button
-            className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-900"
+            className="px-2 py-1 rounded bg-gray-200 text-white hover:bg-gray-300 hover:text-gray-900"
             onClick={() => setMesAtual((m) => (m === 0 ? 11 : m - 1))}
           >
             {"<"}
           </button>
-          <div className="text-lg font-bold text-white">
+          <div className="text-lg font-bold text-gray-900">
             {meses[mesAtual]} {anoAtual}
           </div>
           <button
-            className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-900"
+            className="px-2 py-1 rounded bg-gray-200 text-white hover:bg-gray-300 hover:text-gray-900"
             onClick={() => setMesAtual((m) => (m === 11 ? 0 : m + 1))}
           >
             {">"}
@@ -492,11 +492,11 @@ export function PlanejamentoAulas({ reloadFlag }: { reloadFlag?: number }) {
       </div>
 
       {/* Instruções */}
-      <div className="mt-6 text-center text-white">
+      <div className="mt-6 text-center text-gray-900">
         <p className="text-sm">
           Clique em uma aula no calendário para selecioná-la e depois clique em &quot;Planejar Aula&quot; para criar o planejamento.
         </p>
-        <p className="text-xs mt-2 text-gray-300">
+        <p className="text-xs mt-2 text-gray-800">
           📋 = Aula já possui planejamento
         </p>
       </div>
