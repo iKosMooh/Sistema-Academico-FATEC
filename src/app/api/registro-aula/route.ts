@@ -65,6 +65,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar se todos os alunos existem
+    const idsAlunos = presencas.map(p => p.idAluno);
+    const alunosExistem = await prisma.alunos.findMany({
+      where: { idAluno: { in: idsAlunos } },
+      select: { idAluno: true }
+    });
+
+    if (alunosExistem.length !== idsAlunos.length) {
+      const alunosEncontrados = alunosExistem.map(a => a.idAluno);
+      const alunosNaoEncontrados = idsAlunos.filter(id => !alunosEncontrados.includes(id));
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `Alunos não encontrados: ${alunosNaoEncontrados.join(', ')}` 
+        },
+        { status: 404 }
+      );
+    }
+
     // Usar transação para garantir consistência
     const resultado = await prisma.$transaction(async (tx) => {
       try {
@@ -80,24 +99,33 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        // 2. Deletar presenças existentes para esta aula
+        // 2. Deletar presenças existentes para esta aula (se houver)
         await tx.presencas.deleteMany({
           where: { idAula }
         });
 
-        // 3. Criar novas presenças com idProfessor
+        // 3. Criar novas presenças com todos os campos obrigatórios
         const presencasData = presencas.map((p: PresencaInput) => ({
           idAula,
           idAluno: p.idAluno,
           idProfessor,
-          presente: Boolean(p.presente)
+          presente: Boolean(p.presente),
+          justificativa: null, // Campo opcional
+          dataRegistro: new Date() // Timestamp atual
         }));
 
-        await tx.presencas.createMany({
+        console.log('Criando presenças:', presencasData);
+
+        const presencasCriadas = await tx.presencas.createMany({
           data: presencasData
         });
 
-        return aulaAtualizada;
+        console.log(`${presencasCriadas.count} presenças criadas com sucesso`);
+
+        return {
+          aula: aulaAtualizada,
+          presencasCriadas: presencasCriadas.count
+        };
       } catch (transactionError) {
         console.error('Erro na transação:', transactionError);
         throw transactionError;
@@ -107,7 +135,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: resultado,
-      message: 'Registro da aula salvo com sucesso'
+      message: `Aula registrada com sucesso. ${resultado.presencasCriadas} presenças salvas.`
     });
 
   } catch (error) {

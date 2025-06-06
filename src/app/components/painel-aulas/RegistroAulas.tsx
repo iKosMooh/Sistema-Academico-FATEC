@@ -36,6 +36,16 @@ interface RegistroPresencaData {
   idProfessor: string;
 }
 
+interface PresencaAPI {
+  idPresenca: number;
+  idAula: number;
+  idAluno: number;
+  idProfessor: string;
+  presente: boolean;
+  justificativa?: string;
+  dataRegistro: string;
+}
+
 export function RegistroAulas() {
   const { turma } = useAppContext();
   const { data: session } = useSession();
@@ -168,42 +178,63 @@ export function RegistroAulas() {
     setObservacoesAula(aula.observacoesAula || '');
   };
 
-  const handleRegistrarPresenca = () => {
+  const handleRegistrarPresenca = async () => {
     if (aulaSelected && turma) {
-      // Buscar alunos da turma
-      fetch("/api/crud", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operation: "get",
-          table: "turmaAluno",
-          relations: { aluno: true },
-          where: { idTurma: Number(turma.id) }
-        }),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          if (result.success && result.data) {
-            interface TurmaAlunoResponse {
-              aluno: {
-                idAluno: number;
-                nome: string;
-                sobrenome: string;
-              };
-            }
-            const alunosFormatados = (result.data as TurmaAlunoResponse[]).map((ta: TurmaAlunoResponse) => ({
-              idAluno: ta.aluno.idAluno,
-              nomeAluno: `${ta.aluno.nome} ${ta.aluno.sobrenome}`,
-              presente: false
-            }));
-            setAlunos(alunosFormatados);
-            setModalPresenca(true);
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao buscar alunos:', error);
-          alert('Erro ao carregar alunos da turma');
+      try {
+        // Buscar alunos da turma
+        const res = await fetch("/api/crud", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            operation: "get",
+            table: "turmaAluno",
+            relations: { aluno: true },
+            where: { idTurma: Number(turma.id) }
+          }),
         });
+
+        const result = await res.json();
+        
+        if (result.success && result.data) {
+          interface TurmaAlunoResponse {
+            aluno: {
+              idAluno: number;
+              nome: string;
+              sobrenome: string;
+            };
+          }
+
+          // Buscar presenças existentes para esta aula (se houver)
+          const presencasExistentes = await fetch("/api/crud", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              operation: "get",
+              table: "presencas",
+              where: { idAula: aulaSelected.idAula }
+            }),
+          }).then(res => res.json());
+
+          const presencasMap = new Map<number, boolean>();
+          if (presencasExistentes.success && presencasExistentes.data) {
+            (presencasExistentes.data as PresencaAPI[]).forEach((presenca: PresencaAPI) => {
+              presencasMap.set(presenca.idAluno, presenca.presente);
+            });
+          }
+
+          const alunosFormatados = (result.data as TurmaAlunoResponse[]).map((ta: TurmaAlunoResponse) => ({
+            idAluno: ta.aluno.idAluno,
+            nomeAluno: `${ta.aluno.nome} ${ta.aluno.sobrenome}`,
+            presente: presencasMap.get(ta.aluno.idAluno) ?? false // Usar presença existente ou false como padrão
+          }));
+          
+          setAlunos(alunosFormatados);
+          setModalPresenca(true);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar alunos:', error);
+        alert('Erro ao carregar alunos da turma');
+      }
     }
   };
 
@@ -223,19 +254,28 @@ export function RegistroAulas() {
       return;
     }
 
+    // Verificar se pelo menos um aluno tem presença definida
+    const presencasDefinidas = alunos.filter(aluno => aluno.presente !== undefined);
+    if (presencasDefinidas.length === 0) {
+      alert("Marque a presença de pelo menos um aluno.");
+      return;
+    }
+
     setSalvando(true);
     try {
       const dadosRegistro: RegistroPresencaData = {
         idAula: aulaSelected.idAula,
         presencas: alunos.map(aluno => ({
           idAluno: aluno.idAluno,
-          presente: aluno.presente || false
+          presente: aluno.presente !== undefined ? aluno.presente : false
         })),
-        conteudoMinistrado,
-        metodologiaAplicada,
-        observacoesAula,
-        idProfessor // Adicionar o ID do professor
+        conteudoMinistrado: conteudoMinistrado.trim(),
+        metodologiaAplicada: metodologiaAplicada.trim(),
+        observacoesAula: observacoesAula.trim(),
+        idProfessor
       };
+
+      console.log('Enviando dados:', dadosRegistro);
 
       const response = await fetch("/api/registro-aula", {
         method: "POST",
@@ -246,17 +286,25 @@ export function RegistroAulas() {
       const result = await response.json();
       
       if (result.success) {
-        alert("Presença e registro da aula salvos com sucesso!");
+        alert(`Sucesso! ${result.message}`);
         setModalPresenca(false);
         setAulaSelected(null);
+        // Limpar campos
+        setConteudoMinistrado('');
+        setMetodologiaAplicada('');
+        setObservacoesAula('');
+        setAlunos([]);
         // Recarregar aulas para mostrar status atualizado
         await carregarAulas();
       } else {
         alert("Erro ao salvar registro: " + (result.error || 'Erro desconhecido'));
+        if (result.details) {
+          console.error('Detalhes do erro:', result.details);
+        }
       }
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao salvar registro da aula");
+      alert("Erro ao salvar registro da aula. Verifique sua conexão e tente novamente.");
     } finally {
       setSalvando(false);
     }

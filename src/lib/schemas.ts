@@ -193,7 +193,23 @@ export const NotasSchema = z.object({
   idMateria: z.number().int().positive(),
   idTurma: z.number().int().positive(),
   idProfessor: z.string().min(11, 'CPF do professor inválido').max(14, 'CPF inválido'),
-  valorNota: z.number().min(0, 'Nota deve ser maior ou igual a 0').max(10, 'Nota deve ser menor ou igual a 10'),
+  valorNota: z.union([
+    z.number().min(0, 'Nota deve ser maior ou igual a 0').max(10, 'Nota deve ser menor ou igual a 10'),
+    z.string().transform(val => {
+      const num = parseFloat(val);
+      if (isNaN(num)) throw new Error('Valor da nota inválido');
+      return num;
+    }),
+    z.object({}).transform(val => {
+      // Trata objetos Decimal do Prisma
+      if (val && typeof val === 'object' && 'toString' in val) {
+        const num = parseFloat(val.toString());
+        if (isNaN(num)) throw new Error('Valor da nota inválido');
+        return num;
+      }
+      throw new Error('Tipo de valor da nota não suportado');
+    })
+  ]).refine(val => val >= 0 && val <= 10, 'Nota deve estar entre 0 e 10'),
   dataLancamento: z.union([z.string(), z.date()]).optional(),
   tipoAvaliacao: z.string().min(1, 'Tipo de avaliação é obrigatório').max(50, 'Tipo muito longo'),
   observacoes: z.string().optional().nullable(),
@@ -288,6 +304,52 @@ export const ApiResponseSchema = z.object({
   message: z.string().optional(),
 });
 
+// Schema para resposta do dashboard com frequência atualizada
+export const DashboardResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.object({
+    turma: z.object({
+      id: z.number(),
+      nome: z.string(),
+      anoLetivo: z.number(),
+      curso: z.object({ nome: z.string() }),
+    }),
+    alunos: z.object({
+      total: z.number(),
+      ativos: z.number(),
+      dados: z.array(z.object({
+        idAluno: z.number(),
+        nome: z.string(),
+        sobrenome: z.string(),
+      })).optional(),
+    }),
+    notas: z.object({
+      mediaGeral: z.number(),
+      distribuicao: z.array(z.object({
+        faixa: z.string(),
+        quantidade: z.number(),
+      })),
+      aprovados: z.number(),
+    }),
+    frequencia: z.object({
+      taxaPresenca: z.number(),
+      totalAulas: z.number(),
+      aulasRealizadas: z.number(),
+      alunosComBaixaFrequencia: z.array(z.object({
+        idAluno: z.number(),
+        nome: z.string(),
+        sobrenome: z.string(),
+        totalAulas: z.number(),
+        presencas: z.number(),
+        frequencia: z.number(),
+      })).optional(),
+    }),
+    presencas: z.array(PresencasSchema).optional(),
+    notasLancadas: z.array(z.unknown()),
+  }).optional(),
+  error: z.string().optional(),
+});
+
 // =========================
 // TIPOS TYPESCRIPT DERIVADOS
 // =========================
@@ -321,6 +383,17 @@ export type ApiResponse = z.infer<typeof ApiResponseSchema>;
 // Tipos de enum
 export type StatusMatricula = z.infer<typeof StatusMatriculaEnum>;
 export type TipoUsuario = z.infer<typeof TipoUsuarioEnum>;
+
+// Tipos atualizados
+export type DashboardResponse = z.infer<typeof DashboardResponseSchema>;
+export type AlunoFrequenciaData = {
+  idAluno: number;
+  nome: string;
+  sobrenome: string;
+  totalAulas: number;
+  presencas: number;
+  frequencia: number;
+};
 
 // =========================
 // MAPEAMENTO DE TABELAS CORRETO
