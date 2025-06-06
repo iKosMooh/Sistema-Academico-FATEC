@@ -108,13 +108,13 @@ export function VisualizarNotas() {
             <option value="cpf">CPF</option>
           </select>
         </div>
-        <div className="flex-1 min-w-[220px]">
+        <div className="flex-1 min-w-[300px]">
           <label className="block font-medium mb-1 text-blue-700">
             {tipoFiltro === 'nome' ? 'Nome do Aluno' : 'CPF do Aluno'}
           </label>
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
             placeholder={tipoFiltro === 'nome' ? "Digite o nome..." : "Digite o CPF..."}

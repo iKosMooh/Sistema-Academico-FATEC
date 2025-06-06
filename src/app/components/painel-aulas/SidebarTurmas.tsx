@@ -10,6 +10,7 @@ import { ArquivosTurma } from "./ArquivosTurma";
 import { TurmaDashboard } from '../dashboard/TurmaDashboard';
 import { LancamentoNotas } from './LancamentoNotas';
 import { VisualizarNotas } from './VisualizarNotas';
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 
 const menuGroups = [
   {
@@ -39,8 +40,9 @@ const menuGroups = [
 export function SidebarTurmas() {
   const [openGroup, setOpenGroup] = useState<string | null>("Gerenciamento de Turma");
   const [selectedKey, setSelectedKey] = useState<string>("dashboard");
-  const { turma, setTurma, setDisciplina, setDisciplinas } = useAppContext();
+  const { turma, setTurma, setDisciplina } = useAppContext();
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Busca turmas do banco - seguindo padrão dos outros arquivos
@@ -75,73 +77,6 @@ export function SidebarTurmas() {
   const handleGroupClick = (label: string) => {
     setOpenGroup(openGroup === label ? null : label);
   };
-
-  const handleSelect = (key: string) => {
-    setSelectedKey(key);
-
-    if ((key === 'lancamento-notas' || key === 'visualizar-notas') && turma?.id) {
-      console.log('Buscando disciplinas para turma:', turma);
-
-      fetch("/api/crud", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          operation: "get",
-          table: "CursoMaterias", // Usar nome correto do modelo Prisma
-          relations: {
-            materia: true,
-            curso: {
-              include: {
-                turmas: {
-                  where: {
-                    idTurma: Number(turma.id)
-                  }
-                }
-              }
-            }
-          },
-          where: {
-            curso: {
-              turmas: {
-                some: {
-                  idTurma: Number(turma.id)
-                }
-              }
-            }
-          }
-        })
-      })
-        .then(res => res.json())
-        .then(result => {
-          console.log('Resposta disciplinas:', result);
-          if (result.success && result.data) {
-            interface CursoMateria {
-              materia: {
-                idMateria: number;
-                nomeMateria: string;
-              } | null;
-            }
-
-            const disciplinasFormatadas = result.data
-              .filter((cm: CursoMateria) => cm.materia)
-              .map((cm: CursoMateria) => ({
-                idMateria: cm.materia!.idMateria,
-                nomeMateria: cm.materia!.nomeMateria
-              }));
-            console.log('Disciplinas formatadas:', disciplinasFormatadas);
-            setDisciplinas(disciplinasFormatadas);
-          } else {
-            console.error('Erro ao buscar disciplinas:', result.error);
-            setDisciplinas([]);
-          }
-        })
-        .catch(error => {
-          console.error('Erro na requisição:', error);
-          setDisciplinas([]);
-        });
-    }
-  };
-
   // Também adicionar o idCurso quando seleciona uma turma
   interface Turma {
     id: string;
@@ -170,9 +105,74 @@ export function SidebarTurmas() {
     .flatMap((group) => group.items)
     .find((item) => item.key === selectedKey)?.component;
 
+  // Novo: Wrapper para bloquear acesso se não houver turma selecionada
+  function TurmaGuard({ children }: { children: React.ReactNode }) {
+    if (!turma?.id) {
+      return (
+        <div className="p-6">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
+            Selecione uma turma para visualizar este conteúdo.
+          </div>
+        </div>
+      );
+    }
+    return <>{children}</>;
+  }
+
+  // Lista de componentes que exigem turma selecionada
+  const exigeTurma = [
+    "planejamento",
+    "registro",
+    "recorrentes",
+    "alunos",
+    "lancamento-notas",
+    "visualizar-notas",
+    "disciplinas",
+    "arquivos",
+  ];
+
   return (
-    <div className="flex">
-      <aside className="bg-blue-700 text-white w-64 min-h-screen p-4">
+    <div className="flex relative">
+      {/* Botão flutuante para abrir/fechar sidebar */}
+      <button
+        className={`fixed top-6 left-6 z-50 bg-blue-700 text-white p-3 rounded-full shadow-lg hover:bg-blue-800 transition-all flex items-center gap-2
+          ${sidebarOpen ? "ring-2 ring-yellow-300" : ""}
+        `}
+        style={{ boxShadow: "0 4px 24px rgba(13,102,216,0.18)" }}
+        onClick={() => setSidebarOpen((open) => !open)}
+        aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+      >
+        {sidebarOpen ? (
+          <XMarkIcon className="w-7 h-7" />
+        ) : (
+          <Bars3Icon className="w-7 h-7" />
+        )}
+        <span className="hidden md:inline font-semibold">Menu</span>
+      </button>
+
+      {/* Overlay escuro ao abrir sidebar (mobile) */}
+      {/* Removido background para não escurecer a tela */}
+      <div
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${sidebarOpen ? "block" : "hidden"}`}
+        style={{ pointerEvents: "none", background: "transparent" }}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar funcional, permanece aberta até clicar no botão */}
+      <aside
+        id="sidebar-turmas"
+        className={`
+          fixed md:static top-0 left-0 z-50 bg-blue-700 text-white w-72 min-h-screen p-4 transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+          shadow-2xl md:shadow-none
+        `}
+        style={{
+          borderTopRightRadius: 24,
+          borderBottomRightRadius: 24,
+          display: sidebarOpen ? "block" : "none",
+        }}
+      >
         {isGerenciamentoTurma && (
           <div className="mb-6">
             <label className="block text-sm font-medium mb-1 text-white">Turma</label>
@@ -210,7 +210,8 @@ export function SidebarTurmas() {
                     {group.items.map((item) => (
                       <li key={item.key}>
                         <button
-                          onClick={() => handleSelect(item.key)}
+                          type="button"
+                          onClick={() => setSelectedKey(item.key)}
                           className={`block w-full text-left text-sm px-2 py-1 rounded ${selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
                             }`}
                         >
@@ -225,7 +226,19 @@ export function SidebarTurmas() {
           </ul>
         </nav>
       </aside>
-      <main className="flex-1 p-4">{CurrentComponent && <CurrentComponent onClose={() => { }} />}</main>
+      {/* Conteúdo principal */}
+      <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-72" : ""}`}>
+        {CurrentComponent &&
+          (selectedKey === "dashboard" ? (
+            <CurrentComponent onClose={() => { }} />
+          ) : exigeTurma.includes(selectedKey) ? (
+            <TurmaGuard>
+              <CurrentComponent onClose={() => { }} />
+            </TurmaGuard>
+          ) : (
+            <CurrentComponent onClose={() => { }} />
+          ))}
+      </main>
     </div>
   );
 }

@@ -134,7 +134,7 @@ export default function LoginPage() {
           "url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1500&q=80')",
       }}
     >
-      <div className="rounded-2xl shadow-2xl p-8 w-full max-w-md bg-white/30 backdrop-blur">
+      <div className="rounded-2xl shadow-2xl p-8 w-full max-w-xl bg-white/30 backdrop-blur">
         <div className="flex flex-col items-center mb-8">
           <Image
             src="/logo.png"
@@ -145,20 +145,20 @@ export default function LoginPage() {
             priority
           />
           <h1 className="text-2xl font-bold text-white mb-2">SOFTMARE</h1>
-          <p className="text-center font-medium text-gray-100">
+          <p className="text-center font-medium text-gray-800">
             Sistema Integrado de Gestão Educacional
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl mx-auto">
           {/* Campo CPF com Select Integrado */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
               CPF e Tipo de Acesso
             </label>
-            <div className="flex bg-white/90 backdrop-blur rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+            <div className="flex bg-white/90 backdrop-blur rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all min-w-[350px]">
               {/* Input CPF */}
-              <div className="flex-1 relative">
+              <div className="flex-1 relative min-w-[200px]">
                 <input
                   id="cpf"
                   type="text"
@@ -167,7 +167,7 @@ export default function LoginPage() {
                   onChange={handleCpfChange}
                   maxLength={14}
                   required
-                  className="w-full px-4 py-3 rounded-l-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-800"
+                  className="w-full px-8 py-3 rounded-l-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-800"
                   autoComplete="username"
                 />
                 <svg
@@ -189,7 +189,7 @@ export default function LoginPage() {
               <div className="w-px bg-gray-300"></div>
 
               {/* Select Tipo de Usuário */}
-              <div className="relative">
+              <div className="relative min-w-[180px]">
                 <select
                   value={tipoSelecionado}
                   onChange={(e) =>
@@ -239,7 +239,7 @@ export default function LoginPage() {
             {/* Descrição do Tipo Selecionado */}
             <div className="mt-2 text-center">
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white ${tipoSelecionadoData.color}`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-gray-800 ${tipoSelecionadoData.color}`}
               >
                 {tipoSelecionadoData.description}
               </span>
@@ -262,7 +262,7 @@ export default function LoginPage() {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 required
-                className="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 bg-white/90 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-800"
+                className="w-full px-8 py-3 pl-12 rounded-lg border border-gray-300 bg-white/90 backdrop-blur focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-800"
                 autoComplete="current-password"
               />
               <svg
@@ -342,7 +342,7 @@ export default function LoginPage() {
         </form>
 
         {/* Informações sobre hierarquia */}
-        <div className="mt-6 text-center text-sm text-white/80">
+        <div className="mt-6 text-center text-sm text-gray-800">
           <div className="bg-white/10 backdrop-blur rounded-lg p-3 mb-4">
             <p className="font-medium mb-2">💡 Sistema Hierárquico</p>
             <p className="text-xs leading-relaxed">
@@ -355,7 +355,7 @@ export default function LoginPage() {
             Problemas com acesso?{" "}
             <a
               href="#"
-              className="text-blue-200 hover:text-white hover:underline transition-colors"
+              className="text-blue-500 hover:text-white hover:underline transition-colors"
             >
               Contate o suporte
             </a>
