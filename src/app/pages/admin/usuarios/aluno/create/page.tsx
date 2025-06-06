@@ -141,12 +141,12 @@ export default function CadastrarAluno() {
 
   return (
     <AdminGuard>
-      <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-        <h1>Cadastrar Aluno</h1>
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
+      <div className="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Cadastrar Aluno</h1>
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Nome
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Nome
             </label>
             <input
               type="text"
@@ -154,12 +154,13 @@ export default function CadastrarAluno() {
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
               placeholder="Digite o nome"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Sobrenome
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Sobrenome
             </label>
             <input
               type="text"
@@ -169,12 +170,13 @@ export default function CadastrarAluno() {
               }
               placeholder="Digite o sobrenome"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> CPF
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> CPF
             </label>
             <input
               type="text"
@@ -184,12 +186,13 @@ export default function CadastrarAluno() {
               placeholder="Digite o CPF"
               pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> RG
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> RG
             </label>
             <input
               type="text"
@@ -198,12 +201,13 @@ export default function CadastrarAluno() {
               onBlur={handleRgBlur}
               placeholder="Digite o RG"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Nome da Mãe
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Nome da Mãe
             </label>
             <input
               type="text"
@@ -213,22 +217,24 @@ export default function CadastrarAluno() {
               }
               placeholder="Digite o nome da mãe"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>Nome do Pai</label>
+            <label className="block font-medium text-blue-700 mb-1">Nome do Pai</label>
             <input
               type="text"
               value={formData.nomePai}
               placeholder="Digite o nome do pai"
               onChange={(e) => setFormData({ ...formData, nomePai: e.target.value })}
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Data de Nascimento
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Data de Nascimento
             </label>
             <input
               type="date"
@@ -238,22 +244,24 @@ export default function CadastrarAluno() {
               }
               placeholder="Selecione a data de nascimento"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>Descrição</label>
+            <label className="block font-medium text-blue-700 mb-1">Descrição</label>
             <textarea
               value={formData.descricao}
               onChange={(e) =>
                 setFormData({ ...formData, descricao: e.target.value })
               }
               placeholder="Digite uma descrição"
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>Foto</label>
+            <label className="block font-medium text-blue-700 mb-1">Foto</label>
             <input
               type="file"
               accept="image/*"
@@ -263,12 +271,13 @@ export default function CadastrarAluno() {
                   foto: e.target.files ? e.target.files[0] : null,
                 })
               }
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Nome do Telefone 1
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Nome do Telefone 1
             </label>
             <input
               type="text"
@@ -278,12 +287,13 @@ export default function CadastrarAluno() {
               }
               placeholder="Digite o nome do telefone 1"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Telefone 1
+            <label className="block font-medium text-blue-700 mb-1">
+              <span className="text-red-600">*</span> Telefone 1
             </label>
             <input
               type="text"
@@ -291,11 +301,12 @@ export default function CadastrarAluno() {
               onChange={(e) => setFormData({ ...formData, tel1: e.target.value })}
               placeholder="Digite o telefone 1"
               required
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>Nome do Telefone 2</label>
+            <label className="block font-medium text-blue-700 mb-1">Nome do Telefone 2</label>
             <input
               type="text"
               value={formData.nomeTel2}
@@ -303,22 +314,28 @@ export default function CadastrarAluno() {
                 setFormData({ ...formData, nomeTel2: e.target.value })
               }
               placeholder="Digite o nome do telefone 2"
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label>Telefone 2</label>
+            <label className="block font-medium text-blue-700 mb-1">Telefone 2</label>
             <input
               type="text"
               value={formData.tel2}
               onChange={(e) => setFormData({ ...formData, tel2: e.target.value })}
               placeholder="Digite o telefone 2"
+              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
+          {error && <div className="text-red-600 mb-2">{error}</div>}
 
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow flex items-center justify-center"
+          >
             {loading ? "Salvando..." : "Salvar"}
           </button>
         </form>

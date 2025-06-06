@@ -12,6 +12,7 @@ import { LancamentoNotas } from "@/app/components/painel-aulas/LancamentoNotas";
 import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
 import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
 
 const menuGroups = [
   {
@@ -29,7 +30,13 @@ const menuGroups = [
     ],
   },
   {
-    label: "Outros",
+    label: "Gerenciamento de Usuários",
+    items: [
+      { label: "Gerenciar Usuários", key: "usuarios-dashboard", component: UsuariosDashboard },
+    ],
+  },
+  {
+    label: "Gerenciamento de Cursos",
     items: [
       { label: "Professores", key: "professores", component: () => <div>Em desenvolvimento...</div> },
       { label: "Turmas", key: "turmas", component: () => <div>Em desenvolvimento...</div> },
@@ -282,6 +289,7 @@ export function SidebarTurmas() {
               <CurrentComponent onClose={() => { }} />
             </TurmaGuard>
           ) : (
+            // Para o dashboard de usuários e outros que não dependem de turma
             <CurrentComponent onClose={() => { }} />
           ))}
       </main>
