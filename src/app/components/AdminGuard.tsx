@@ -1,26 +1,17 @@
 // src/app/components/AdminGuard.tsx
-import { useSession } from "next-auth/react";
+"use client";
+
 import { ReactNode } from "react";
+import { AdminGuard as NewAdminGuard } from "./guards/AdminGuard";
 
 interface AdminGuardProps {
   children: ReactNode;
 }
 
+/**
+ * @deprecated Use AdminGuard from './guards/AdminGuard' instead
+ * Mantido para compatibilidade com código existente
+ */
 export function AdminGuard({ children }: AdminGuardProps) {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <p>Carregando...</p>;
-  }
-
-  if (!session || session.user.tipo !== "Admin") {
-    return (
-      <div>
-        <p>Acesso negado. Apenas administradores podem acessar.</p>
-        <a href="/pages/login">Fazer Login</a>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+  return <NewAdminGuard>{children}</NewAdminGuard>;
 }

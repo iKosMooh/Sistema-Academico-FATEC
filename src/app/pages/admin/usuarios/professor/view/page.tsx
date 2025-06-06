@@ -2,9 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ActionButton } from "@/app/components/ui/ActionButton";
 import { EditModal } from "@/app/components/ui/EditModal";
-import { AdminGuard } from "@/app/components/AdminGuard";
+import { AdminGuard } from '@/app/components/guards';
 
 interface Professor {
   [key: string]: unknown;
@@ -98,28 +97,30 @@ export default function ProfessoresPage() {
               <th className="py-2 border">Sobrenome</th>
               <th className="py-2 border">Cargo</th>
               <th className="py-2 border">Disciplina</th>
-              <th className="py-2 border">Email</th>
-              <th className="py-2 border">Telefone</th>
               <th className="py-2 border">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {professores.map((prof) => (
-              <tr key={prof.idProfessor}>
-                <td className="py-2 border text-center">
-                  {prof.idProfessor}
-                </td>
-                <td className="py-2 border">{prof.nome}</td>
-                <td className="py-2 border">{prof.sobrenome}</td>
-                <td className="py-2 border">{prof.cargo}</td>
-                <td className="py-2 border">{prof.disciplina}</td>
-                <td className="py-2 border">{prof.email}</td>
-                <td className="py-2 border">{prof.telefone}</td>
-                <td className="py-2 border">
-                  <ActionButton
-                    onEdit={() => handleEdit(prof)}
-                    onDelete={() => handleDelete(prof.idProfessor)}
-                  />
+            {professores.map((professor) => (
+              <tr key={professor.idProfessor}>
+                <td className="py-2 px-4 border">{professor.idProfessor}</td>
+                <td className="py-2 px-4 border">{professor.nome}</td>
+                <td className="py-2 px-4 border">{professor.sobrenome}</td>
+                <td className="py-2 px-4 border">{professor.cargo}</td>
+                <td className="py-2 px-4 border">-</td>
+                <td className="py-2 px-4 border">
+                  <button
+                    onClick={() => handleEdit(professor)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(professor.idProfessor)}
+                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  >
+                    Excluir
+                  </button>
                 </td>
               </tr>
             ))}
