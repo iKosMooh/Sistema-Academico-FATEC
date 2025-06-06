@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { isValidCPF, formatCPF } from "@/utils/cpf-rg";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [cpf, setCpf] = useState("");
@@ -32,12 +33,12 @@ export default function LoginPage() {
         senha,
       });
 
-      if (result?.ok) {
+      if (result && result.ok) {
         router.push("/pages/admin/painel-aulas");
       } else {
         setError("Credenciais inválidas. Tente novamente.");
       }
-    } catch (err) {
+    } catch {
       setError("Erro inesperado. Tente mais tarde.");
     } finally {
       setLoading(false);
@@ -61,12 +62,15 @@ export default function LoginPage() {
     >
       <div className="rounded-2xl shadow-2xl p-8 w-full max-w-md bg-white/30 backdrop-blur">
         <div className="flex flex-col items-center mb-8">
-          <img
+          <Image
             src="/logo.png"
             alt="Logo Softmare"
+            width={80}
+            height={80}
             className="w-20 h-20 object-contain mb-4"
+            priority
           />
-                  <p className="mt-2 font-bold text-gray-800">
+          <p className="mt-2 font-bold text-gray-800">
             Acesso ao Sistema Acadêmico
           </p>
         </div>
@@ -89,12 +93,14 @@ export default function LoginPage() {
                 maxLength={14}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                autoComplete="username"
               />
               <svg
-                className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
+                className="absolute right-3 top-3.5 h-5 w-5 text-gray-400 pointer-events-none"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -121,6 +127,7 @@ export default function LoginPage() {
               onChange={(e) => setSenha(e.target.value)}
               required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              autoComplete="current-password"
             />
           </div>
 
@@ -131,6 +138,7 @@ export default function LoginPage() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -158,6 +166,7 @@ export default function LoginPage() {
                   className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <circle
                     className="opacity-25"
