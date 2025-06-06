@@ -312,13 +312,13 @@ export function RegistroAulas() {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-white">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">
         Registro de Aulas e Frequência - {turma?.nome || 'Selecione uma turma'}
       </h2>
 
       {!turma && (
         <div className="text-center py-8">
-          <p className="text-white text-lg">Selecione uma turma para visualizar as aulas</p>
+          <p className="text-gray-600 text-lg">Selecione uma turma para visualizar as aulas</p>
         </div>
       )}
 
@@ -373,7 +373,7 @@ export function RegistroAulas() {
                         </div>
                       </div>
                       <button
-                        className="text-green-600 hover:text-green-700 font-medium"
+                        className="bg-white text-white font-bold border border-white px-4 py-2 rounded-xl shadow hover:bg-green-50 hover:text-white transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleAulaClick(aula);
@@ -442,13 +442,13 @@ export function RegistroAulas() {
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={handleRegistrarPresenca}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                    className="bg-green-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-green-700 transition-colors"
                   >
                     {aulaSelected.aulaConcluida ? 'Editar Registro' : 'Registrar Aula'}
                   </button>
                   <button
                     onClick={() => setAulaSelected(null)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                    className="bg-gray-500 text-white px-4 py-2 rounded-xl font-semibold shadow hover:bg-gray-600 transition-colors"
                   >
                     Cancelar
                   </button>
@@ -489,7 +489,7 @@ export function RegistroAulas() {
                 value={conteudoMinistrado}
                 onChange={(e) => setConteudoMinistrado(e.target.value)}
                 rows={4}
-                className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
                 placeholder="Descreva o que realmente foi ensinado nesta aula..."
               />
             </div>
@@ -503,7 +503,7 @@ export function RegistroAulas() {
                 value={metodologiaAplicada}
                 onChange={(e) => setMetodologiaAplicada(e.target.value)}
                 rows={3}
-                className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
                 placeholder="Metodologia aplicada, recursos utilizados, dinâmica da aula..."
               />
             </div>
@@ -517,7 +517,7 @@ export function RegistroAulas() {
                 value={observacoesAula}
                 onChange={(e) => setObservacoesAula(e.target.value)}
                 rows={2}
-                className="w-full border rounded-lg px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-blue-300 rounded-xl px-4 py-3 text-gray-900 focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
                 placeholder="Dificuldades encontradas, participação dos alunos, ajustes necessários..."
               />
             </div>
@@ -566,14 +566,14 @@ export function RegistroAulas() {
                         type="button"
                         onClick={() => setModalPresenca(false)}
                         disabled={salvando}
-                        className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+                        className="flex-1 bg-gray-500 text-white py-3 px-6 rounded-xl hover:bg-gray-600 disabled:opacity-50 font-semibold shadow"
                       >
                         Cancelar
                       </button>
                       <button
                         onClick={handleSalvarPresenca}
                         disabled={salvando}
-                        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center"
+                        className="flex-1 bg-gradient-to-r from-green-600 to-green-500 text-white py-3 px-6 rounded-xl hover:from-green-700 hover:to-green-600 disabled:opacity-50 font-semibold shadow flex items-center justify-center"
                       >
                         {salvando ? (
                           <>
