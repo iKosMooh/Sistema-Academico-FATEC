@@ -79,7 +79,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="cpf"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               CPF
             </label>
@@ -115,7 +115,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="senha"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-white mb-1"
             >
               Senha
             </label>
@@ -190,7 +190,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-gray-600">
+        <div className="mt-8 text-center text-sm text-gray-700">
           <p>
             Problemas com acesso?{" "}
             <a
