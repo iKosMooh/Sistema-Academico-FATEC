@@ -1,8 +1,9 @@
 import React from "react";
+import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-blue-800 rounded-xl shadow-lg w-full px-2 py-2">
+    <footer className="bg-blue-800 shadow-lg w-full px-2 py-2">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
         {/* 1 - Informações institucionais */}
         <ul className="list-disc space-y-2 text-white text-center md:text-left pl-5">
@@ -30,7 +31,7 @@ export default function Footer() {
             <div className="flex items-center justify-center space-x-2 mb-2">
               <a href="https://facebook.com/fatecitapira" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="flex items-center space-x-2">
                 <svg className="w-6 h-6 fill-current hover:text-blue-700" viewBox="0 0 24 24">
-                  <path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 5 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.242 0-1.632.771-1.632 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 17 22 12z"/>
+                  <path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 5 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.242 0-1.632.771-1.632 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 17 22 12z" />
                 </svg>
                 <span className="text-white">Facebook</span>
               </a>
@@ -38,7 +39,7 @@ export default function Footer() {
             <div className="flex items-center justify-center space-x-2">
               <a href="https://www.instagram.com/fatecdeitapira/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex items-center space-x-2">
                 <svg className="w-6 h-6 fill-current hover:text-pink-500" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.647 2.163 15.267 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.515 2.567 5.782 2.295 7.148 2.233 8.414 2.175 8.794 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.13 4.602.402 3.635 1.37c-.967.967-1.24 2.14-1.298 3.417C2.013 5.668 2 6.077 2 9.333v5.334c0 3.256.013 3.665.072 4.945.058 1.277.331 2.45 1.298 3.417.967.967 2.14 1.24 3.417 1.298 1.28.059 1.689.072 4.945.072s3.665-.013 4.945-.072c1.277-.058 2.45-.331 3.417-1.298.967-.967 1.24-2.14 1.298-3.417.059-1.28.072-1.689.072-4.945V9.333c0-3.256-.013-3.665-.072-4.945-.058-1.277-.331-2.45-1.298-3.417-.967-.967-2.14-1.24-3.417-1.298C15.668.013 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/>
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.647 2.163 15.267 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608C4.515 2.567 5.782 2.295 7.148 2.233 8.414 2.175 8.794 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.13 4.602.402 3.635 1.37c-.967.967-1.24 2.14-1.298 3.417C2.013 5.668 2 6.077 2 9.333v5.334c0 3.256.013 3.665.072 4.945.058 1.277.331 2.45 1.298 3.417.967.967 2.14 1.24 3.417 1.298 1.28.059 1.689.072 4.945.072s3.665-.013 4.945-.072c1.277-.058 2.45-.331 3.417-1.298.967-.967 1.24-2.14 1.298-3.417.059-1.28.072-1.689.072-4.945V9.333c0-3.256-.013-3.665-.072-4.945-.058-1.277-.331-2.45-1.298-3.417-.967-.967-2.14-1.24-3.417-1.298C15.668.013 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z" />
                 </svg>
                 <span className="text-white">Instagram</span>
               </a>
@@ -50,17 +51,18 @@ export default function Footer() {
           <span className="text-white text-center font-semibold">Sistema Acadêmico v1.2 – Desenvolvido por Softmare</span>
         </div>
         {/* 5 - Logo Softmare à direita */}
-        <div className="flex justify-center md:justify-end items-center">
-          <img
-            src="/logo.png"
-            alt="Logo Softmare"
-            className="w-32 h-32 object-contain"
-          />
-          <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0">
-            Softmare
-          </span>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="Logo Softmare"
+          width={128}
+          height={128}
+          className="w-32 h-32 object-contain"
+        />
+
+        <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0">
+          Softmare
+        </span>
       </div>
-    </footer>
+    </footer >
   );
 }

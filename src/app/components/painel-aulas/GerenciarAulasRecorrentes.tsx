@@ -306,7 +306,7 @@ export function GerenciarAulasRecorrentes({
           <div>
             <label className="block font-medium">Matéria</label>
             <select
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={nomeMateria}
               onChange={(e) => setNomeMateria(e.target.value)}
               required
@@ -326,7 +326,7 @@ export function GerenciarAulasRecorrentes({
           <div>
             <label className="block font-medium">Dia da Semana</label>
             <select
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={diaSemana}
               onChange={(e) => setDiaSemana(Number(e.target.value))}
               required
@@ -342,7 +342,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Horário de Início</label>
             <input
               type="time"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={horaInicio}
               onChange={(e) => setHoraInicio(e.target.value)}
               required
@@ -352,7 +352,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Duração (minutos)</label>
             <input
               type="number"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={duracaoMinutos}
               min={1}
               onChange={(e) => setDuracaoMinutos(Number(e.target.value))}
@@ -363,7 +363,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Inicial</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={dataInicial}
               onChange={(e) => setDataInicial(e.target.value)}
               required
@@ -373,7 +373,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Final</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={dataFinal}
               onChange={(e) => setDataFinal(e.target.value)}
               required
@@ -386,7 +386,7 @@ export function GerenciarAulasRecorrentes({
           <div className="flex gap-2 mb-2">
             <input
               type="date"
-              className="border rounded px-2 py-1 bg-white text-gray-300"
+              className="border rounded px-2 py-1 bg-white text-black"
               value={excecaoInput}
               onChange={(e) => setExcecaoInput(e.target.value)}
             />
@@ -452,7 +452,7 @@ export function GerenciarAulasRecorrentes({
           <div>
             <label className="block font-medium">Matéria</label>
             <select
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={nomeMateriaExcluir}
               onChange={(e) => setNomeMateriaExcluir(e.target.value)}
               required
@@ -473,7 +473,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Inicial</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={dataInicialExcluir}
               onChange={(e) => setDataInicialExcluir(e.target.value)}
               required
@@ -483,7 +483,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data Final</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={dataFinalExcluir}
               onChange={(e) => setDataFinalExcluir(e.target.value)}
               required
@@ -524,7 +524,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Data</label>
             <input
               type="date"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={feriadoData}
               onChange={(e) => setFeriadoData(e.target.value)}
               required
@@ -534,7 +534,7 @@ export function GerenciarAulasRecorrentes({
             <label className="block font-medium">Descrição</label>
             <input
               type="text"
-              className="w-full border rounded px-2 py-1 bg-white text-gray-300"
+              className="w-full border rounded px-2 py-1 bg-white text-black"
               value={feriadoDescricao}
               onChange={(e) => setFeriadoDescricao(e.target.value)}
             />
