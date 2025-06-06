@@ -1,8 +1,9 @@
 import React from "react";
+
 export default function Footer() {
   return (
-    <footer className="bg-blue-800 text-white w-full mt-auto">
-      <div className="max-w-6xl mx-auto py-8 px-4 grid grid-cols-1 md:grid-cols-5 gap-16 items-center">
+    <footer className="bg-blue-800 rounded-xl shadow-lg w-full px-2 py-2">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
         {/* 1 - Informações institucionais */}
         <ul className="list-disc space-y-2 text-white text-center md:text-left pl-5">
           <li className="font-bold text-xl">Fatec Itapira</li>
@@ -31,7 +32,7 @@ export default function Footer() {
                 <svg className="w-6 h-6 fill-current hover:text-blue-700" viewBox="0 0 24 24">
                   <path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 5 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.242 0-1.632.771-1.632 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 17 22 12z"/>
                 </svg>
-                <span className="text-white">Facebook.</span>
+                <span className="text-white">Facebook</span>
               </a>
             </div>
             <div className="flex items-center justify-center space-x-2">
@@ -49,14 +50,15 @@ export default function Footer() {
           <span className="text-white text-center font-semibold">Sistema Acadêmico v1.2 – Desenvolvido por Softmare</span>
         </div>
         {/* 5 - Logo Softmare à direita */}
-         <div className="flex justify-center md:justify-end items-center">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <path
-              d="M36 36c-4.418 0-8-3.582-8-8h-8c0 8.837 7.163 16 16 16 2.209 0 4-1.791 4-4s-1.791-4-4-4zm-8-16c0-4.418 3.582-8 8-8 2.209 0 4-1.791 4-4s-1.791-4-4-4c-8.837 0-16 7.163-16 16h8z"
-              fill="#2563eb"
-            />
-          </svg>
-          <span className="ml-2 text-2xl font-bold text-white">Softmare</span>
+        <div className="flex justify-center md:justify-end items-center">
+          <img
+            src="/logo.png"
+            alt="Logo Softmare"
+            className="w-32 h-32 object-contain"
+          />
+          <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0">
+            Softmare
+          </span>
         </div>
       </div>
     </footer>
