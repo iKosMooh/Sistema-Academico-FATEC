@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
 // =========================
-// ENUMS DO PRISMA
+// ENUMS DO PRISMA - ATUALIZADO
 // =========================
 export const StatusMatriculaEnum = z.enum(['Ativa', 'Trancada', 'Cancelada']);
-export const TipoUsuarioEnum = z.enum(['Admin', 'Professor', 'Aluno']);
+export const TipoUsuarioEnum = z.enum(['Admin', 'Coordenador', 'Professor', 'Aluno']);
 
 // =========================
 // SCHEMAS BASE DAS TABELAS (Baseado no schema.prisma exato)
@@ -384,16 +384,30 @@ export type ApiResponse = z.infer<typeof ApiResponseSchema>;
 export type StatusMatricula = z.infer<typeof StatusMatriculaEnum>;
 export type TipoUsuario = z.infer<typeof TipoUsuarioEnum>;
 
-// Tipos atualizados
-export type DashboardResponse = z.infer<typeof DashboardResponseSchema>;
-export type AlunoFrequenciaData = {
-  idAluno: number;
-  nome: string;
-  sobrenome: string;
-  totalAulas: number;
-  presencas: number;
-  frequencia: number;
-};
+// =========================
+// HIERARQUIA DE PERMISSÕES
+// =========================
+export const USER_HIERARCHY = {
+  Admin: 4,
+  Coordenador: 3,
+  Professor: 2,
+  Aluno: 1
+} as const;
+
+export type UserRole = keyof typeof USER_HIERARCHY;
+
+// Função para verificar se um usuário tem permissão para acessar um nível
+export function hasPermission(userType: TipoUsuario, requiredLevel: TipoUsuario): boolean {
+  return USER_HIERARCHY[userType] >= USER_HIERARCHY[requiredLevel];
+}
+
+// Função para obter todos os níveis que um usuário pode acessar
+export function getAccessibleLevels(userType: TipoUsuario): TipoUsuario[] {
+  const userLevel = USER_HIERARCHY[userType];
+  return Object.entries(USER_HIERARCHY)
+    .filter(([, level]) => level <= userLevel)
+    .map(([role]) => role as TipoUsuario);
+}
 
 // =========================
 // MAPEAMENTO DE TABELAS CORRETO

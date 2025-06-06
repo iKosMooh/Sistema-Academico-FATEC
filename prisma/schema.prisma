@@ -232,6 +232,7 @@ enum StatusMatricula {
 
 enum TipoUsuario {
   Admin
+  Coordenador
   Professor
   Aluno
 }
