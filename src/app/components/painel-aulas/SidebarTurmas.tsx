@@ -16,7 +16,7 @@ const menuGroups = [
     label: "Gerenciamento de Turma",
     items: [
       { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
-      { label: "Calendário de Aulas", key: "planejamento", component: PlanejamentoAulas },
+      { label: "Planejamento de Aulas", key: "planejamento", component: PlanejamentoAulas },
       { label: "Registro de Aulas / Frequência", key: "registro", component: RegistroAulas },
       { label: "Gerenciar Aulas Recorrentes", key: "recorrentes", component: GerenciarAulasRecorrentes },
       { label: "Vincular Alunos à Turma", key: "alunos", component: VincularAlunosTurma },
@@ -29,7 +29,6 @@ const menuGroups = [
   {
     label: "Outros",
     items: [
-
       { label: "Professores", key: "professores", component: () => <div>Em desenvolvimento...</div> },
       { label: "Turmas", key: "turmas", component: () => <div>Em desenvolvimento...</div> },
       { label: "Presenças", key: "presencas", component: () => <div>Em desenvolvimento...</div> },

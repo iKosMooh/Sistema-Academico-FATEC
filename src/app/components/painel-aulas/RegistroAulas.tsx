@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAppContext } from "./AppContext";
 import { useSession } from "next-auth/react";
+import { ConteudoMinistradoForm } from "./ConteudoMinistradoForm";
 
 interface Aula {
   idAula: number;
@@ -9,6 +10,7 @@ interface Aula {
   materia?: { nomeMateria?: string };
   presencasAplicadas: boolean;
   aulaConcluida: boolean;
+  conteudoMinistrado?: string;
 }
 
 interface Aluno {
@@ -35,6 +37,7 @@ export function RegistroAulas() {
   const [presencas, setPresencas] = useState<Record<number, Record<number, boolean>>>({});
   const [loading, setLoading] = useState(false);
   const [confirmForaHoje, setConfirmForaHoje] = useState(false);
+  const [aulaSelected, setAulaSelected] = useState<Aula | null>(null);
 
   // Função para carregar aulas
   const carregarAulas = useCallback(async () => {
@@ -249,6 +252,32 @@ export function RegistroAulas() {
   // (não desabilite o checkbox e sempre permita togglePresenca)
   // O botão "Aplicar Presença para Selecionadas" pode ser usado para editar qualquer aula, inclusive já aplicada
 
+  const handleSaveConteudoMinistrado = async (conteudo: string) => {
+    if (!aulaSelected) return;
+
+    try {
+      const response = await fetch("/api/crud", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operation: "update",
+          table: "aula",
+          where: { idAula: aulaSelected.idAula },
+          data: { conteudoMinistrado: conteudo },
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert("Conteúdo ministrado salvo com sucesso!");
+        setAulaSelected({ ...aulaSelected, conteudoMinistrado: conteudo });
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+      alert("Erro ao salvar conteúdo");
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded shadow p-6 mb-8">
       <h2 className="text-xl font-bold mb-4 text-blue-800">Registro de Aulas / Frequência</h2>
@@ -397,6 +426,17 @@ export function RegistroAulas() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Se uma aula está selecionada, mostra o conteúdo ministrado */}
+      {aulaSelected && (
+        <div className="mt-6">
+          <ConteudoMinistradoForm
+            idAula={aulaSelected.idAula}
+            conteudoMinistrado={aulaSelected.conteudoMinistrado}
+            onSave={handleSaveConteudoMinistrado}
+          />
         </div>
       )}
     </div>

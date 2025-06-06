@@ -140,8 +140,11 @@ model Aula {
   horario            String      @db.VarChar(10)
   presencasAplicadas Boolean     @default(false)
   aulaConcluida      Boolean     @default(false)
-  descricao          String?     @db.Text
-  observacoes        String?     @db.Text
+  planejamento       String?     @db.Text         // O que pretende apresentar
+  metodologia        String?     @db.Text         // Como será feito
+  conteudoMinistrado String?     @db.Text         // O que foi realmente apresentado
+  descricao          String?     @db.Text         // Manter para compatibilidade
+  observacoes        String?     @db.Text         // Observações gerais
   duracaoMinutos     Int
   created_at         DateTime    @default(now()) @db.DateTime(0)
   updated_at         DateTime    @default(now()) @updatedAt @db.DateTime(0)
