@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -11,6 +13,7 @@ export default function Footer() {
           <li>Telefone / WhatsApp: (19) 3863-5210</li>
           <li>E-mail de suporte: suporte@fatecitapira.edu.br</li>
         </ul>
+
         {/* 2 - Links úteis */}
         <ul className="list-disc space-y-2 text-white text-center pl-5">
           <li className="font-semibold">Links úteis</li>
@@ -24,6 +27,7 @@ export default function Footer() {
             <a href="/contato" className="hover:underline text-white">Contato</a>
           </li>
         </ul>
+
         {/* 3 - Redes Sociais */}
         <ul className="list-disc space-y-2 text-white text-center pl-5">
           <li className="font-semibold">Redes Sociais</li>
@@ -46,23 +50,45 @@ export default function Footer() {
             </div>
           </li>
         </ul>
-        {/* 4 - Sistema Acadêmico */}
-        <div className="flex flex-col items-center space-y-2">
-          <span className="text-white text-center font-semibold">Sistema Acadêmico v1.2 – Desenvolvido por Softmare</span>
+        {/* 4 - Sistema Acadêmico e Créditos */}
+        <div className="flex flex-col items-center space-y-3">
+          <span className="text-white text-center font-semibold">Sistema Acadêmico v1.2</span>
+          <span className="text-blue-200 text-center text-sm">Desenvolvido por:</span>
+          <div className="text-blue-100 text-center text-xs space-y-1">
+            <div><b>Caio Magalhães de Souza - FullStack</b></div>
+            <div>Gustavo Ribeiro Pinheiro - FrontEnd</div>
+            <div>Luiz Eduardo ... - FrontEnd</div>
+            <div>Henrique Cardoso ... - FrontEnd</div>
+          </div>
+          
+          {/* Botão Reset Sistema - Destacado */}
+          <div className="mt-4 pt-3 border-t border-blue-600">
+            <Link 
+              href="/pages/admin/sistema/reset" 
+              className="inline-flex items-center space-x-2 bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold px-4 py-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Reset Sistema</span>
+            </Link>
+          </div>
         </div>
-        {/* 5 - Logo Softmare à direita */}
-        <Image
-          src="/logo.png"
-          alt="Logo Softmare"
-          width={128}
-          height={128}
-          className="w-32 h-32 object-contain"
-        />
 
-        <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0">
-          Softmare
-        </span>
+        {/* 5 - Logo Softmare à direita */}
+        <div className="flex flex-col items-center space-y-2">
+          <Image
+            src="/logo.png"
+            alt="Logo Softmare"
+            width={128}
+            height={128}
+            className="w-32 h-32 object-contain"
+          />
+          <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none">
+            Softmare
+          </span>
+        </div>
       </div>
-    </footer >
+    </footer>
   );
 }
