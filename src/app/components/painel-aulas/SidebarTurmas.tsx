@@ -148,17 +148,6 @@ export function SidebarTurmas() {
   // Lista de componentes que exigem turma selecionada
   const exigeTurma = ["registro", "recorrentes", "alunos", "lancamento-notas", "visualizar-notas", "disciplinas", "arquivos"];
 
-  // Busca o componente atual baseado na selectedKey
-  const getCurrentComponent = () => {
-    for (const group of menuGroupsProfessor) {
-      const item = group.items.find(item => item.key === selectedKey);
-      if (item) return item.component;
-    }
-    return null;
-  };
-
-  const CurrentComponent = getCurrentComponent();
-
   // Determinar perfil do usuário
   let perfil: "admin" | "coordenador" | "professor" = "professor";
   if (session?.user?.tipo === "Admin") perfil = "admin";
@@ -168,6 +157,17 @@ export function SidebarTurmas() {
   // Escolhe o menu conforme o perfil
   let menuGroupsToUse = menuGroupsProfessor;
   if (perfil === "admin" || perfil === "coordenador") menuGroupsToUse = menuGroupsAdmin;
+
+  // Busca o componente atual baseado na selectedKey
+  const getCurrentComponent = () => {
+    for (const group of menuGroupsToUse) {
+      const item = group.items.find(item => item.key === selectedKey);
+      if (item) return item.component;
+    }
+    return null;
+  };
+
+  const CurrentComponent = getCurrentComponent();
 
   return (
     <div className="flex relative">
