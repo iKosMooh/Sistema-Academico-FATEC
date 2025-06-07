@@ -13,12 +13,13 @@ import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfe
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
 import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page"; // importação adicionada
+import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
 
 const menuGroups = [
   {
     label: "Gerenciamento de Turma",
     items: [
-      // Removido: { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
+      { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
       { label: "Registro de Aulas / Frequência", key: "registro", component: RegistroAulas },
       { label: "Gerenciar Aulas Recorrentes", key: "recorrentes", component: GerenciarAulasRecorrentes },
       { label: "Vincular Alunos à Turma", key: "alunos", component: VincularAlunosTurma },
@@ -205,7 +206,10 @@ export function SidebarTurmas() {
         <div className="mb-6">
           <div className="flex space-x-2">
             <button
-              onClick={() => setActiveView('turmas')}
+              onClick={() => {
+                setActiveView('turmas');
+                setSelectedKey('dashboard');
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeView === 'turmas'
                   ? 'bg-blue-600 text-white'
@@ -284,10 +288,10 @@ export function SidebarTurmas() {
           <TurmaGuard>
             <PlanejamentoAulas />
           </TurmaGuard>
+        ) : activeView === 'turmas' && selectedKey === 'dashboard' ? (
+          <TurmaDashboard />
         ) : CurrentComponent &&
-          (selectedKey === "dashboard" ? (
-            <CurrentComponent onClose={() => { }} />
-          ) : exigeTurma.includes(selectedKey) ? (
+          (exigeTurma.includes(selectedKey) ? (
             <TurmaGuard>
               <CurrentComponent onClose={() => { }} />
             </TurmaGuard>
