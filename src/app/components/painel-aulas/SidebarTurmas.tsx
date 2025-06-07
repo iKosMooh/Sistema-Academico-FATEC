@@ -7,19 +7,19 @@ import { GerenciarAulasRecorrentes } from "@/app/components/painel-aulas/Gerenci
 import { VincularAlunosTurma } from "@/app/components/painel-aulas/VincularAlunosTurma";
 import { VincularMateriasCurso } from "@/app/components/painel-aulas/VincularMateriasCurso";
 import { ArquivosTurma } from "@/app/components/painel-aulas/ArquivosTurma";
-import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
 import { LancamentoNotas } from "@/app/components/painel-aulas/LancamentoNotas";
 import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
 import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
+import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
+import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page"; // importação adicionada
 
 const menuGroups = [
   {
     label: "Gerenciamento de Turma",
     items: [
-      { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
-      { label: "Planejamento de Aulas", key: "planejamento", component: PlanejamentoAulas },
+      // Removido: { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
       { label: "Registro de Aulas / Frequência", key: "registro", component: RegistroAulas },
       { label: "Gerenciar Aulas Recorrentes", key: "recorrentes", component: GerenciarAulasRecorrentes },
       { label: "Vincular Alunos à Turma", key: "alunos", component: VincularAlunosTurma },
@@ -38,9 +38,12 @@ const menuGroups = [
   {
     label: "Gerenciamento de Cursos",
     items: [
-      { label: "Professores", key: "professores", component: () => <div>Em desenvolvimento...</div> },
-      { label: "Turmas", key: "turmas", component: () => <div>Em desenvolvimento...</div> },
-      { label: "Presenças", key: "presencas", component: () => <div>Em desenvolvimento...</div> },
+      // Adicionado item para o dashboard acadêmico:
+      {
+        label: "Gerenciar Cursos",
+        key: "dashboard-academico",
+        component: AcademicoDashboardPage
+      }
     ],
   },
 ];
@@ -109,10 +112,7 @@ export function SidebarTurmas() {
   // Verifica se o grupo atual é Gerenciamento de Turma
   const isGerenciamentoTurma = openGroup === "Gerenciamento de Turma";
 
-  // Encontra o componente atual baseado na key selecionada
-  const CurrentComponent = menuGroups
-    .flatMap((group) => group.items)
-    .find((item) => item.key === selectedKey)?.component;
+  // Removido código morto de CurrentComponent, pois não é mais utilizado
 
   // Novo: Wrapper para bloquear acesso se não houver turma selecionada
   function TurmaGuard({ children }: { children: React.ReactNode }) {
@@ -129,16 +129,6 @@ export function SidebarTurmas() {
   }
 
   // Lista de componentes que exigem turma selecionada
-  const exigeTurma = [
-    "planejamento",
-    "registro",
-    "recorrentes",
-    "alunos",
-    "lancamento-notas",
-    "visualizar-notas",
-    "disciplinas",
-    "arquivos",
-  ];
 
   return (
     <div className="flex relative">
@@ -177,8 +167,6 @@ export function SidebarTurmas() {
           shadow-2xl md:shadow-none
         `}
         style={{
-          borderTopRightRadius: 24,
-          borderBottomRightRadius: 24,
           display: sidebarOpen ? "block" : "none",
         }}
       >
@@ -206,14 +194,11 @@ export function SidebarTurmas() {
         <div className="mb-6">
           <div className="flex space-x-2">
             <button
-              onClick={() => {
-                setActiveView('turmas');
-                setSelectedKey('dashboard'); // Ir para o dashboard
-              }}
+              onClick={() => setActiveView('turmas')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeView === 'turmas'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 text-white hover:bg-gray-300'
               }`}
             >
               📊 Painel
@@ -221,22 +206,25 @@ export function SidebarTurmas() {
             <button
               onClick={() => {
                 setActiveView('calendario');
-                setSelectedKey('planejamento'); // Definir a chave para Planejamento de Aulas
+                setSelectedKey('planejamento');
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeView === 'calendario'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 text-gray-white hover:bg-gray-300'
               }`}
             >
               📅 Calendário
             </button>
             <button
-              onClick={() => setActiveView('atestados')}
+              onClick={() => {
+                setActiveView('atestados');
+                setSelectedKey('dashboard');
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeView === 'atestados'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 text-white hover:bg-gray-300'
               }`}
             >
               🏥 Atestados
@@ -262,8 +250,9 @@ export function SidebarTurmas() {
                         <button
                           type="button"
                           onClick={() => setSelectedKey(item.key)}
-                          className={`block w-full text-left text-sm px-2 py-1 rounded ${selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
-                            }`}
+                          className={`block w-full text-left text-sm px-2 py-1 rounded ${
+                            selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
+                          }`}
                         >
                           {item.label}
                         </button>
@@ -284,17 +273,6 @@ export function SidebarTurmas() {
           <TurmaGuard>
             <PlanejamentoAulas />
           </TurmaGuard>
-        ) : activeView === 'turmas' ? (
-          // Quando clicar em "Painel", vai para o dashboard
-          selectedKey === "dashboard" ? (
-            <TurmaDashboard />
-          ) : CurrentComponent && exigeTurma.includes(selectedKey) ? (
-            <TurmaGuard>
-              <CurrentComponent onClose={() => { }} />
-            </TurmaGuard>
-          ) : CurrentComponent ? (
-            <CurrentComponent onClose={() => { }} />
-          ) : null
         ) : CurrentComponent &&
           (selectedKey === "dashboard" ? (
             <CurrentComponent onClose={() => { }} />

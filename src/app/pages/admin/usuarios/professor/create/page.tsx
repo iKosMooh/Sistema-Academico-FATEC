@@ -203,132 +203,145 @@ export default function CadastrarProfessorPage() {
 
   return (
     <AdminGuard>
-      <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-        <h1>Cadastrar Professor</h1>
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> CPF
-            </label>
-            <input
-              type="text"
-              name="idProfessor"
-              value={formData.idProfessor}
-              onChange={handleChange}
-              onBlur={handleCpfBlur}
-              required
-            />
+      <div className="max-w-xl mx-auto bg-white rounded shadow p-4 mt-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Cadastrar Professor</h1>
+        <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="bg-gray-100 p-6 rounded-xl shadow space-y-0 text-base"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> CPF
+              </label>
+              <input
+                type="text"
+                name="idProfessor"
+                value={formData.idProfessor}
+                onChange={handleChange}
+                onBlur={handleCpfBlur}
+                required
+                placeholder="CPF"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Nome
+              </label>
+              <input
+                type="text"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                required
+                placeholder="Nome"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Sobrenome
+              </label>
+              <input
+                type="text"
+                name="sobrenome"
+                value={formData.sobrenome}
+                onChange={handleChange}
+                required
+                placeholder="Sobrenome"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> RG
+              </label>
+              <input
+                type="text"
+                name="rg"
+                value={formData.rg}
+                onChange={handleChange}
+                onBlur={handleRgBlur}
+                required
+                placeholder="RG"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Data de Nascimento
+              </label>
+              <input
+                type="date"
+                name="dataNasc"
+                value={formData.dataNasc}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Cargo
+              </label>
+              <input
+                type="text"
+                name="cargo"
+                value={formData.cargo}
+                onChange={handleChange}
+                required
+                placeholder="Cargo"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Descrição</label>
+              <textarea
+                name="descricao"
+                value={formData.descricao}
+                onChange={handleChange}
+                placeholder="Descrição"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Telefone</label>
+              <input
+                type="text"
+                name="tel"
+                value={formData.tel}
+                onChange={handleChange}
+                placeholder="Telefone"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Foto</label>
+              <input
+                type="file"
+                name="foto"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
           </div>
-
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Nome
-            </label>
-            <input
-              type="text"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Sobrenome
-            </label>
-            <input
-              type="text"
-              name="sobrenome"
-              value={formData.sobrenome}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> RG
-            </label>
-            <input
-              type="text"
-              name="rg"
-              value={formData.rg}
-              onChange={handleChange}
-              onBlur={handleRgBlur}
-              required
-            />
-          </div>
-
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Data de Nascimento
-            </label>
-            <input
-              type="date"
-              name="dataNasc"
-              value={formData.dataNasc}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label>
-              <span style={{ color: "red" }}>*</span> Cargo
-            </label>
-            <input
-              type="text"
-              name="cargo"
-              value={formData.cargo}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label>Descrição</label>
-            <textarea
-              name="descricao"
-              value={formData.descricao}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Telefone</label>
-            <input
-              type="text"
-              name="tel"
-              value={formData.tel}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Foto</label>
-            <input
-              type="file"
-              name="foto"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-          </div>
-
           {error && (
-            <div style={{ color: "red", marginBottom: 10 }}>{error}</div>
+            <div className="text-red-600 my-2 text-base">{error}</div>
           )}
-
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow text-lg"
+          >
             {loading ? "Cadastrando..." : "Salvar"}
           </button>
-
           {message && (
             <p
-              style={{
-                color: message.includes("sucesso") ? "green" : "red",
-                marginTop: 10,
-              }}
+              className={`mt-2 text-base ${message.includes("sucesso") ? "text-green-700" : "text-red-700"}`}
             >
               {message}
             </p>

@@ -79,54 +79,64 @@ export default function CreateUsuarioPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Criar Usuário Admin</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">CPF</label>
-          <input
-            type="text"
-            name="cpf"
-            value={formData.cpf}
-            onChange={handleChange}
-            onBlur={handleCpfBlur}
-            className="w-full border rounded p-2"
-            required
-          />
+    <div className="max-w-xl mx-auto bg-white rounded shadow p-4 mt-6">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900">Criar Usuário Admin</h1>
+      <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-xl shadow space-y-0 text-base">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              <span className="text-red-600">*</span> CPF
+            </label>
+            <input
+              type="text"
+              name="cpf"
+              value={formData.cpf}
+              onChange={handleChange}
+              onBlur={handleCpfBlur}
+              required
+              placeholder="CPF"
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              <span className="text-red-600">*</span> Senha
+            </label>
+            <input
+              type="password"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+              required
+              placeholder="Senha"
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              Tipo de Usuário
+            </label>
+            <select
+              name="tipo"
+              value={formData.tipo}
+              onChange={handleChange}
+              required
+              disabled
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+            >
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="block mb-1 font-medium">Senha</label>
-          <input
-            type="password"
-            name="senha"
-            value={formData.senha}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">Tipo de Usuário</label>
-          <select
-            name="tipo"
-            value={formData.tipo}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-            required
-            disabled
-          >
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
+        {error && <div className="text-red-600 my-2 text-base">{error}</div>}
+        {success && <div className="text-green-600 my-2 text-base">Usuário criado com sucesso!</div>}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow text-lg"
           disabled={loading}
         >
           {loading ? "Salvando..." : "Salvar"}
         </button>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-        {success && <p className="text-green-500 mt-2">Usuário criado com sucesso!</p>}
       </form>
     </div>
   );

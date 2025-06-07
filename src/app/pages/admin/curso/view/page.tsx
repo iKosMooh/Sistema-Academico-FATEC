@@ -127,12 +127,12 @@ export default function CursosPage() {
           <tbody>
             {cursos.map((curso) => (
               <tr key={curso.idCurso}>
-                <td className="py-2 border text-center">{curso.idCurso}</td>
-                <td className="py-2 border">{curso.nomeCurso}</td>
-                <td className="py-2 border text-center">{curso.cargaHorariaTotal}</td>
-                <td className="py-2 border">{curso.descricao || "-"}</td>
-                <td className="py-2 border">{curso.docsPath || "-"}</td>
-                <td className="py-2 border">
+                <td className="py-4 px-2 text-gray-900 bg-gray-200 text-center">{curso.idCurso}</td>
+                <td className="py-4 px-2 text-gray-900 bg-gray-200">{curso.nomeCurso}</td>
+                <td className="py-4 px-2 text-gray-900 bg-gray-200 text-center">{curso.cargaHorariaTotal}</td>
+                <td className="py-4 px-2 text-gray-900 bg-gray-200">{curso.descricao || "-"}</td>
+                <td className="py-4 px-2 text-gray-900 bg-gray-200">{curso.docsPath || "-"}</td>
+                <td className="py-4 px-2 text-gray-900 bg-gray-200">
                   <ActionButton
                     onEdit={() => handleEdit(curso)}
                     onDelete={() => handleDelete(curso.idCurso)}
