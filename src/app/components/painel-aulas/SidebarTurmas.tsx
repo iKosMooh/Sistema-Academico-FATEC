@@ -54,7 +54,7 @@ export function SidebarTurmas() {
   const { turma, setTurma, setDisciplina } = useAppContext();
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'turmas' | 'calendario' | 'atestados' | 'dashboard'>('turmas');
+  const [activeView, setActiveView] = useState<'painel' | 'normal'>('normal');
 
   useEffect(() => {
     // Busca turmas do banco - seguindo padrão dos outros arquivos
@@ -88,6 +88,8 @@ export function SidebarTurmas() {
 
   const handleGroupClick = (label: string) => {
     setOpenGroup(openGroup === label ? null : label);
+    // Resetar para view normal ao clicar em qualquer grupo
+    setActiveView('normal');
   };
   // Também adicionar o idCurso quando seleciona uma turma
   interface Turma {
@@ -207,11 +209,12 @@ export function SidebarTurmas() {
           <div className="flex space-x-2">
             <button
               onClick={() => {
-                setActiveView('turmas');
+                setActiveView('painel');
                 setSelectedKey('dashboard');
+                setOpenGroup("Gerenciamento de Turma");
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'turmas'
+                activeView === 'painel'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-white hover:bg-gray-300'
               }`}
@@ -220,24 +223,26 @@ export function SidebarTurmas() {
             </button>
             <button
               onClick={() => {
-                setActiveView('calendario');
+                setActiveView('painel');
                 setSelectedKey('planejamento');
+                setOpenGroup("Gerenciamento de Turma");
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'calendario'
+                activeView === 'painel' && selectedKey === 'planejamento'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-white hover:bg-gray-300'
+                  : 'bg-gray-200 text-white hover:bg-gray-300'
               }`}
             >
               📅 Calendário
             </button>
             <button
               onClick={() => {
-                setActiveView('atestados');
-                setSelectedKey('dashboard');
+                setActiveView('painel');
+                setSelectedKey('atestados');
+                setOpenGroup(null); // Não precisa de grupo específico
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'atestados'
+                activeView === 'painel' && selectedKey === 'atestados'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-white hover:bg-gray-300'
               }`}
@@ -264,9 +269,12 @@ export function SidebarTurmas() {
                       <li key={item.key}>
                         <button
                           type="button"
-                          onClick={() => setSelectedKey(item.key)}
+                          onClick={() => {
+                            setSelectedKey(item.key);
+                            setActiveView('normal'); // Resetar para view normal
+                          }}
                           className={`block w-full text-left text-sm px-2 py-1 rounded ${
-                            selectedKey === item.key ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
+                            selectedKey === item.key && activeView === 'normal' ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
                           }`}
                         >
                           {item.label}
@@ -282,23 +290,23 @@ export function SidebarTurmas() {
       </aside>
       {/* Conteúdo principal */}
       <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-72" : ""}`}>
-        {activeView === 'atestados' ? (
+        {activeView === 'painel' && selectedKey === 'atestados' ? (
           <AtestadosProfessor />
-        ) : activeView === 'calendario' ? (
+        ) : activeView === 'painel' && selectedKey === 'planejamento' ? (
           <TurmaGuard>
             <PlanejamentoAulas />
           </TurmaGuard>
-        ) : activeView === 'turmas' && selectedKey === 'dashboard' ? (
+        ) : activeView === 'painel' && selectedKey === 'dashboard' ? (
           <TurmaDashboard />
-        ) : CurrentComponent &&
-          (exigeTurma.includes(selectedKey) ? (
+        ) : activeView === 'normal' && CurrentComponent ? (
+          exigeTurma.includes(selectedKey) ? (
             <TurmaGuard>
               <CurrentComponent onClose={() => { }} />
             </TurmaGuard>
           ) : (
-            // Para o dashboard de usuários e outros que não dependem de turma
             <CurrentComponent onClose={() => { }} />
-          ))}
+          )
+        ) : null}
       </main>
     </div>
   );
