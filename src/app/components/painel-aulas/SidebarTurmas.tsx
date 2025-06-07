@@ -12,10 +12,26 @@ import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
 import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
-import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page"; // importação adicionada
+import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page";
 import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
+import { useSession } from "next-auth/react";
 
-const menuGroups = [
+// Menu para professores
+const menuGroupsProfessor = [
+  {
+    label: "Gerenciamento de Turma",
+    items: [
+      { label: "Registro de Aulas / Frequência", key: "registro", component: RegistroAulas },
+      { label: "Gerenciar Aulas Recorrentes", key: "recorrentes", component: GerenciarAulasRecorrentes },
+      { label: "Lançamento de Notas", key: "lancamento-notas", component: LancamentoNotas },
+      { label: "Visualizar Notas", key: "visualizar-notas", component: VisualizarNotas },
+      { label: "Arquivos", key: "arquivos", component: ArquivosTurma },
+    ],
+  },
+];
+
+// Menu para admin e coordenador
+const menuGroupsAdmin = [
   {
     label: "Gerenciamento de Turma",
     items: [
@@ -37,7 +53,6 @@ const menuGroups = [
   {
     label: "Gerenciamento de Cursos",
     items: [
-      // Adicionado item para o dashboard acadêmico:
       {
         label: "Gerenciar Cursos",
         key: "dashboard-academico",
@@ -54,6 +69,7 @@ export function SidebarTurmas() {
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState<'painel' | 'normal'>('normal');
+  const { data: session } = useSession();
 
   useEffect(() => {
     // Busca turmas do banco - seguindo padrão dos outros arquivos
@@ -134,7 +150,7 @@ export function SidebarTurmas() {
 
   // Busca o componente atual baseado na selectedKey
   const getCurrentComponent = () => {
-    for (const group of menuGroups) {
+    for (const group of menuGroupsProfessor) {
       const item = group.items.find(item => item.key === selectedKey);
       if (item) return item.component;
     }
@@ -142,6 +158,16 @@ export function SidebarTurmas() {
   };
 
   const CurrentComponent = getCurrentComponent();
+
+  // Determinar perfil do usuário
+  let perfil: "admin" | "coordenador" | "professor" = "professor";
+  if (session?.user?.tipo === "Admin") perfil = "admin";
+  if (session?.user?.tipo === "Coordenador") perfil = "coordenador";
+  // Se não for admin nem coordenador, assume professor
+
+  // Escolhe o menu conforme o perfil
+  let menuGroupsToUse = menuGroupsProfessor;
+  if (perfil === "admin" || perfil === "coordenador") menuGroupsToUse = menuGroupsAdmin;
 
   return (
     <div className="flex relative">
@@ -262,7 +288,7 @@ export function SidebarTurmas() {
         </div>
         <nav>
           <ul className="space-y-2">
-            {menuGroups.map((group) => (
+            {menuGroupsToUse.map((group) => (
               <li key={group.label}>
                 <button
                   className="w-full flex justify-between items-center text-left font-semibold px-2 py-2 rounded hover:bg-blue-600 transition"

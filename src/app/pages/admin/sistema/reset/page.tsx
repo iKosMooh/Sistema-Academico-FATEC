@@ -114,21 +114,21 @@ export default function ResetSistemaPage() {
         },
         {
             tipo: 'Coordenador',
-            login: '222.333.444-97',
+            login: '839.582.438-60',
             senha: 'coord123',
             nome: 'Gilberto Brandão Marcon',
             observacao: 'Coordenador do curso de Gestão Empresarial'
         },
         {
             tipo: 'Professor',
-            login: '333.444.555-98',
+            login: '649.565.688-27',
             senha: 'prof123',
             nome: 'Márcia Regina Reggiolli',
             observacao: 'Coordenadora do curso de Desenvolvimento de Software'
         },
         {
             tipo: 'Aluno',
-            login: '444.555.666-99',
+            login: '943.492.248-82',
             senha: 'aluno123',
             nome: 'João Silva Santos',
             observacao: 'Aluno do 3º semestre de Gestão Empresarial'
@@ -192,12 +192,12 @@ export default function ResetSistemaPage() {
             </div>
 
             {/* Usuários de Demonstração */}
-            <div className="bg-white border rounded-lg p-6">
+            <div className="bg-white border rounded-lg p-6 text-gray-800">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <UserIcon className="w-5 h-5 mr-2" />
                     Usuários de Demonstração
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
                     {usuariosDemo.map((usuario, index) => (
                         <div key={index} className="border rounded-lg p-4 bg-gray-50">
                             <div className="flex items-center justify-between mb-2">
@@ -254,7 +254,7 @@ export default function ResetSistemaPage() {
                         disabled={!canReset || isResetting}
                         className={`px-6 py-3 rounded-lg font-medium transition-colors ${canReset && !isResetting
                                 ? 'bg-red-600 hover:bg-red-700 text-white'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-gray-300 text-white cursor-not-allowed'
                             }`}
                     >
                         {!canReset ? `Aguarde ${formatTime(timeRemaining)}` : 'Iniciar Reset do Banco'}
@@ -308,7 +308,7 @@ export default function ResetSistemaPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg text-center">
                         <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent mx-auto mb-4"></div>
-                        <p className="font-medium">Resetando banco de dados...</p>
+                        <p className="font-medium text-gray-800">Resetando banco de dados...</p>
                         <p className="text-sm text-gray-600">Isso pode levar alguns segundos.</p>
                     </div>
                 </div>

@@ -216,9 +216,9 @@ export async function POST(request: NextRequest) {
     const salt = await bcrypt.genSalt(10);
     const usuarios = [
       { cpf: '111.222.333-96', senhaHash: await bcrypt.hash('admin', salt), tipo: 'Admin' as const },
-      { cpf: '222.333.444-97', senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
-      { cpf: '333.444.555-98', senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
-      { cpf: '444.555.666-99', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
+      { cpf: '839.582.438-60', senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
+      { cpf: '649.565.688-27', senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
+      { cpf: '390.533.128-40', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
     ];
 
     await prisma.usuarios.createMany({ data: usuarios });
