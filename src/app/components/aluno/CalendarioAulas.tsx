@@ -176,7 +176,7 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
           >
             ← Anterior
           </button>
-          <h3 className="text-xl font-semibold">
+          <h3 className="text-xl font-semibold text-gray-900">
             {nomesMeses[mesAtual.getMonth()]} {mesAtual.getFullYear()}
           </h3>
           <button
@@ -197,7 +197,7 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
         </div>
 
         {/* Dias do calendário */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-1 text-gray-900">
           {diasCalendario.map((dia, index) => {
             const aulasDoDia = obterAulasDoDia(dia.data);
             const temAulas = aulasDoDia.length > 0;
@@ -284,16 +284,16 @@ export function CalendarioAulas({ aulas }: CalendarioAulasProps) {
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
                onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold">Detalhes da Aula</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Detalhes da Aula</h3>
               <button
                 onClick={() => setAulaDetalhes(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white hover:text-gray-600"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-4 text-gray-900">
               <div>
                 <p className="text-sm text-gray-600">Matéria</p>
                 <p className="font-medium">{aulaDetalhes.materia.nomeMateria}</p>

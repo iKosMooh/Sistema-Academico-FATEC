@@ -80,16 +80,16 @@ export function NotasAluno({ notas }: NotasAlunoProps) {
 
       {/* Filtros */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Filtros</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Filtrar por Matéria
             </label>
             <select
               value={filtroMateria}
               onChange={(e) => setFiltroMateria(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Todas as matérias</option>
               {materias.map((materia) => (
@@ -104,7 +104,7 @@ export function NotasAluno({ notas }: NotasAlunoProps) {
             <select
               value={filtroTurma}
               onChange={(e) => setFiltroTurma(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Todas as turmas</option>
               {turmas.map((turma) => (
@@ -133,22 +133,22 @@ export function NotasAluno({ notas }: NotasAlunoProps) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Avaliação
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Matéria
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Turma
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Nota
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Tipo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Data
                   </th>
                 </tr>
@@ -158,16 +158,16 @@ export function NotasAluno({ notas }: NotasAlunoProps) {
                   .sort((a, b) => new Date(b.dataLancamento).getTime() - new Date(a.dataLancamento).getTime())
                   .map((nota) => (
                   <tr key={nota.idNota} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 text-gray-900 bg-gray-200 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{nota.nome}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 text-gray-900 bg-gray-200 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{nota.materia.nomeMateria}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 text-gray-900 bg-gray-200 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{nota.turma.nomeTurma}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 text-gray-900 bg-gray-200 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         nota.valorNota >= 6 
                           ? 'bg-green-100 text-green-800' 
@@ -176,10 +176,10 @@ export function NotasAluno({ notas }: NotasAlunoProps) {
                         {nota.valorNota.toFixed(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 text-gray-900 bg-gray-200 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{nota.tipoAvaliacao}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900 bg-gray-200 text-sm text-gray-500">
                       {new Date(nota.dataLancamento).toLocaleDateString('pt-BR')}
                     </td>
                   </tr>

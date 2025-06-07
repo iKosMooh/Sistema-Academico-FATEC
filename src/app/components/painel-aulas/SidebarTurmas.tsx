@@ -19,7 +19,6 @@ const menuGroups = [
   {
     label: "Gerenciamento de Turma",
     items: [
-      { label: "Dashboard", key: "dashboard", component: TurmaDashboard },
       { label: "Registro de Aulas / Frequência", key: "registro", component: RegistroAulas },
       { label: "Gerenciar Aulas Recorrentes", key: "recorrentes", component: GerenciarAulasRecorrentes },
       { label: "Vincular Alunos à Turma", key: "alunos", component: VincularAlunosTurma },

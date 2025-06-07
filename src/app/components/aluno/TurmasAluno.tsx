@@ -32,7 +32,7 @@ export function TurmasAluno({ turmas }: TurmasAlunoProps) {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {turmas.map((turma) => (
-            <div key={turma.idTurma} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <div key={turma.idTurma} className="bg-white text-gray-900 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">{turma.nomeTurma}</h3>

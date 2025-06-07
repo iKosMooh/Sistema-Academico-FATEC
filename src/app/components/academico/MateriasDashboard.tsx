@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ActionButton } from "@/app/components/ui/ActionButton";
 import { EditModal } from "@/app/components/ui/EditModal";
+import ReactDOM from "react-dom";
+import { Modal } from "@/app/components/painel-aulas/Modal";
+import CadastrarMateriaModal from "@/app/pages/admin/materias/create/page";
 
 interface Materia {
   [key: string]: unknown;
@@ -17,6 +18,8 @@ export function MateriasDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [actionPortal, setActionPortal] = useState<null | { materia: Materia; anchor: HTMLElement }>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchMaterias = async () => {
     try {
@@ -112,44 +115,61 @@ export function MateriasDashboard() {
     materia.nomeMateria.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleActionClick = (materia: Materia, e: React.MouseEvent) => {
+    setActionPortal({ materia, anchor: e.currentTarget as HTMLElement });
+  };
+
+  const closeActionPortal = () => setActionPortal(null);
+
+  const handleCloseCreateModal = async () => {
+    setModalOpen(false);
+    await fetchMaterias();
+  };
+
   if (loading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-          <span className="ml-3">Carregando matérias...</span>
+          <span className="ml-3 text-gray-900">Carregando matérias...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto bg-white rounded shadow p-8 mt-8 min-h-[60vh] flex flex-col">
+    <div className="p-6 max-w-7xl mx-auto bg-white rounded shadow mt-8 min-h-[60vh] flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Matérias</h2>
           <p className="text-gray-600">Gerencie as matérias disponíveis</p>
         </div>
-        <Link 
-          href="/pages/admin/materias/create"
+        <button
+          onClick={() => setModalOpen(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           + Nova Matéria
-        </Link>
+        </button>
       </div>
+
+      {/* Modal de criação */}
+      {modalOpen && (
+        <Modal isOpen={modalOpen} onClose={handleCloseCreateModal} title="Cadastrar Matéria">
+          <CadastrarMateriaModal />
+        </Modal>
+      )}
 
       {/* Search */}
       <div className="mb-6">
         <input
           type="text"
           placeholder="Pesquisar matérias..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full max-w-md px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-
       {/* Error Display */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -176,13 +196,13 @@ export function MateriasDashboard() {
         <table className="min-w-full bg-white border border-gray-200 rounded-xl">
           <thead className="bg-blue-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 ID
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-blue-900 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                 Nome da Matéria
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-blue-900 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">
                 Ações
               </th>
             </tr>
@@ -198,11 +218,53 @@ export function MateriasDashboard() {
                 <td className="py-4 px-2 text-gray-900 bg-gray-200">
                   <div className="font-medium">{materia.nomeMateria}</div>
                 </td>
-                <td className="py-4 px-2 text-gray-900 bg-gray-200 text-right">
-                  <ActionButton
-                    onEdit={() => handleEdit(materia)}
-                    onDelete={() => handleDelete(materia.idMateria)}
-                  />
+                <td className="py-4 px-2 text-gray-900 bg-gray-200 text-right relative min-w-[140px]">
+                  <button
+                    className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
+                    onClick={e => handleActionClick(materia, e)}
+                  >
+                    Ações
+                  </button>
+                  {/* Mini portal para ações, posicionado próximo ao botão */}
+                  {actionPortal && actionPortal.materia.idMateria === materia.idMateria &&
+                    ReactDOM.createPortal(
+                      <div
+                        className="fixed z-50"
+                        style={{
+                          top: `${(actionPortal.anchor.getBoundingClientRect().bottom + window.scrollY) + 8}px`,
+                          left: `${actionPortal.anchor.getBoundingClientRect().right - 160 + window.scrollX}px`,
+                        }}
+                      >
+                        <div className="bg-white border border-gray-300 rounded shadow-lg p-4 flex flex-col gap-2 min-w-[150px]">
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                            onClick={() => {
+                              handleEdit(materia);
+                              closeActionPortal();
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+                            onClick={() => {
+                              handleDelete(materia.idMateria);
+                              closeActionPortal();
+                            }}
+                          >
+                            Excluir
+                          </button>
+                          <button
+                            className="bg-gray-200 text-gray-900 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
+                            onClick={closeActionPortal}
+                          >
+                            Fechar
+                          </button>
+                        </div>
+                      </div>,
+                      document.body
+                    )
+                  }
                 </td>
               </tr>
             ))}
