@@ -51,7 +51,7 @@ export function SidebarTurmas() {
   const { turma, setTurma, setDisciplina } = useAppContext();
   const [turmas, setTurmas] = useState<{ id: string; nome: string; idCurso: number }[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'turmas' | 'calendario' | 'atestados'>('turmas');
+  const [activeView, setActiveView] = useState<'turmas' | 'calendario' | 'atestados' | 'dashboard'>('turmas');
 
   useEffect(() => {
     // Busca turmas do banco - seguindo padrão dos outros arquivos
@@ -206,14 +206,17 @@ export function SidebarTurmas() {
         <div className="mb-6">
           <div className="flex space-x-2">
             <button
-              onClick={() => setActiveView('turmas')}
+              onClick={() => {
+                setActiveView('turmas');
+                setSelectedKey('dashboard'); // Ir para o dashboard
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeView === 'turmas'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              📚 Turmas
+              📊 Painel
             </button>
             <button
               onClick={() => {
@@ -281,6 +284,17 @@ export function SidebarTurmas() {
           <TurmaGuard>
             <PlanejamentoAulas />
           </TurmaGuard>
+        ) : activeView === 'turmas' ? (
+          // Quando clicar em "Painel", vai para o dashboard
+          selectedKey === "dashboard" ? (
+            <TurmaDashboard />
+          ) : CurrentComponent && exigeTurma.includes(selectedKey) ? (
+            <TurmaGuard>
+              <CurrentComponent onClose={() => { }} />
+            </TurmaGuard>
+          ) : CurrentComponent ? (
+            <CurrentComponent onClose={() => { }} />
+          ) : null
         ) : CurrentComponent &&
           (selectedKey === "dashboard" ? (
             <CurrentComponent onClose={() => { }} />

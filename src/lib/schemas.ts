@@ -554,3 +554,36 @@ export function validateCrudPayload(payload: {
 
 // Adicionar tipo específico para aulas recorrentes
 export type AulasRecorrentesData = z.infer<typeof AulasRecorrentesSchema>;
+
+// Schema para dados do dashboard da turma
+export const TurmaDashboardSchema = z.object({
+  turma: z.object({
+    idTurma: z.number(),
+    nomeTurma: z.string(),
+    anoLetivo: z.number(),
+    curso: z.object({
+      nomeCurso: z.string(),
+      cargaHorariaTotal: z.number()
+    })
+  }),
+  estatisticas: z.object({
+    totalAlunos: z.number(),
+    totalAulas: z.number(),
+    aulasMinistradas: z.number(),
+    mediaGeralTurma: z.number(),
+    frequenciaMedia: z.number()
+  }),
+  graficos: z.object({
+    mediaNotas: z.array(z.object({
+      materia: z.string(), // Mudança: agora é matéria ao invés de aluno
+      media: z.number(),
+      totalNotas: z.number()
+    })),
+    frequenciaPorMateria: z.array(z.object({
+      materia: z.string(),
+      frequencia: z.number()
+    }))
+  })
+});
+
+export type TurmaDashboardData = z.infer<typeof TurmaDashboardSchema>;

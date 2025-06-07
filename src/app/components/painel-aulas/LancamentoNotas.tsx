@@ -22,6 +22,13 @@ interface Disciplina {
   nomeMateria: string;
 }
 
+interface CursoMateria {
+  materia: {
+    idMateria: number;
+    nomeMateria: string;
+  };
+}
+
 interface Nota {
   idNota?: number;
   valorNota: number;
@@ -31,11 +38,13 @@ interface Nota {
 
 interface Turma {
   id: string;
+  idCurso?: number;
 }
 
 export function LancamentoNotas() {
-  const { turma, disciplinas } = useAppContext() as { turma: Turma | null, disciplinas: Disciplina[] };
+  const { turma } = useAppContext() as { turma: Turma | null };
   const [alunos, setAlunos] = useState<Aluno[]>([]);
+  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState<number | null>(null);
   const [notas, setNotas] = useState<Record<number, Nota>>({});
   const [tipoAvaliacao, setTipoAvaliacao] = useState('Prova');
@@ -45,26 +54,26 @@ export function LancamentoNotas() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [notasEmBranco, setNotasEmBranco] = useState<number[]>([]);
 
-  // Buscar alunos da turma
+  // Buscar alunos da turma e disciplinas
   useEffect(() => {
     if (!turma?.id) return;
 
-    // Segunda chamada: buscar alunos da turma
+    // Buscar alunos da turma
     fetch("/api/crud", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         operation: "get",
         table: "turmaAluno",
-        relations: { aluno: true },
-        data: { idTurma: Number(turma.id) }
+        where: { idTurma: Number(turma.id) },
+        relations: { aluno: true }
       })
     })
     .then(res => res.json())
     .then(result => {
       if (result.success && result.data) {
         setAlunos(result.data
-          .filter((ta: AlunoTurma) => ta.aluno) // Garante que existe aluno
+          .filter((ta: AlunoTurma) => ta.aluno)
           .map((ta: AlunoTurma) => ({
             idAluno: ta.aluno.idAluno,
             nome: ta.aluno.nome,
@@ -78,7 +87,49 @@ export function LancamentoNotas() {
       setMessage('Erro ao carregar alunos');
     });
 
-  }, [turma?.id]); // Remove disciplinaSelecionada das dependências
+    // Buscar disciplinas do curso
+    if (turma.idCurso) {
+      fetch("/api/crud", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          operation: "get",
+          table: "cursoMaterias",
+          where: { idCurso: turma.idCurso },
+          relations: { materia: true }
+        })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data) {
+          setDisciplinas(result.data.map((cm: CursoMateria) => ({
+            idMateria: cm.materia.idMateria,
+            nomeMateria: cm.materia.nomeMateria
+          })));
+        } else {
+          // Fallback: buscar todas as disciplinas
+          fetch("/api/crud", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              operation: "get",
+              table: "materias"
+            })
+          })
+          .then(res => res.json())
+          .then(result => {
+            if (result.success && result.data) {
+              setDisciplinas(result.data);
+            }
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar disciplinas:', error);
+      });
+    }
+
+  }, [turma?.id, turma?.idCurso]);
 
   const handleNotaChange = (idAluno: number, valor: string) => {
     setNotas(prev => ({

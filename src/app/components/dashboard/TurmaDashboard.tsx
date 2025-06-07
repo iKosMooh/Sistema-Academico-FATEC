@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppContext } from "../painel-aulas/AppContext";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 interface TurmaStats {
   totalAlunos: number;
@@ -59,25 +60,75 @@ interface TurmaAlunoAPI {
   statusMatricula: string;
 }
 
+interface TurmaDashboardData {
+  turma: {
+    idTurma: number;
+    nomeTurma: string;
+    anoLetivo: number;
+    curso: {
+      nomeCurso: string;
+      cargaHorariaTotal: number;
+    };
+  };
+  estatisticas: {
+    totalAlunos: number;
+    totalAulas: number;
+    aulasMinistradas: number;
+    mediaGeralTurma: number;
+    frequenciaMedia: number;
+  };
+  graficos: {
+    mediaNotas: Array<{
+      materia: string; // Mudança: agora é matéria ao invés de aluno
+      media: number;
+      totalNotas: number;
+    }>;
+    frequenciaPorMateria: Array<{
+      materia: string;
+      frequencia: number;
+    }>;
+  };
+}
+
 export function TurmaDashboard() {
   const { turma } = useAppContext();
   const [stats, setStats] = useState<TurmaStats | null>(null);
   const [proximasAulas, setProximasAulas] = useState<AulaProxima[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState<TurmaDashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const carregarDados = async () => {
+    const carregarTodosDados = async () => {
       if (!turma?.id) {
         setStats(null);
         setProximasAulas([]);
+        setDashboardData(null);
+        setError(null);
         return;
       }
 
       setLoading(true);
+      setError(null);
+
       try {
-        // Buscar estatísticas da turma
+        // Carregar dados do dashboard primeiro (API específica)
+        const dashboardResponse = await fetch('/api/dashboard/turma', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idTurma: Number(turma.id) })
+        });
+
+        const dashboardResult = await dashboardResponse.json();
+        
+        if (!dashboardResult.success) {
+          throw new Error(dashboardResult.error || 'Erro ao carregar dados do dashboard');
+        }
+
+        setDashboardData(dashboardResult.data);
+
+        // Carregar dados complementares em paralelo
         const [aulasRes, alunosRes, notasRes, presencasRes] = await Promise.all([
-          // Aulas da turma
           fetch("/api/crud", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -88,7 +139,6 @@ export function TurmaDashboard() {
               relations: { materia: true }
             }),
           }),
-          // Alunos da turma
           fetch("/api/crud", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -98,7 +148,6 @@ export function TurmaDashboard() {
               where: { idTurma: Number(turma.id) },
             }),
           }),
-          // Notas da turma
           fetch("/api/crud", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -108,7 +157,6 @@ export function TurmaDashboard() {
               where: { idTurma: Number(turma.id) },
             }),
           }),
-          // Presenças da turma
           fetch("/api/crud", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -127,6 +175,7 @@ export function TurmaDashboard() {
           presencasRes.json(),
         ]);
 
+        // Processar dados para estatísticas complementares
         if (aulasData.success && alunosData.success) {
           const aulas = (aulasData.data || []) as AulaAPI[];
           const alunos = (alunosData.data || []) as TurmaAlunoAPI[];
@@ -169,7 +218,7 @@ export function TurmaDashboard() {
               }, 0) / notas.length 
             : 0;
 
-          // Calcular alunos em risco (frequência < 75% ou média < 6)
+          // Calcular alunos em risco
           let alunosRisco = 0;
           frequenciaPorAluno.forEach((freq: FrequenciaAluno, idAluno: number) => {
             const frequenciaAluno = freq.total > 0 ? (freq.presencas / freq.total) * 100 : 0;
@@ -186,7 +235,6 @@ export function TurmaDashboard() {
             }
           });
 
-          // Definir estatísticas da turma
           setStats({
             totalAlunos,
             totalAulas,
@@ -196,7 +244,7 @@ export function TurmaDashboard() {
             alunosRisco
           });
 
-          // Próximas aulas (futuras)
+          // Próximas aulas
           const agora = new Date();
           const aulasProximas = aulas
             .filter((a: AulaAPI) => new Date(a.dataAula) > agora)
@@ -205,14 +253,19 @@ export function TurmaDashboard() {
 
           setProximasAulas(aulasProximas);
         }
+
       } catch (error) {
-        console.error('Erro ao carregar dados da turma:', error);
+        console.error('Erro ao carregar dados:', error);
+        setError(error instanceof Error ? error.message : 'Erro ao conectar com o servidor');
+        setDashboardData(null);
+        setStats(null);
+        setProximasAulas([]);
       } finally {
         setLoading(false);
       }
     };
 
-    carregarDados();
+    carregarTodosDados();
   }, [turma?.id]);
 
   if (!turma) {
@@ -230,13 +283,79 @@ export function TurmaDashboard() {
   if (loading) {
     return (
       <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-          <span className="ml-3">Carregando dados da turma...</span>
+        <div className="space-y-6">
+          {/* Header Loading */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+            </div>
+          </div>
+
+          {/* Cards Loading */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-white p-6 rounded-lg shadow-md">
+                <div className="animate-pulse">
+                  <div className="flex items-center">
+                    <div className="w-12 h-12 bg-gray-300 rounded-lg"></div>
+                    <div className="ml-4 flex-1">
+                      <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+                      <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Gráficos Loading */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[1, 2].map(i => (
+              <div key={i} className="bg-white rounded-lg shadow-md p-6">
+                <div className="animate-pulse">
+                  <div className="h-6 bg-gray-300 rounded w-1/3 mb-4"></div>
+                  <div className="h-64 bg-gray-300 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center">
+            <div className="text-4xl mr-4">❌</div>
+            <div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">Erro ao carregar dados</h3>
+              <p className="text-red-600">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboardData && !loading) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📊</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum dado encontrado</h3>
+          <p className="text-gray-600">
+            Não foram encontrados dados para esta turma. Verifique se há alunos matriculados e aulas cadastradas.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const graficos = dashboardData?.graficos || { mediaNotas: [], frequenciaPorMateria: [] };
 
   return (
     <div className="p-6 space-y-6">
@@ -361,6 +480,97 @@ export function TurmaDashboard() {
           </div>
         )}
       </div>
+
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Gráfico de Média de Notas por Matéria */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4">📈 Média de Notas por Matéria</h3>
+          {graficos.mediaNotas.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={graficos.mediaNotas}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="materia" 
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                  fontSize={12}
+                />
+                <YAxis domain={[0, 10]} />
+                <Tooltip 
+                  formatter={(value: number) => [
+                    `${value.toFixed(1)}`,
+                    'Média da Matéria'
+                  ]}
+                  labelFormatter={(label) => `Matéria: ${label}`}
+                />
+                <Bar 
+                  dataKey="media" 
+                  fill="#3B82F6"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-500">Nenhuma nota lançada ainda</p>
+            </div>
+          )}
+        </div>
+
+        {/* Gráfico de Frequência por Matéria */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4">📊 Frequência por Matéria</h3>
+          {graficos.frequenciaPorMateria.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={graficos.frequenciaPorMateria}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="materia" 
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                  fontSize={12}
+                />
+                <YAxis domain={[0, 100]} />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(1)}%`, 'Frequência']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="frequencia" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-500">Nenhuma aula ministrada ainda</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Lista de Matérias com Baixo Rendimento */}
+      {graficos.mediaNotas.filter(materia => materia.media < 6).length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4 text-red-600">⚠️ Matérias com Baixo Rendimento (&lt; 6.0)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {graficos.mediaNotas
+              .filter(materia => materia.media < 6)
+              .map((materia, index) => (
+                <div key={index} className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 className="font-medium text-red-800">{materia.materia}</h4>
+                  <p className="text-red-600">Média: {materia.media.toFixed(1)}</p>
+                  <p className="text-sm text-red-500">{materia.totalNotas} nota{materia.totalNotas !== 1 ? 's' : ''}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Alertas e Avisos */}
       {stats && (
