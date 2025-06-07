@@ -12,7 +12,6 @@ import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
 import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
-import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
 import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page"; // importação adicionada
 
 const menuGroups = [
@@ -129,6 +128,18 @@ export function SidebarTurmas() {
   }
 
   // Lista de componentes que exigem turma selecionada
+  const exigeTurma = ["registro", "recorrentes", "alunos", "lancamento-notas", "visualizar-notas", "disciplinas", "arquivos"];
+
+  // Busca o componente atual baseado na selectedKey
+  const getCurrentComponent = () => {
+    for (const group of menuGroups) {
+      const item = group.items.find(item => item.key === selectedKey);
+      if (item) return item.component;
+    }
+    return null;
+  };
+
+  const CurrentComponent = getCurrentComponent();
 
   return (
     <div className="flex relative">
