@@ -1,9 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AdminGuard } from "@/app/components/AdminGuard";
 import { EditModal } from "@/app/components/ui/EditModal";
 import { ActionButton } from "@/app/components/ui/ActionButton";
+import { Modal } from "@/app/components/painel-aulas/Modal";
+// Importar os componentes de criação como modais
+import CreateAluno from "@/app/pages/admin/usuarios/aluno/create/page";
+import CreateProfessor from "@/app/pages/admin/usuarios/professor/create/page";
+import CreateUsuario from "@/app/pages/admin/usuarios/create/page";
 
 interface Usuario {
   [key: string]: unknown;
@@ -199,30 +203,41 @@ export function UsuariosDashboard() {
     "idProfessor", "nome", "sobrenome", "rg", "dataNasc", "cargo", "fotoPath", "docsPath", "descricao", "tel", "created_at", "updated_at"
   ];
 
+  // Estado para modais de criação
+  const [modalAlunoOpen, setModalAlunoOpen] = useState(false);
+  const [modalProfessorOpen, setModalProfessorOpen] = useState(false);
+  const [modalUsuarioOpen, setModalUsuarioOpen] = useState(false);
+
+  // Renderização condicional dos modais (os componentes devem aceitar isOpen/onClose)
+  // Se não aceitarem, envolva-os em um Modal genérico ou ajuste conforme necessário
+
   return (
     <AdminGuard>
       <div className="max-w-7xl mx-auto bg-white rounded shadow p-8 mt-8 min-h-[60vh] flex flex-col">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 bg-white shadow-none px-0 py-0 mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Gerenciamento de Usuários</h1>
           <nav className="flex flex-wrap gap-2">
-            <Link
-              href="/pages/admin/usuarios/aluno/create"
+            <button
+              type="button"
+              onClick={() => setModalAlunoOpen(true)}
               className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-500 hover:text-white whitespace-nowrap"
             >
               Novo Aluno
-            </Link>
-            <Link
-              href="/pages/admin/usuarios/professor/create"
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalProfessorOpen(true)}
               className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-500 hover:text-white whitespace-nowrap"
             >
               Novo Professor
-            </Link>
-            <Link
-              href="/pages/admin/usuarios/create"
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalUsuarioOpen(true)}
               className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-500 hover:text-white whitespace-nowrap"
             >
               Novo Usuário
-            </Link>
+            </button>
           </nav>
         </header>
         <main className="flex-1 p-0">
@@ -451,6 +466,22 @@ export function UsuariosDashboard() {
           )}
         </main>
       </div>
+      {/* Modais de criação - fora da div principal para garantir sobreposição */}
+      {modalAlunoOpen && (
+        <Modal isOpen={modalAlunoOpen} onClose={() => setModalAlunoOpen(false)} title="Novo Aluno">
+          <CreateAluno />
+        </Modal>
+      )}
+      {modalProfessorOpen && (
+        <Modal isOpen={modalProfessorOpen} onClose={() => setModalProfessorOpen(false)} title="Novo Professor">
+          <CreateProfessor />
+        </Modal>
+      )}
+      {modalUsuarioOpen && (
+        <Modal isOpen={modalUsuarioOpen} onClose={() => setModalUsuarioOpen(false)} title="Novo Usuário">
+          <CreateUsuario />
+        </Modal>
+      )}
     </AdminGuard>
   );
 }

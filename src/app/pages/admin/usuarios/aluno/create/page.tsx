@@ -141,200 +141,180 @@ export default function CadastrarAluno() {
 
   return (
     <AdminGuard>
-      <div className="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Cadastrar Aluno</h1>
-        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Nome
-            </label>
-            <input
-              type="text"
-              value={formData.nome}
-              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              placeholder="Digite o nome"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
+      <div className="max-w-xl mx-auto bg-white rounded shadow p-4 mt-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Cadastrar Aluno</h1>
+        <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="bg-gray-100 p-6 rounded-xl shadow space-y-0 text-base"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Nome
+              </label>
+              <input
+                type="text"
+                value={formData.nome}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                placeholder="Nome"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Sobrenome
+              </label>
+              <input
+                type="text"
+                value={formData.sobrenome}
+                onChange={(e) => setFormData({ ...formData, sobrenome: e.target.value })}
+                placeholder="Sobrenome"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> CPF
+              </label>
+              <input
+                type="text"
+                value={formData.cpf}
+                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                onBlur={handleCpfBlur}
+                placeholder="CPF"
+                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> RG
+              </label>
+              <input
+                type="text"
+                value={formData.rg}
+                onChange={(e) => setFormData({ ...formData, rg: e.target.value })}
+                onBlur={handleRgBlur}
+                placeholder="RG"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Nome da Mãe
+              </label>
+              <input
+                type="text"
+                value={formData.nomeMae}
+                onChange={(e) => setFormData({ ...formData, nomeMae: e.target.value })}
+                placeholder="Nome da mãe"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Nome do Pai</label>
+              <input
+                type="text"
+                value={formData.nomePai}
+                placeholder="Nome do pai"
+                onChange={(e) => setFormData({ ...formData, nomePai: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Data de Nascimento
+              </label>
+              <input
+                type="date"
+                value={formData.dataNasc}
+                onChange={(e) => setFormData({ ...formData, dataNasc: e.target.value })}
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Foto</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    foto: e.target.files ? e.target.files[0] : null,
+                  })
+                }
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Descrição</label>
+              <textarea
+                value={formData.descricao}
+                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                placeholder="Descrição"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Nome do Telefone 1
+              </label>
+              <input
+                type="text"
+                value={formData.nomeTel1}
+                onChange={(e) => setFormData({ ...formData, nomeTel1: e.target.value })}
+                placeholder="Nome do telefone 1"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">
+                <span className="text-red-600">*</span> Telefone 1
+              </label>
+              <input
+                type="text"
+                value={formData.tel1}
+                onChange={(e) => setFormData({ ...formData, tel1: e.target.value })}
+                placeholder="Telefone 1"
+                required
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Nome do Telefone 2</label>
+              <input
+                type="text"
+                value={formData.nomeTel2}
+                onChange={(e) => setFormData({ ...formData, nomeTel2: e.target.value })}
+                placeholder="Nome do telefone 2"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-blue-700 mb-1 text-base">Telefone 2</label>
+              <input
+                type="text"
+                value={formData.tel2}
+                onChange={(e) => setFormData({ ...formData, tel2: e.target.value })}
+                placeholder="Telefone 2"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              />
+            </div>
           </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Sobrenome
-            </label>
-            <input
-              type="text"
-              value={formData.sobrenome}
-              onChange={(e) =>
-                setFormData({ ...formData, sobrenome: e.target.value })
-              }
-              placeholder="Digite o sobrenome"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> CPF
-            </label>
-            <input
-              type="text"
-              value={formData.cpf}
-              onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-              onBlur={handleCpfBlur}
-              placeholder="Digite o CPF"
-              pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> RG
-            </label>
-            <input
-              type="text"
-              value={formData.rg}
-              onChange={(e) => setFormData({ ...formData, rg: e.target.value })}
-              onBlur={handleRgBlur}
-              placeholder="Digite o RG"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Nome da Mãe
-            </label>
-            <input
-              type="text"
-              value={formData.nomeMae}
-              onChange={(e) =>
-                setFormData({ ...formData, nomeMae: e.target.value })
-              }
-              placeholder="Digite o nome da mãe"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">Nome do Pai</label>
-            <input
-              type="text"
-              value={formData.nomePai}
-              placeholder="Digite o nome do pai"
-              onChange={(e) => setFormData({ ...formData, nomePai: e.target.value })}
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Data de Nascimento
-            </label>
-            <input
-              type="date"
-              value={formData.dataNasc}
-              onChange={(e) =>
-                setFormData({ ...formData, dataNasc: e.target.value })
-              }
-              placeholder="Selecione a data de nascimento"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">Descrição</label>
-            <textarea
-              value={formData.descricao}
-              onChange={(e) =>
-                setFormData({ ...formData, descricao: e.target.value })
-              }
-              placeholder="Digite uma descrição"
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">Foto</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  foto: e.target.files ? e.target.files[0] : null,
-                })
-              }
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Nome do Telefone 1
-            </label>
-            <input
-              type="text"
-              value={formData.nomeTel1}
-              onChange={(e) =>
-                setFormData({ ...formData, nomeTel1: e.target.value })
-              }
-              placeholder="Digite o nome do telefone 1"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">
-              <span className="text-red-600">*</span> Telefone 1
-            </label>
-            <input
-              type="text"
-              value={formData.tel1}
-              onChange={(e) => setFormData({ ...formData, tel1: e.target.value })}
-              placeholder="Digite o telefone 1"
-              required
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">Nome do Telefone 2</label>
-            <input
-              type="text"
-              value={formData.nomeTel2}
-              onChange={(e) =>
-                setFormData({ ...formData, nomeTel2: e.target.value })
-              }
-              placeholder="Digite o nome do telefone 2"
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium text-blue-700 mb-1">Telefone 2</label>
-            <input
-              type="text"
-              value={formData.tel2}
-              onChange={(e) => setFormData({ ...formData, tel2: e.target.value })}
-              placeholder="Digite o telefone 2"
-              className="w-full border border-gray-300 rounded px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {error && <div className="text-red-600 mb-2">{error}</div>}
-
+          {error && <div className="text-red-600 my-2 text-base">{error}</div>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow flex items-center justify-center"
+            className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow text-lg"
           >
             {loading ? "Salvando..." : "Salvar"}
           </button>
