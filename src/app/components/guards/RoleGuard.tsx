@@ -43,7 +43,7 @@ export function RoleGuard({
           <p className="text-gray-600 mb-6">Você precisa estar logado para acessar esta página.</p>
           <a 
             href={redirectTo}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors inline-block"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 hover:text-white transition-colors inline-block"
           >
             Fazer Login
           </a>

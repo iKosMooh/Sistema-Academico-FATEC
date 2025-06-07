@@ -298,10 +298,10 @@ export default function Header() {
                             !isLoginPage && (
                                 <Link
                                     href="/pages/login"
-                                    className="flex items-center px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 transition duration-300 shadow-md text-white"
+                                    className="flex items-center px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 transition duration-300 shadow-md text-white"
                                 >
-                                    <UserIcon className="w-5 h-5 mr-2" />
-                                    <span className="font-medium">Entrar</span>
+                                    <UserIcon className="w-5 h-5 mr-2 " />
+                                    <span className="font-medium ">Entrar</span>
                                 </Link>
                             )
                         )}

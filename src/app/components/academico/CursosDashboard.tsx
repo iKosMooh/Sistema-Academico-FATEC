@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ActionButton } from "@/app/components/ui/ActionButton";
 import { EditModal } from "@/app/components/ui/EditModal";
 import { Modal } from "@/app/components/painel-aulas/Modal";
 import CadastrarCursoModal from "@/app/pages/admin/curso/create/page";
+import ReactDOM from "react-dom";
 
 interface Curso {
   [key: string]: unknown;
@@ -22,6 +22,7 @@ export function CursosDashboard() {
   const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [actionPortal, setActionPortal] = useState<null | { curso: Curso; anchor: HTMLElement }>(null);
 
   const fetchCursos = async () => {
     try {
@@ -117,12 +118,18 @@ export function CursosDashboard() {
     curso.nomeCurso.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleActionClick = (curso: Curso, e: React.MouseEvent) => {
+    setActionPortal({ curso, anchor: e.currentTarget as HTMLElement });
+  };
+
+  const closeActionPortal = () => setActionPortal(null);
+
   if (loading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
-          <span className="ml-3">Carregando cursos...</span>
+          <span className="ml-3 text-gray-900">Carregando cursos...</span>
         </div>
       </div>
     );
@@ -157,7 +164,7 @@ export function CursosDashboard() {
         <input
           type="text"
           placeholder="Pesquisar cursos..."
-          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full max-w-md px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -192,45 +199,87 @@ export function CursosDashboard() {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead className="bg-gray-50">
+        <table className="w-full min-w-[800px] bg-white border border-gray-200">
+          <thead className="bg-gray-50 w-full min-w-[800px] h-20">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-6 text-left text-xs font-medium text-white uppercase tracking-wider min-w-[180px]">
                 Curso
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-6 text-left text-xs font-medium text-white uppercase tracking-wider min-w-[120px]">
                 Carga Horária
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-6 text-left text-xs font-medium text-white uppercase tracking-wider min-w-[250px]">
                 Descrição
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-6 text-right text-xs font-medium text-white uppercase tracking-wider min-w-[120px]">
                 Ações
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 w-full min-w-[800px]">
             {filteredCursos.map((curso) => (
-              <tr key={curso.idCurso} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={curso.idCurso} className="hover:bg-gray-50 h-20">
+                <td className="px-6 py-6 bg-gray-100 whitespace-nowrap">
                   <div className="font-medium text-gray-900">{curso.nomeCurso}</div>
                   <div className="text-sm text-gray-500">ID: {curso.idCurso}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-6 bg-gray-100 whitespace-nowrap">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {curso.cargaHorariaTotal}h
                   </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-6 bg-gray-100">
                   <div className="text-sm text-gray-900 max-w-xs truncate">
                     {curso.descricao || "-"}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <ActionButton
-                    onEdit={() => handleEdit(curso)}
-                    onDelete={() => handleDelete(curso.idCurso)}
-                  />
+                <td className="px-6 py-6 bg-gray-100 text-right relative min-w-[140px]">
+                  <button
+                    className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
+                    onClick={e => handleActionClick(curso, e)}
+                  >
+                    Ações
+                  </button>
+                  {/* Mini portal para ações, posicionado próximo ao botão */}
+                  {actionPortal && actionPortal.curso.idCurso === curso.idCurso &&
+                    ReactDOM.createPortal(
+                      <div
+                        className="fixed z-50"
+                        style={{
+                          top: `${(actionPortal.anchor.getBoundingClientRect().bottom + window.scrollY) + 8}px`,
+                          left: `${actionPortal.anchor.getBoundingClientRect().right - 160 + window.scrollX}px`,
+                        }}
+                      >
+                        <div className="bg-white border border-gray-300 rounded shadow-lg p-4 flex flex-col gap-2 min-w-[150px]">
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+                            onClick={() => {
+                              handleEdit(curso);
+                              closeActionPortal();
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+                            onClick={() => {
+                              handleDelete(curso.idCurso);
+                              closeActionPortal();
+                            }}
+                          >
+                            Excluir
+                          </button>
+                          <button
+                            className="bg-gray-200 text-gray-900 px-3 py-1 rounded hover:bg-gray-300 transition-colors"
+                            onClick={closeActionPortal}
+                          >
+                            Fechar
+                          </button>
+                        </div>
+                      </div>,
+                      document.body
+                    )
+                  }
                 </td>
               </tr>
             ))}
