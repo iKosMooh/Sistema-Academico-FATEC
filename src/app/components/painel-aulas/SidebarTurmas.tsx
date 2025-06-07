@@ -13,6 +13,7 @@ import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfe
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
 import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
+import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page"; // importação adicionada
 
 const menuGroups = [
   {
@@ -37,9 +38,12 @@ const menuGroups = [
   {
     label: "Gerenciamento de Cursos",
     items: [
-      { label: "Professores", key: "professores", component: () => <div>Em desenvolvimento...</div> },
-      { label: "Turmas", key: "turmas", component: () => <div>Em desenvolvimento...</div> },
-      { label: "Presenças", key: "presencas", component: () => <div>Em desenvolvimento...</div> },
+      // Adicionado item para o dashboard acadêmico:
+      {
+        label: "Gerenciar Cursos",
+        key: "dashboard-academico",
+        component: AcademicoDashboardPage
+      }
     ],
   },
 ];
@@ -332,7 +336,8 @@ export function SidebarTurmas() {
           if (
             selectedKey === "professores" ||
             selectedKey === "turmas" ||
-            selectedKey === "presencas"
+            selectedKey === "presencas" ||
+            selectedKey === "dashboard-academico" // adicionado aqui
           ) {
             const ItemComponent = menuGroups
               .flatMap(g => g.items)

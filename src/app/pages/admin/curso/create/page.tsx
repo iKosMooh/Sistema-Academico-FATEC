@@ -17,7 +17,9 @@ export default function CreateCursoPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -52,7 +54,7 @@ export default function CreateCursoPage() {
       if (!result.success) throw new Error(result.error || 'Erro ao criar o curso.');
 
       setSuccess(true);
-      router.push('/pages/academico/dashboard');  // Redireciona para a listagem de cursos
+      router.push('/pages/academico/dashboard');
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -65,66 +67,75 @@ export default function CreateCursoPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Criar Curso</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">Nome do Curso</label>
-          <input
-            type="text"
-            name="nomeCurso"
-            value={formData.nomeCurso}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-            required
-          />
+    <div className="max-w-xl mx-auto bg-white rounded shadow p-4 mt-6">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4">Criar Curso</h1>
+      <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-xl shadow space-y-0 text-base">
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              <span className="text-red-600">*</span> Nome do Curso
+            </label>
+            <input
+              type="text"
+              name="nomeCurso"
+              value={formData.nomeCurso}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              placeholder="Nome do Curso"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              <span className="text-red-600">*</span> Carga Horária Total
+            </label>
+            <input
+              type="number"
+              name="cargaHorariaTotal"
+              value={formData.cargaHorariaTotal}
+              onChange={handleChange}
+              required
+              min="1"
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              placeholder="Carga Horária Total"
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              Descrição
+            </label>
+            <textarea
+              name="descricao"
+              value={formData.descricao}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              placeholder="Descrição"
+              rows={2}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-blue-700 mb-1 text-base">
+              Caminho de Documentos (Opcional)
+            </label>
+            <input
+              type="text"
+              name="docsPath"
+              value={formData.docsPath}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 text-base"
+              placeholder="Caminho de Documentos"
+            />
+          </div>
         </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Carga Horária Total</label>
-          <input
-            type="number"
-            name="cargaHorariaTotal"
-            value={formData.cargaHorariaTotal}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-            required
-            min="1"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Descrição</label>
-          <textarea
-            name="descricao"
-            value={formData.descricao}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Caminho de Documentos (Opcional)</label>
-          <input
-            type="text"
-            name="docsPath"
-            value={formData.docsPath}
-            onChange={handleChange}
-            className="w-full border rounded p-2"
-          />
-        </div>
-
+        {error && <div className="text-red-600 my-2 text-base">{error}</div>}
+        {success && <div className="text-green-600 my-2 text-base">Curso criado com sucesso!</div>}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           disabled={loading}
+          className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 font-semibold shadow text-lg"
         >
           {loading ? 'Salvando...' : 'Salvar'}
         </button>
-
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-        {success && <p className="text-green-500 mt-2">Curso criado com sucesso!</p>}
       </form>
     </div>
   );

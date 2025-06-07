@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { ActionButton } from "@/app/components/ui/ActionButton";
 import { EditModal } from "@/app/components/ui/EditModal";
+import { Modal } from "@/app/components/painel-aulas/Modal";
+import CadastrarCursoModal from "@/app/pages/admin/curso/create/page";
 
 interface Curso {
   [key: string]: unknown;
@@ -20,6 +21,7 @@ export function CursosDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchCursos = async () => {
     try {
@@ -106,6 +108,11 @@ export function CursosDashboard() {
     setSelectedCurso(null);
   };
 
+  const handleCloseCreateModal = async () => {
+    setModalOpen(false);
+    await fetchCursos();
+  };
+
   const filteredCursos = cursos.filter(curso =>
     curso.nomeCurso.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -129,13 +136,21 @@ export function CursosDashboard() {
           <h2 className="text-2xl font-bold text-gray-900">Cursos</h2>
           <p className="text-gray-600">Gerencie os cursos disponíveis</p>
         </div>
-        <Link 
-          href="/pages/admin/curso/create"
+        <button
+          onClick={() => setModalOpen(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           + Novo Curso
-        </Link>
+        </button>
       </div>
+
+      {/* Modal de criação */}
+      {modalOpen && (
+        <Modal isOpen={modalOpen} onClose={handleCloseCreateModal} title="Cadastrar Curso">
+          {/* Remova o onSuccess, pois o componente não aceita essa prop */}
+          <CadastrarCursoModal />
+        </Modal>
+      )}
 
       {/* Search */}
       <div className="mb-6">
