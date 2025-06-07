@@ -1,33 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const cpf = searchParams.get('cpf');
-
-    if (!cpf) {
-      return NextResponse.json({
-        success: false,
-        error: 'CPF do professor é obrigatório'
-      }, { status: 400 });
-    }
-
-    // Verificar se o professor existe
-    const professor = await prisma.professores.findUnique({
-      where: { idProfessor: cpf }
-    });
-
-    if (!professor) {
-      return NextResponse.json({
-        success: false,
-        error: 'Professor não encontrado'
-      }, { status: 404 });
-    }
-
-    // Buscar todos os atestados com informações detalhadas
+    // Buscar todos os atestados enviados pelos alunos para avaliação dos professores
     const atestados = await prisma.atestadosMedicos.findMany({
       include: {
         aluno: {
