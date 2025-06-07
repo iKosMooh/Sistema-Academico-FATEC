@@ -25,8 +25,9 @@ function usePermissionsWithFallback() {
 export default function Header() {
     const pathname = usePathname();
     const isLoginPage = pathname === "/pages/login";
+    const isPainelAulasPage = pathname === "/pages/admin/painel-aulas";
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { userType, isAdmin, canAccessCoordenador, canAccessProfessor } = usePermissionsWithFallback();
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -53,10 +54,10 @@ export default function Header() {
             // Usuário logado - ir para dashboard apropriado
             switch (userType) {
                 case 'Admin':
-                    router.push('/pages/admin/dashboard');
+                    router.push('/pages/admin/painel-aulas');
                     break;
                 case 'Coordenador':
-                    router.push('/pages/coordenador/dashboard');
+                    router.push('/pages/admin/painel-aulas');
                     break;
                 case 'Professor':
                     router.push('/pages/professor/dashboard');
@@ -112,13 +113,31 @@ export default function Header() {
     const getUserDisplayName = () => {
         if (!session?.user) return 'Usuário';
         
-        const { nome, sobrenome, email } = session.user;
+        const user = session.user;
         
-        if (nome) {
-            return sobrenome ? `${nome} ${sobrenome}` : nome;
-        } else if (email) {
-            return email.split('@')[0];
+        console.log('Dados do usuário na sessão:', user); // Debug
+        
+        // Tentar buscar nome completo primeiro
+        if (user.nome && user.sobrenome) {
+            return `${user.nome} ${user.sobrenome}`;
         }
+        
+        // Fallback para nome individual
+        if (user.nome) {
+            return user.nome;
+        }
+        
+        
+        // Fallback para email
+        if (user.email) {
+            return user.email.split('@')[0];
+        }
+        
+        // Fallback para CPF formatado
+        if (user.cpf) {
+            return `CPF: ${user.cpf}`;
+        }
+        
         return 'Usuário';
     };
 
@@ -132,23 +151,19 @@ export default function Header() {
         return roleLabels[userType as keyof typeof roleLabels] || userType;
     };
 
-    if (status === 'loading') {
-        return (
-            <header className="bg-blue-800 shadow-lg px-4 py-2 w-full">
-                <div className="flex items-center justify-center h-20">
-                    <div className="animate-pulse text-white">Carregando...</div>
-                </div>
-            </header>
-        );
-    }
-
+    // Sempre renderizar o header sem loading
     return (
         <>
             <header className="bg-blue-800 shadow-lg px-4 py-2 w-full relative z-50">
                 <div className="flex items-center h-20">
-                    {/* Logo + Nome */}
-                    <div className="flex items-center flex-shrink-0">
-                        <div className="flex items-center">
+                    {/* Logo + Nome - Com espaçamento condicional para o botão menu */}
+                    <div className={`flex items-center flex-shrink-0 transition-all duration-300 ${
+                        isPainelAulasPage ? 'ml-20' : 'ml-0'
+                    }`}>
+                        <Link
+                            href="/"
+                            className="flex items-center hover:opacity-80 transition-opacity"
+                        >
                             <Image
                                 src="/logo.png"
                                 alt="Logo Softmare"
@@ -157,10 +172,10 @@ export default function Header() {
                                 className="w-32 h-32 object-contain"
                                 priority
                             />
-                            <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0">
+                            <span className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent select-none ml-0 cursor-pointer">
                                 Softmare
                             </span>
-                        </div>
+                        </Link>
                     </div>
 
                     {/* Navegação Central */}

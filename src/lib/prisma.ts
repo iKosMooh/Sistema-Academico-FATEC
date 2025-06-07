@@ -8,7 +8,11 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ['query', 'info', 'warn', 'error'],
+    log: ['error', 'warn'], // Reduzir logs para melhor performance
+    transactionOptions: {
+      timeout: 60000, // 60 segundos para transações
+      maxWait: 60000, // 60 segundos de espera máxima
+    },
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

@@ -146,13 +146,13 @@ export function SidebarTurmas() {
 
   return (
     <div className="flex relative">
-      {/* Botão flutuante para abrir/fechar sidebar */}
+      {/* Botão flutuante para abrir/fechar sidebar - sempre visível */}
       <button
         className={`fixed top-6 left-6 z-50 bg-blue-700 text-white p-3 rounded-full shadow-lg hover:bg-blue-800 transition-all flex items-center gap-2
           ${sidebarOpen ? "ring-2 ring-yellow-300" : ""}
         `}
         style={{ boxShadow: "0 4px 24px rgba(13,102,216,0.18)" }}
-        onClick={() => setSidebarOpen((open) => !open)}
+        onClick={() => setSidebarOpen(!sidebarOpen)}
         aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
       >
         {sidebarOpen ? (
@@ -164,7 +164,6 @@ export function SidebarTurmas() {
       </button>
 
       {/* Overlay escuro ao abrir sidebar (mobile) */}
-      {/* Removido background para não escurecer a tela */}
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-300 ${sidebarOpen ? "block" : "hidden"}`}
         style={{ pointerEvents: "none", background: "transparent" }}
@@ -184,6 +183,17 @@ export function SidebarTurmas() {
           display: sidebarOpen ? "block" : "none",
         }}
       >
+        {/* Botão fechar apenas no mobile */}
+        <div className="flex justify-end mb-4 md:hidden">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 text-white hover:bg-blue-600 rounded-lg transition-colors"
+            aria-label="Fechar menu"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
+
         {isGerenciamentoTurma && (
           <div className="mb-6">
             <label className="block text-sm font-medium mb-1 text-white">Turma</label>
@@ -288,6 +298,7 @@ export function SidebarTurmas() {
           </ul>
         </nav>
       </aside>
+      
       {/* Conteúdo principal */}
       <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-72" : ""}`}>
         {activeView === 'painel' && selectedKey === 'atestados' ? (
