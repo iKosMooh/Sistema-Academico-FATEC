@@ -104,7 +104,7 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
 
       {/* Filtro */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Filtros</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Filtros</h3>
         <div className="max-w-md">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Filtrar por Turma
@@ -112,7 +112,7 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
           <select
             value={filtroTurma}
             onChange={(e) => setFiltroTurma(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full border border-gray-300 text-gray-900 bg-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Todas as turmas</option>
             {turmas.map((turma) => (
@@ -140,22 +140,22 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Turma
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Matéria
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Presenças
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Aulas Ministradas
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Frequência
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
@@ -163,13 +163,13 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
               <tbody className="bg-white divide-y divide-gray-200">
                 {frequenciaFiltrada.map((freq) => (
                   <tr key={`${freq.turma.idTurma}-${freq.materia.nomeMateria}`} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium bg-gray-200 text-gray-900">
                       {freq.turma.nomeTurma}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200 text-gray-900">
                       {freq.materia.nomeMateria}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200 text-gray-900">
                       <div className="flex flex-col">
                         <span className="font-medium">{freq.presencas}</span>
                         <span className="text-xs text-gray-500">
@@ -177,7 +177,7 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm bg-gray-200 text-gray-900">
                       <div className="flex flex-col">
                         <span className="font-medium">{freq.aulasMinistradas}</span>
                         <span className="text-xs text-gray-500">
@@ -187,7 +187,7 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap bg-gray-200 text-gray-900">
                       <div className="flex flex-col">
                         <span className={`text-sm font-bold ${
                           freq.taxaPresenca >= 75 ? 'text-green-600' : 'text-red-600'
@@ -199,7 +199,7 @@ export function FrequenciaAluno({ frequencia }: FrequenciaAlunoProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap bg-gray-200 text-gray-900">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         freq.taxaPresenca >= 75
                           ? 'bg-green-100 text-green-800'

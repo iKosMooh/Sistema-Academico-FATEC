@@ -402,7 +402,7 @@ export function EnvioAtestado() {
       {/* Lista de atestados enviados */}
       <div className="bg-white rounded-lg shadow-md">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Atestados Enviados</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Atestados Enviados</h3>
         </div>
         
         {atestados.length === 0 ? (
@@ -456,16 +456,16 @@ export function EnvioAtestado() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold">Enviar Atestado Médico</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Enviar Atestado Médico</h3>
               <button
                 onClick={() => setModalAberto(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white hover:text-gray-600"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-gray-200 p-4 rounded-lg border border-gray-300">
               {erro && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {erro}
@@ -474,7 +474,7 @@ export function EnvioAtestado() {
 
               {/* Seletor de Turma */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
                   Turma *
                 </label>
                 <select
@@ -484,7 +484,7 @@ export function EnvioAtestado() {
                     setAulasAfetadas([]); // Limpar aulas selecionadas ao trocar turma
                   }}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione uma turma</option>
                   {turmas.map((turma) => (
@@ -513,7 +513,7 @@ export function EnvioAtestado() {
                       setAulasAfetadas([]); // Limpar aulas selecionadas ao trocar período
                     }}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -528,7 +528,7 @@ export function EnvioAtestado() {
                       setAulasAfetadas([]); // Limpar aulas selecionadas ao trocar período
                     }}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -545,7 +545,7 @@ export function EnvioAtestado() {
                   required
                   minLength={1} // Validação HTML5
                   maxLength={255} // Validação HTML5
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 />
                 {motivo.length > 0 && motivo.length < 3 && (
                   <p className="text-xs text-red-500 mt-1">
@@ -563,7 +563,7 @@ export function EnvioAtestado() {
                   accept=".jpg,.jpeg,.png,.pdf"
                   onChange={handleArquivoChange}
                   required
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -575,7 +575,7 @@ export function EnvioAtestado() {
                   value={observacoes}
                   onChange={(e) => setObservacoes(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                   placeholder="Informações adicionais..."
                 />
               </div>
