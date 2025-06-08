@@ -172,7 +172,7 @@ export default function Footer() {
                 <p className="text-blue-800 text-xs">FrontEnd Developer</p>
               </div>
               <div className="bg-blue-300/80 p-2 rounded-lg text-center">
-                <p className="font-bold text-blue-900 text-sm">Luiz Eduardo</p>
+                <p className="font-bold text-blue-900 text-sm">Luis Eduardo</p>
                 <p className="text-blue-800 text-xs">FrontEnd Developer</p>
               </div>
               <div className="bg-blue-300/80 p-2 rounded-lg text-center">
