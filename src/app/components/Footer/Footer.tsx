@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ const RefreshIcon = () => (
 
 export default function Footer() {
   const router = useRouter();
+  const [showEquipeSistema, setShowEquipeSistema] = useState(false);
 
   const handleReset = () => {
     if (confirm('Esta ação reiniciará todo o sistema. Tem certeza?')) {
@@ -142,74 +143,100 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Sistema Acadêmico - agora em 2 colunas: equipe | sistema+reset+logo abaixo */}
+        {/* Botão único para mostrar/ocultar o bloco Equipe/Sistema */}
         <div className="w-full flex justify-center mb-8">
-          <div className="w-full max-w-2xl bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-600 rounded-xl p-3 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            {/* Coluna 1: Equipe */}
-            <div className="flex flex-col items-center">
-              <h4 className="font-bold text-center mb-2 text-blue-200 border-b border-blue-600 pb-1 text-xs">
-                Equipe de Desenvolvimento
-              </h4>
-              <div className="flex flex-col gap-1 w-full">
-                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                  <p className="font-bold text-blue-900 text-[11px]">Caio Magalhães</p>
-                  <p className="text-blue-800 text-[9px]">FullStack Developer</p>
-                </div>
-                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                  <p className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</p>
-                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
-                </div>
-                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                  <p className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</p>
-                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
-                </div>
-                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                  <p className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</p>
-                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+          <button
+            className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow transition-all"
+            onClick={() => setShowEquipeSistema((v) => !v)}
+            aria-label="Mostrar equipe de desenvolvimento e sistema acadêmico"
+          >
+            Equipe de Desenvolvimento
+            <span className="mx-2">-</span>
+            <span className="inline-flex items-center bg-blue-800/70 px-2 py-1 rounded-full">
+              <div className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
+              <span className="font-bold text-xs">Sistema Acadêmico v1.2</span>
+            </span>
+            <span className="ml-2">{showEquipeSistema ? "▲" : "▼"}</span>
+          </button>
+        </div>
+
+        {showEquipeSistema && (
+          <div className="w-full flex justify-center mb-8 animate-fade-in">
+            <div className="w-full max-w-2xl bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-600 rounded-xl p-3 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              {/* Coluna 1: Equipe */}
+              <div className="flex flex-col items-center">
+                <div
+                  id="dev-team-footer"
+                  className="flex flex-col gap-1 w-full"
+                >
+                  <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                    <p className="font-bold text-blue-900 text-[11px]">Caio Magalhães</p>
+                    <p className="text-blue-800 text-[9px]">FullStack Developer</p>
+                  </div>
+                  <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                    <p className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                  </div>
+                  <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                    <p className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                  </div>
+                  <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                    <p className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* Coluna 2: Sistema Acadêmico + Reset + Logo Softmare abaixo */}
-            <div className="flex flex-col items-center">
-              <div className="inline-flex items-center justify-center bg-blue-800/70 px-2 py-1 rounded-full mb-2 mt-1">
-                <div className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
-                <p className="font-bold text-xs text-center w-full">Sistema Acadêmico v1.2</p>
-              </div>
-              <p className="text-blue-200 text-[10px] text-center mb-2">Plataforma oficial da Fatec Itapira</p>
-              <button
-                onClick={handleReset}
-                className="flex items-center gap-2 mt-1 mb-2 text-blue-900 font-bold px-2 py-1 rounded-xl transition-all shadow hover:shadow-lg transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white text-xs"
-              >
-                <RefreshIcon />
-                <span className="text-xs">Reset Sistema</span>
-              </button>
-              {/* Logo Softmare logo abaixo do botão */}
-              <div className="flex flex-col items-center mt-2">
-                <div className="bg-white/20 p-1 rounded-full mb-1">
-                  <Image
-                    src="/logo.png"
-                    alt="Logo Softmare"
-                    width={28}
-                    height={28}
-                    className="w-7 h-7 object-contain"
-                    priority
-                  />
+              {/* Coluna 2: Sistema Acadêmico + Reset + Logo Softmare abaixo */}
+              <div className="flex flex-col items-center">
+                <p className="text-blue-200 text-[10px] text-center mb-2">Plataforma oficial da Fatec Itapira</p>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-2 mt-1 mb-2 text-blue-900 font-bold px-2 py-1 rounded-xl transition-all shadow hover:shadow-lg transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white text-xs"
+                >
+                  <RefreshIcon />
+                  <span className="text-xs">Reset Sistema</span>
+                </button>
+                {/* Logo Softmare logo abaixo do botão */}
+                <div className="flex flex-col items-center mt-2">
+                  <div className="bg-white/20 p-1 rounded-full mb-1">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo Softmare"
+                      width={28}
+                      height={28}
+                      className="w-7 h-7 object-contain"
+                      priority
+                    />
+                  </div>
+                  <span className="text-sm font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                    Softmare
+                  </span>
+                  <p className="text-blue-200 text-[10px] mt-1 text-center">
+                    Tecnologia e Inovação Acadêmica
+                  </p>
                 </div>
-                <span className="text-sm font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  Softmare
-                </span>
-                <p className="text-blue-200 text-[10px] mt-1 text-center">
-                  Tecnologia e Inovação Acadêmica
-                </p>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Copyright */}
-      <div className="mt-6 pt-4 border-t border-blue-700 text-center text-blue-300 text-sm">
+      <div className="mt-6 pt-4 border-t border-blue-700 text-center text-blue-300 text-sm relative">
         © {new Date().getFullYear()} Fatec Itapira. Todos os direitos reservados.
+
+        {/* Botão Voltar ao Topo */}
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="absolute right-4 -top-8 flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow transition-all"
+          aria-label="Voltar ao topo"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+          Topo
+        </button>
       </div>
     </footer>
   );
