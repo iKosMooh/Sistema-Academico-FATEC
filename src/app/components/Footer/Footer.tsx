@@ -142,62 +142,66 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Sistema Acadêmico - fora do grid, centralizado */}
-        <div className="max-w-md mx-auto mb-10">
-          <div className="bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-600 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+        {/* Sistema Acadêmico - agora em 2 colunas: equipe | sistema+reset+logo abaixo */}
+        <div className="w-full flex justify-center mb-8">
+          <div className="w-full max-w-2xl bg-gradient-to-br from-blue-700 to-blue-900 border border-blue-600 rounded-xl p-3 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            {/* Coluna 1: Equipe */}
             <div className="flex flex-col items-center">
-              <div className="inline-flex items-center justify-center bg-blue-800/70 px-4 py-2 rounded-full mb-3">
-                <div className="w-3 h-3 rounded-full bg-green-400 mr-2 animate-pulse"></div>
-                <p className="font-bold text-lg text-center w-full">Sistema Acadêmico v1.2</p>
+              <h4 className="font-bold text-center mb-2 text-blue-200 border-b border-blue-600 pb-1 text-xs">
+                Equipe de Desenvolvimento
+              </h4>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                  <p className="font-bold text-blue-900 text-[11px]">Caio Magalhães</p>
+                  <p className="text-blue-800 text-[9px]">FullStack Developer</p>
+                </div>
+                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                  <p className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</p>
+                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                </div>
+                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                  <p className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</p>
+                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                </div>
+                <div className="bg-blue-300/80 p-1 rounded-lg text-center">
+                  <p className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</p>
+                  <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                </div>
               </div>
+            </div>
+            {/* Coluna 2: Sistema Acadêmico + Reset + Logo Softmare abaixo */}
+            <div className="flex flex-col items-center">
+              <div className="inline-flex items-center justify-center bg-blue-800/70 px-2 py-1 rounded-full mb-2 mt-1">
+                <div className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
+                <p className="font-bold text-xs text-center w-full">Sistema Acadêmico v1.2</p>
+              </div>
+              <p className="text-blue-200 text-[10px] text-center mb-2">Plataforma oficial da Fatec Itapira</p>
               <button
                 onClick={handleReset}
-                className="flex items-center gap-2 mt-2 mb-4 text-blue-900 font-bold px-4 py-2 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white"
+                className="flex items-center gap-2 mt-1 mb-2 text-blue-900 font-bold px-2 py-1 rounded-xl transition-all shadow hover:shadow-lg transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white text-xs"
               >
                 <RefreshIcon />
-                <span className="text-base">Reset Sistema</span>
+                <span className="text-xs">Reset Sistema</span>
               </button>
-            </div>
-            <p className="text-blue-200 text-sm text-center mb-4">Plataforma oficial da Fatec Itapira</p>
-            <h4 className="font-bold text-center mb-3 text-blue-200 border-b border-blue-600 pb-2">
-              Equipe de Desenvolvimento
-            </h4>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-blue-300/80 p-2 rounded-lg text-center">
-                <p className="font-bold text-blue-900 text-sm">Caio Magalhães</p>
-                <p className="text-blue-800 text-xs">FullStack Developer</p>
+              {/* Logo Softmare logo abaixo do botão */}
+              <div className="flex flex-col items-center mt-2">
+                <div className="bg-white/20 p-1 rounded-full mb-1">
+                  <Image
+                    src="/logo.png"
+                    alt="Logo Softmare"
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 object-contain"
+                    priority
+                  />
+                </div>
+                <span className="text-sm font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                  Softmare
+                </span>
+                <p className="text-blue-200 text-[10px] mt-1 text-center">
+                  Tecnologia e Inovação Acadêmica
+                </p>
               </div>
-              <div className="bg-blue-300/80 p-2 rounded-lg text-center">
-                <p className="font-bold text-blue-900 text-sm">Gustavo Ribeiro</p>
-                <p className="text-blue-800 text-xs">FrontEnd Developer</p>
-              </div>
-              <div className="bg-blue-300/80 p-2 rounded-lg text-center">
-                <p className="font-bold text-blue-900 text-sm">Luiz Eduardo</p>
-                <p className="text-blue-800 text-xs">FrontEnd Developer</p>
-              </div>
-              <div className="bg-blue-300/80 p-2 rounded-lg text-center">
-                <p className="font-bold text-blue-900 text-sm">Henrique Cardoso</p>
-                <p className="text-blue-800 text-xs">FrontEnd Developer</p>
-              </div>
-            </div>
-            {/* Softmare logo centralizada dentro do Sistema Acadêmico */}
-            <div className="flex flex-col items-center mb-4">
-              <div className="bg-white/20 p-2 rounded-full mb-2">
-                <Image
-                  src="/logo.png"
-                  alt="Logo Softmare"
-                  width={50}
-                  height={50}
-                  className="w-10 h-10 object-contain"
-                  priority
-                />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Softmare
-              </span>
-              <p className="text-blue-200 text-xs mt-1 text-center">
-                Tecnologia e Inovação Acadêmica
-              </p>
             </div>
           </div>
         </div>
