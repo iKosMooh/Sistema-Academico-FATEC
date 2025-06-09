@@ -128,37 +128,42 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-fixed bg-center bg-no-repeat"
+      className="min-h-screen flex items-center justify-center bg-cover bg-fixed bg-center bg-no-repeat px-2"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1500&q=80')",
       }}
     >
-      <div className="rounded-2xl shadow-2xl p-8 w-full max-w-xl bg-white/30 backdrop-blur">
+      <div className="rounded-2xl shadow-2xl p-4 sm:p-8 w-full max-w-md sm:max-w-xl bg-white/30 backdrop-blur">
         <div className="flex flex-col items-center mb-8">
           <Image
             src="/logo.png"
             alt="Logo Softmare"
             width={80}
             height={80}
-            className="w-20 h-20 object-contain mb-4"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-4"
             priority
           />
-          <h1 className="text-2xl font-bold text-white mb-2">SOFTMARE</h1>
-          <p className="text-center font-medium text-gray-800">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+            SOFTMARE
+          </h1>
+          <p className="text-center font-medium text-gray-800 text-sm sm:text-base">
             Sistema Integrado de Gestão Educacional
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 w-full max-w-full mx-auto"
+        >
           {/* Campo CPF com Select Integrado */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
               CPF e Tipo de Acesso
             </label>
-            <div className="flex bg-white/90 backdrop-blur rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all min-w-[350px]">
+            <div className="flex flex-col sm:flex-row bg-white/90 backdrop-blur rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all min-w-0">
               {/* Input CPF */}
-              <div className="flex-1 relative min-w-[200px]">
+              <div className="flex-1 relative min-w-0">
                 <input
                   id="cpf"
                   type="text"
@@ -167,7 +172,7 @@ export default function LoginPage() {
                   onChange={handleCpfChange}
                   maxLength={14}
                   required
-                  className="w-full px-8 py-3 rounded-l-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-800"
+                  className="w-full px-8 py-3 rounded-t-lg sm:rounded-t-none sm:rounded-l-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-800"
                   autoComplete="username"
                 />
                 <svg
@@ -186,16 +191,17 @@ export default function LoginPage() {
               </div>
 
               {/* Divisor Visual */}
-              <div className="w-px bg-gray-300"></div>
+              <div className="hidden sm:block w-px bg-gray-300"></div>
+              <div className="block sm:hidden h-px bg-gray-300"></div>
 
               {/* Select Tipo de Usuário */}
-              <div className="relative min-w-[180px]">
+              <div className="relative min-w-0">
                 <select
                   value={tipoSelecionado}
                   onChange={(e) =>
                     setTipoSelecionado(e.target.value as TipoLogin)
                   }
-                  className="appearance-none bg-transparent border-0 py-3 pl-3 pr-8 text-gray-800 focus:outline-none focus:ring-0 rounded-r-lg cursor-pointer font-medium min-w-[140px]"
+                  className="appearance-none bg-transparent border-0 py-3 pl-3 pr-8 text-gray-800 focus:outline-none focus:ring-0 rounded-b-lg sm:rounded-b-none sm:rounded-r-lg cursor-pointer font-medium min-w-[140px] w-full"
                 >
                   {tiposUsuario.map((tipo) => (
                     <option
@@ -229,7 +235,7 @@ export default function LoginPage() {
             <div className="mt-2 text-center">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-3 py-1 rounded-full border border-white/30">
                 <span className="text-lg">{tipoSelecionadoData.icon}</span>
-                <span className="text-white text-sm font-mono">
+                <span className="text-white text-xs sm:text-sm font-mono break-all">
                   {cpf.replace(/\D/g, "") || "seucpf"}
                   {tipoSelecionadoData.emailSuffix}
                 </span>
@@ -342,7 +348,7 @@ export default function LoginPage() {
         </form>
 
         {/* Informações sobre hierarquia */}
-        <div className="mt-6 text-center text-sm text-gray-800">
+        <div className="mt-6 text-center text-xs sm:text-sm text-gray-800">
           <div className="bg-white/10 backdrop-blur rounded-lg p-3 mb-4">
             <p className="font-medium mb-2">💡 Sistema Hierárquico</p>
             <p className="text-xs leading-relaxed">
