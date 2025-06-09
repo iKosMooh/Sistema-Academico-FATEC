@@ -112,11 +112,13 @@ export default function HomePage() {
                 uma experiência única e eficiente.
               </p>
               <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center items-center">
-                <button className="w-full md:w-auto px-6 md:px-12 py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-base md:text-xl font-semibold hover:from-blue-500 hover:to-purple-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-blue-500/25">
-                  Explorar Funcionalidades
-                </button>
-                <button className="w-full md:w-auto px-6 md:px-12 py-3 md:py-4 border-2 border-blue-400 rounded-full text-base md:text-xl font-semibold hover:bg-blue-400 hover:text-slate-900 transition-all duration-300">
-                  Ver Demonstração
+                <button 
+                  onClick={() => {
+                    window.location.href = '/pages/faq';
+                  }}
+                  className="w-full md:w-auto px-6 md:px-12 py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-base md:text-xl font-semibold hover:from-blue-500 hover:to-purple-500 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-blue-500/25"
+                >
+                  Visualizar FAQ
                 </button>
               </div>
             </div>

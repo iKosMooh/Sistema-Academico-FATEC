@@ -19,11 +19,6 @@ const LinkedInIcon = () => (
     <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
   </svg>
 );
-const RefreshIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582M20 20v-5h-.581M5.062 19A9 9 0 1 0 12 3v1" />
-  </svg>
-);
 
 export default function Footer() {
   const router = useRouter();
@@ -47,7 +42,7 @@ export default function Footer() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
-                suporte@fatecitapira.edu.br
+                <p className="text-xs">caiomagalhaesdesouza@gmail.com</p>
               </p>
               <p className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -70,7 +65,7 @@ export default function Footer() {
             <nav aria-label="Links institucionais">
               <ul className="space-y-3 mt-2">
                 <li>
-                  <a href="/faq" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
+                  <a href="/pages/faq" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
                     </svg>
@@ -78,7 +73,7 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/politica-de-privacidade" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
+                  <a href="#" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
                     </svg>
@@ -86,7 +81,7 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/contato" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
+                  <a href="#" className="hover:underline flex items-center gap-2 text-blue-100 hover:text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                     </svg>
@@ -135,7 +130,7 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-3 border-b border-blue-400 pb-2">Site Suporte</h3>
             <div className="flex flex-col gap-2 mt-2">
-              <a href="mailto:caio.magalhaes@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">caio.magalhaes@gmail.com</a>
+              <a href="mailto:caiomagalhaesdesouza@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">caiomagalhaesdesouza@gmail.com</a>
               <a href="mailto:henrique.cardoso@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">henrique.cardoso@gmail.com</a>
               <a href="mailto:gustavo.ribeiro@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">gustavo.ribeiro@gmail.com</a>
               <a href="mailto:luis.eduardo@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">luis.eduardo@gmail.com</a>
@@ -194,7 +189,9 @@ export default function Footer() {
                   onClick={handleReset}
                   className="flex items-center gap-2 mt-1 mb-2 text-blue-900 font-bold px-2 py-1 rounded-xl transition-all shadow hover:shadow-lg transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white text-xs"
                 >
-                  <RefreshIcon />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
                   <span className="text-xs">Reset Sistema</span>
                 </button>
                 {/* Logo Softmare logo abaixo do botão */}

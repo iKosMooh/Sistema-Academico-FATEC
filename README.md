@@ -1,6 +1,6 @@
 # 🚀 SOFTMARE - Sistema Integrado de Gestão Educacional
 
-![SOFTMARE Banner](https://via.placeholder.com/1200x400/0ea5e9/ffffff?text=SOFTMARE+-+Sistema+Futurista+de+Gestão+Educacional)
+![SOFTMARE Banner](/public/logo.png)
 
 [![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18+-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
