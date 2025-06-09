@@ -152,63 +152,30 @@ export async function POST(request: NextRequest) {
     // 1. Deletar todos os dados SEM transação para evitar timeout
     console.log('🗑️ Removendo dados existentes...');
     
-    // Deletar em ordem de dependências, uma tabela por vez
+    // Remova as tabelas na ordem correta para evitar violação de foreign key
+    // Ordem sugerida: dependentes -> principais
+
     await prisma.atestadoAulas.deleteMany();
-    console.log('✅ AtestadoAulas removidas');
-    
     await prisma.atestadosMedicos.deleteMany();
-    console.log('✅ AtestadosMedicos removidos');
-    
-    await prisma.notas.deleteMany();
-    console.log('✅ Notas removidas');
-    
     await prisma.presencas.deleteMany();
-    console.log('✅ Presenças removidas');
-    
     await prisma.docsAula.deleteMany();
-    console.log('✅ DocsAula removidos');
-    
     await prisma.aula.deleteMany();
-    console.log('✅ Aulas removidas');
-    
     await prisma.turmaAluno.deleteMany();
-    console.log('✅ TurmaAluno removidas');
-    
     await prisma.turmas.deleteMany();
-    console.log('✅ Turmas removidas');
-    
-    await prisma.cursoMaterias.deleteMany();
-    console.log('✅ CursoMaterias removidas');
-    
     await prisma.historicoEscolar.deleteMany();
-    console.log('✅ HistoricoEscolar removido');
-    
-    await prisma.contatoAluno.deleteMany();
-    console.log('✅ ContatoAluno removidos');
-    
+    await prisma.notas.deleteMany();
     await prisma.enderecos.deleteMany();
-    console.log('✅ Enderecos removidos');
-    
+    await prisma.contatoAluno.deleteMany();
     await prisma.alunos.deleteMany();
-    console.log('✅ Alunos removidos');
-    
-    await prisma.professores.deleteMany();
-    console.log('✅ Professores removidos');
-    
+    await prisma.documentosPreCadastro.deleteMany();
+    await prisma.preCadastro.deleteMany();
+    await prisma.cursoMaterias.deleteMany();
     await prisma.materias.deleteMany();
-    console.log('✅ Materias removidas');
-    
+    await prisma.professores.deleteMany();
     await prisma.curso.deleteMany();
-    console.log('✅ Cursos removidos');
-    
     await prisma.usuarios.deleteMany();
-    console.log('✅ Usuarios removidos');
-    
     await prisma.log.deleteMany();
-    console.log('✅ Logs removidos');
-    
     await prisma.diasNaoLetivos.deleteMany();
-    console.log('✅ DiasNaoLetivos removidos');
 
     console.log('✅ Todos os dados antigos removidos');
 

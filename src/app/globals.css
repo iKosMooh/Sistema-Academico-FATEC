@@ -65,8 +65,7 @@ body {
   min-height: 100vh;
 }
 
-/* Tipografia estilosa */
-/* Tipografia estilosa com títulos em branco */
+/* Tipografia estilosa com títulos em branco - CORRIGIDA */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   margin-bottom: 1.25rem;
@@ -76,23 +75,33 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 { 
   font-size: 2.75rem;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: var(--white-0);
+  color: var(--foreground);
   display: inline-block;
 }
 
 h2 { 
   font-size: 2rem;
-  color: var(--white-0);
+  color: var(--foreground);
   position: relative;
   padding-bottom: 0.5rem;
 }
 
-
 h3 { 
   font-size: 1.5rem;
-  color: var(--white-0);
+  color: var(--foreground);
+}
+
+/* Títulos específicos para componentes com fundo azul */
+.text-white h1,
+.text-white h2,
+.text-white h3,
+.bg-blue-700 h1,
+.bg-blue-700 h2,
+.bg-blue-700 h3,
+footer h1,
+footer h2,
+footer h3 {
+  color: var(--white-0) !important;
 }
 
 /* Formulários estilosos */
@@ -307,12 +316,62 @@ a:hover::after {
   }
 }
 
-/* Animações sutis */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Correção específica para prevenir erros de hidratação */
+@layer utilities {
+  .hydration-safe {
+    color: inherit;
+  }
+  
+  .no-hydration-mismatch * {
+    color: inherit;
+  }
+  
+  /* Força elementos a não terem nesting problemático */
+  .footer-content span,
+  .footer-content a {
+    display: inline;
+  }
+  
+  .footer-flex {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 
-body {
-  animation: fadeIn 0.5s ease forwards;
+/* Animação específica para footer */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Prevenção completa de conflitos de hidratação */
+footer {
+  /* Força isolamento de contexto */
+  contain: layout style;
+}
+
+footer * {
+  box-sizing: border-box;
+}
+
+/* Garantir que elementos inline permaneçam inline */
+footer span,
+footer a:not(.flex) {
+  display: inline;
+}
+
+/* Elementos flex devem ser explicitamente flex */
+footer .flex {
+  display: flex;
 }

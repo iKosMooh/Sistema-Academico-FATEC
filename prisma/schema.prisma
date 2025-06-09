@@ -65,6 +65,7 @@ model Curso {
   cursoMaterias     CursoMaterias[]
   historicoEscolar  HistoricoEscolar[]
   turmas            Turmas[]
+  preCadastros      PreCadastro[]
 }
 
 model Materias {
@@ -105,6 +106,7 @@ model Professores {
   presencas   Presencas[]
   notas      Notas[]
   atestadosAvaliados AtestadosMedicos[] // Nova relação
+  preCadastrosAvaliados PreCadastro[]
 }
 
 model Turmas {
@@ -301,4 +303,75 @@ enum StatusAtestado {
   Aprovado
   Rejeitado
   Analisando
+}
+
+model PreCadastro {
+  idPreCadastro       Int      @id @default(autoincrement())
+  nome                String   @db.VarChar(100)
+  sobrenome           String   @db.VarChar(150)
+  cpf                 String   @unique @db.VarChar(14)
+  rg                  String   @db.VarChar(12)
+  nomeMae             String   @db.VarChar(160)
+  nomePai             String?  @db.VarChar(160)
+  dataNasc            DateTime @db.Date
+  email               String   @db.VarChar(255)
+  telefone            String   @db.VarChar(20)
+  telefoneResponsavel String?  @db.VarChar(20)
+  nomeResponsavel     String?  @db.VarChar(100)
+  // Endereço
+  cep                 String   @db.VarChar(9)
+  rua                 String   @db.VarChar(255)
+  cidade              String   @db.VarChar(100)
+  uf                  String   @db.Char(2)
+  numero              String   @db.VarChar(10)
+  complemento         String?  @db.VarChar(100)
+  // Curso pretendido
+  idCursoDesejado     Int
+  // Status do pré-cadastro
+  status              StatusPreCadastro @default(Pendente)
+  dataEnvio           DateTime @default(now()) @db.DateTime(0)
+  dataAvaliacao       DateTime? @db.DateTime(0)
+  avaliadoPor         String?  @db.VarChar(14)
+  observacoes         String?  @db.Text
+  motivoRejeicao      String?  @db.Text
+  // Relações
+  curso               Curso    @relation(fields: [idCursoDesejado], references: [idCurso])
+  avaliador           Professores? @relation(fields: [avaliadoPor], references: [idProfessor])
+  documentos          DocumentosPreCadastro[]
+  @@index([idCursoDesejado], map: "fk_precadastro_curso")
+  @@index([avaliadoPor], map: "fk_precadastro_avaliador")
+}
+
+model DocumentosPreCadastro {
+  idDocumento       Int      @id @default(autoincrement())
+  idPreCadastro     Int
+  tipoDocumento     TipoDocumento
+  nomeArquivo       String   @db.VarChar(255)
+  caminhoArquivo    String   @db.VarChar(500)
+  tamanhoArquivo    Int      // em bytes
+  dataUpload        DateTime @default(now()) @db.DateTime(0)
+  
+  preCadastro       PreCadastro @relation(fields: [idPreCadastro], references: [idPreCadastro], onDelete: Cascade)
+  
+  @@index([idPreCadastro], map: "fk_docs_precadastro")
+}
+
+enum StatusPreCadastro {
+  Pendente
+  EmAnalise
+  Aprovado
+  Rejeitado
+  DocumentacaoIncompleta
+}
+
+enum TipoDocumento {
+  Foto3x4
+  RG
+  CPF
+  ComprovanteResidencia
+  HistoricoEscolar
+  CertidaoNascimento
+  CertidaoCasamento
+  ComprovanteRenda
+  Outros
 }

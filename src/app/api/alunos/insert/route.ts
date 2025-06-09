@@ -112,15 +112,21 @@ export async function POST(req: NextRequest) {
       });
 
       // 3) Criar usuário na tabela Usuarios (senhaHash = bcrypt do CPF)
-      const salt = await bcrypt.genSalt(10);
-      const senhaHash = await bcrypt.hash(cpf, salt);
-      await tx.usuarios.create({
-        data: {
-          cpf: cpf,
-          senhaHash,
-          tipo: "Aluno",
-        },
+      // Só cria se NÃO existir usuário com esse CPF
+      const usuarioExistente = await tx.usuarios.findUnique({
+        where: { cpf },
       });
+      if (!usuarioExistente) {
+        const salt = await bcrypt.genSalt(10);
+        const senhaHash = await bcrypt.hash(cpf, salt); // <--- CPF (com pontuação) é a senha original
+        await tx.usuarios.create({
+          data: {
+            cpf: cpf,
+            senhaHash,
+            tipo: "Aluno",
+          },
+        });
+      }
 
       return aluno;
     });

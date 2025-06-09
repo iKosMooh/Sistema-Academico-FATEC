@@ -145,33 +145,48 @@ export function RegistroAulas() {
 
   // Carrega alunos vinculados à turma
   useEffect(() => {
-    if (!turma?.id) {
-      setAlunos([]);
-      return;
-    }
-    fetch("/api/crud", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        operation: "get",
-        table: "turmaAluno",
-        relations: { aluno: true },
-        where: { idTurma: Number(turma.id) },
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
+    const fetchAlunos = async () => {
+      if (!turma?.id) {
+        setAlunos([]);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/crud", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            operation: "get",
+            table: "turmaAluno",
+            relations: { aluno: true },
+            where: { idTurma: Number(turma.id) },
+          }),
+        });
+
+        const result = await response.json();
+        
+        if (result.success && result.data) {
           setAlunos(
-            (result.data as TurmaAlunoAPI[]).map((ta: TurmaAlunoAPI) => ({
-              idAluno: ta.idAluno,
-              nomeAluno: ta.aluno?.nome ?? "",
-              sobrenome: ta.aluno?.sobrenome ?? "",
-              cpf: ta.aluno?.cpf ?? "",
-            }))
+            result.data
+              .filter((ta: TurmaAlunoAPI) => ta.aluno)
+              .map((ta: TurmaAlunoAPI) => ({
+                idAluno: ta.idAluno,
+                nomeAluno: ta.aluno?.nome ?? "",
+                sobrenome: ta.aluno?.sobrenome ?? "",
+                cpf: ta.aluno?.cpf ?? "",
+              }))
           );
+        } else {
+          console.error('Erro ao buscar alunos:', result.error);
+          setAlunos([]);
         }
-      });
+      } catch (error) {
+        console.error('Erro na requisição de alunos:', error);
+        setAlunos([]);
+      }
+    };
+
+    fetchAlunos();
   }, [turma]);
 
   // Função removerPresenca removida pois não está sendo utilizada.

@@ -130,10 +130,10 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-3 border-b border-blue-400 pb-2">Site Suporte</h3>
             <div className="flex flex-col gap-2 mt-2">
-              <a href="mailto:caiomagalhaesdesouza@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">caiomagalhaesdesouza@gmail.com</a>
-              <a href="mailto:henrique.cardoso@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">henrique.cardoso@gmail.com</a>
-              <a href="mailto:gustavo.ribeiro@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">gustavo.ribeiro@gmail.com</a>
-              <a href="mailto:luis.eduardo@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">luis.eduardo@gmail.com</a>
+              <a href="mailto:caiomagalhaesdesouza@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-sm">caiomagalhaesdesouza@gmail.com</a>
+              <a href="mailto:henrique.cardoso@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-sm">henrique.cardoso@gmail.com</a>
+              <a href="mailto:gustavo.ribeiro@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-sm">gustavo.ribeiro@gmail.com</a>
+              <a href="mailto:luis.eduardo@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-sm">luis.eduardo@gmail.com</a>
             </div>
           </div>
         </div>
@@ -165,26 +165,26 @@ export default function Footer() {
                   className="flex flex-col gap-1 w-full"
                 >
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                    <p className="font-bold text-blue-900 text-[11px]">Caio Magalhães</p>
-                    <p className="text-blue-800 text-[9px]">FullStack Developer</p>
+                    <div className="font-bold text-blue-900 text-[11px]">Caio Magalhães</div>
+                    <div className="text-blue-800 text-[9px]">FullStack Developer</div>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                    <p className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <div className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</div>
+                    <div className="text-blue-800 text-[9px]">FrontEnd Developer</div>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                    <p className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <div className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</div>
+                    <div className="text-blue-800 text-[9px]">FrontEnd Developer</div>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                    <p className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <div className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</div>
+                    <div className="text-blue-800 text-[9px]">FrontEnd Developer</div>
                   </div>
                 </div>
               </div>
               {/* Coluna 2: Sistema Acadêmico + Reset + Logo Softmare abaixo */}
               <div className="flex flex-col items-center">
-                <p className="text-blue-200 text-[10px] text-center mb-2">Plataforma oficial da Fatec Itapira</p>
+                <div className="text-blue-200 text-[10px] text-center mb-2">Plataforma oficial da Fatec Itapira</div>
                 <button
                   onClick={handleReset}
                   className="flex items-center gap-2 mt-1 mb-2 text-blue-900 font-bold px-2 py-1 rounded-xl transition-all shadow hover:shadow-lg transform hover:scale-[1.02] bg-transparent border border-yellow-500 hover:bg-gradient-to-r hover:from-yellow-500 hover:to-yellow-600 hover:text-white text-xs"
@@ -209,9 +209,9 @@ export default function Footer() {
                   <span className="text-sm font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
                     Softmare
                   </span>
-                  <p className="text-blue-200 text-[10px] mt-1 text-center">
+                  <div className="text-blue-200 text-[10px] mt-1 text-center">
                     Tecnologia e Inovação Acadêmica
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="mt-6 pt-4 border-t border-blue-700 text-center text-blue-300 text-sm relative">
-        © {new Date().getFullYear()} Fatec Itapira. Todos os direitos reservados.
+        <span>© {new Date().getFullYear()} Fatec Itapira. Todos os direitos reservados.</span>
 
         {/* Botão Voltar ao Topo */}
         <button
@@ -232,7 +232,7 @@ export default function Footer() {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
           </svg>
-          Topo
+          <span>Topo</span>
         </button>
       </div>
     </footer>

@@ -25,7 +25,6 @@ function usePermissionsWithFallback() {
 export default function Header() {
     const pathname = usePathname();
     const isLoginPage = pathname === "/pages/login";
-    const isPainelAulasPage = pathname === "/pages/admin/painel-aulas";
     const router = useRouter();
     const { data: session } = useSession();
     const { userType, isAdmin, canAccessCoordenador, canAccessProfessor } = usePermissionsWithFallback();
@@ -116,7 +115,7 @@ export default function Header() {
         
         const user = session.user;
         
-        console.log('Dados do usuário na sessão:', user); // Debug
+        //  console.log('Dados do usuário na sessão:', user); // Debug
         
         // Tentar buscar nome completo primeiro
         if (user.nome && user.sobrenome) {

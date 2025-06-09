@@ -65,8 +65,8 @@ export function isValidCNPJ(cnpj: string): boolean {
  * @returns boolean indicando se o RG é válido.
  */
 export function isValidRG(rg: string): boolean {
-  rg = rg.replace(/\D/g, '');
-  return rg.length >= 7 && rg.length <= 9;
+  const rgLimpo = rg.replace(/\D/g, '');
+  return rgLimpo.length >= 7 && rgLimpo.length <= 12;
 }
 
 /**
@@ -75,8 +75,8 @@ export function isValidRG(rg: string): boolean {
  * @returns CPF formatado como '123.456.789-09'.
  */
 export function formatCPF(cpf: string): string {
-  cpf = cpf.replace(/\D/g, '');
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  const limpo = cpf.replace(/\D/g, '');
+  return limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
 /**
@@ -95,6 +95,9 @@ export function formatCNPJ(cnpj: string): string {
  * @returns RG formatado como '12.345.678-9'.
  */
 export function formatRG(rg: string): string {
-  rg = rg.replace(/\D/g, '');
-  return rg.replace(/(\d{2})(\d{3})(\d{3})(\d{1})/, '$1.$2.$3-$4');
+  const limpo = rg.replace(/\D/g, '');
+  if (limpo.length <= 9) {
+    return limpo.replace(/(\d{2})(\d{3})(\d{3})(\d{1})/, '$1.$2.$3-$4');
+  }
+  return rg;
 }

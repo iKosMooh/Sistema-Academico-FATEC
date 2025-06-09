@@ -349,7 +349,309 @@ export const UploadAtestadoSchema = z.object({
 });
 
 // =========================
-// TIPOS TYPESCRIPT DERIVADOS
+// NOVOS ENUMS PARA PRÉ-CADASTRO
+// =========================
+export const StatusPreCadastroEnum = z.enum(['Pendente', 'EmAnalise', 'Aprovado', 'Rejeitado', 'DocumentacaoIncompleta']);
+export const TipoDocumentoEnum = z.enum(['Foto3x4', 'RG', 'CPF', 'ComprovanteResidencia', 'HistoricoEscolar', 'CertidaoNascimento', 'CertidaoCasamento', 'ComprovanteRenda', 'Outros']);
+
+// =========================
+// SCHEMAS PARA PRÉ-CADASTRO - MELHORADOS
+// =========================
+
+// Schema para validação de CPF
+const CPFSchema = z.string()
+  .min(11, 'CPF deve ter 11 dígitos')
+  .max(11, 'CPF deve ter 11 dígitos')
+  .regex(/^\d{11}$/, 'CPF deve conter apenas números')
+  .refine((cpf) => {
+    // Validação básica de CPF
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpf.charAt(9))) return false;
+    
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    return remainder === parseInt(cpf.charAt(10));
+  }, 'CPF inválido');
+
+// Schema para validação de email melhorado
+const EmailSchema = z.string()
+  .email('Email inválido')
+  .max(255, 'Email muito longo')
+  .refine((email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }, 'Formato de email inválido');
+
+// Schema para telefone brasileiro
+const TelefoneSchema = z.string()
+  .min(10, 'Telefone deve ter pelo menos 10 dígitos')
+  .max(15, 'Telefone muito longo')
+  .regex(/^[\d\s\(\)\-\+]*$/, 'Formato de telefone inválido');
+
+// Schema para CEP brasileiro
+const CEPSchema = z.string()
+  .regex(/^\d{5}-?\d{3}$/, 'CEP deve ter formato 00000-000 ou 00000000')
+  .transform((cep) => cep.replace(/\D/g, ''));
+
+// Schema melhorado para PreCadastro
+export const PreCadastroSchema = z.object({
+  idPreCadastro: z.number().int().positive().optional(),
+  nome: z.string()
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras'),
+  sobrenome: z.string()
+    .min(2, 'Sobrenome deve ter pelo menos 2 caracteres')
+    .max(150, 'Sobrenome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Sobrenome deve conter apenas letras'),
+  cpf: CPFSchema,
+  rg: z.string()
+    .min(7, 'RG deve ter pelo menos 7 dígitos')
+    .max(12, 'RG muito longo')
+    .regex(/^\d+$/, 'RG deve conter apenas números'),
+  nomeMae: z.string()
+    .min(5, 'Nome da mãe deve ter pelo menos 5 caracteres')
+    .max(160, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras'),
+  nomePai: z.string()
+    .max(160, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
+    .optional()
+    .nullable(),
+  dataNasc: z.union([z.string(), z.date()])
+    .transform(val => new Date(val))
+    .refine((date) => {
+      const today = new Date();
+      const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+      const maxDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+      return date >= minDate && date <= maxDate;
+    }, 'Data de nascimento deve estar entre 14 e 100 anos atrás'),
+  email: EmailSchema,
+  telefone: TelefoneSchema,
+  telefoneResponsavel: TelefoneSchema.optional().nullable(),
+  nomeResponsavel: z.string()
+    .max(100, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
+    .optional()
+    .nullable(),
+  
+  // Endereço com validações específicas
+  cep: CEPSchema,
+  rua: z.string()
+    .min(5, 'Rua deve ter pelo menos 5 caracteres')
+    .max(255, 'Rua muito longa'),
+  cidade: z.string()
+    .min(2, 'Cidade deve ter pelo menos 2 caracteres')
+    .max(100, 'Cidade muito longa')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Cidade deve conter apenas letras'),
+  uf: z.string()
+    .length(2, 'UF deve ter exatamente 2 caracteres')
+    .regex(/^[A-Z]{2}$/, 'UF deve conter apenas letras maiúsculas')
+    .refine((uf) => {
+      const ufsValidas = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+      return ufsValidas.includes(uf);
+    }, 'UF inválida'),
+  numero: z.string()
+    .min(1, 'Número é obrigatório')
+    .max(10, 'Número muito longo'),
+  complemento: z.string()
+    .max(100, 'Complemento muito longo')
+    .optional()
+    .nullable(),
+  
+  // Curso
+  idCursoDesejado: z.number()
+    .int()
+    .positive('Selecione um curso válido'),
+  
+  // Status e dados de controle
+  status: StatusPreCadastroEnum.default('Pendente'),
+  dataEnvio: z.union([z.string(), z.date()]).optional(),
+  dataAvaliacao: z.union([z.string(), z.date()]).optional().nullable(),
+  avaliadoPor: z.string().min(11).max(14).optional().nullable(),
+  observacoes: z.string().max(1000, 'Observações muito longas').optional().nullable(),
+  motivoRejeicao: z.string().max(1000, 'Motivo muito longo').optional().nullable(),
+});
+
+// Schema para formulário de pré-cadastro (frontend) - MELHORADO
+export const PreCadastroFormSchema = z.object({
+  nome: z.string()
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras')
+    .transform(name => name.trim().replace(/\s+/g, ' ')),
+  sobrenome: z.string()
+    .min(2, 'Sobrenome deve ter pelo menos 2 caracteres')
+    .max(150, 'Sobrenome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Sobrenome deve conter apenas letras')
+    .transform(name => name.trim().replace(/\s+/g, ' ')),
+  cpf: CPFSchema,
+  rg: z.string()
+    .min(7, 'RG deve ter pelo menos 7 dígitos')
+    .max(12, 'RG muito longo')
+    .regex(/^\d+$/, 'RG deve conter apenas números'),
+  nomeMae: z.string()
+    .min(5, 'Nome da mãe deve ter pelo menos 5 caracteres')
+    .max(160, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras')
+    .transform(name => name.trim().replace(/\s+/g, ' ')),
+  nomePai: z.string()
+    .max(160, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
+    .optional()
+    .transform(val => val ? val.trim().replace(/\s+/g, ' ') : undefined),
+  dataNasc: z.string()
+    .min(1, 'Data de nascimento é obrigatória')
+    .refine((date) => {
+      const inputDate = new Date(date);
+      const today = new Date();
+      const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+      const maxDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
+      return inputDate >= minDate && inputDate <= maxDate;
+    }, 'Idade deve estar entre 14 e 100 anos'),
+  email: EmailSchema,
+  telefone: TelefoneSchema,
+  telefoneResponsavel: TelefoneSchema.optional(),
+  nomeResponsavel: z.string()
+    .max(100, 'Nome muito longo')
+    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
+    .optional()
+    .transform(val => val ? val.trim().replace(/\s+/g, ' ') : undefined),
+  
+  // Endereço
+  cep: CEPSchema,
+  rua: z.string()
+    .min(5, 'Rua deve ter pelo menos 5 caracteres')
+    .max(255, 'Rua muito longa')
+    .transform(val => val.trim()),
+  cidade: z.string()
+    .min(2, 'Cidade deve ter pelo menos 2 caracteres')
+    .max(100, 'Cidade muito longa')
+    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Cidade deve conter apenas letras')
+    .transform(val => val.trim()),
+  uf: z.string()
+    .length(2, 'UF deve ter exatamente 2 caracteres')
+    .regex(/^[A-Z]{2}$/, 'UF deve conter apenas letras maiúsculas')
+    .refine((uf) => {
+      const ufsValidas = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+      return ufsValidas.includes(uf);
+    }, 'UF inválida'),
+  numero: z.string()
+    .min(1, 'Número é obrigatório')
+    .max(10, 'Número muito longo'),
+  complemento: z.string()
+    .max(100, 'Complemento muito longo')
+    .optional()
+    .transform(val => val ? val.trim() : undefined),
+  
+  // Curso
+  idCursoDesejado: z.number()
+    .int()
+    .positive('Selecione um curso válido'),
+})
+.superRefine((data, ctx) => {
+  // Validação condicional: telefoneResponsavel obrigatório se menor de 18 anos
+  const idade = (() => {
+    const nascimento = new Date(data.dataNasc);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+    return idade;
+  })();
+
+  if (idade < 18) {
+    if (!data.telefoneResponsavel || data.telefoneResponsavel.length < 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['telefoneResponsavel'],
+        message: 'Se você é menor de 18 anos, o telefone do responsável é obrigatório e deve ter pelo menos 10 dígitos.',
+      });
+    }
+  }
+});
+
+// Schema para DocumentosPreCadastro - MELHORADO
+export const DocumentosPreCadastroSchema = z.object({
+  idDocumento: z.number().int().positive().optional(),
+  idPreCadastro: z.number().int().positive(),
+  tipoDocumento: TipoDocumentoEnum,
+  nomeArquivo: z.string()
+    .min(1, 'Nome do arquivo é obrigatório')
+    .max(255, 'Nome muito longo')
+    .refine((name) => {
+      const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'];
+      const extension = name.toLowerCase().substring(name.lastIndexOf('.'));
+      return allowedExtensions.includes(extension);
+    }, 'Tipo de arquivo não permitido'),
+  caminhoArquivo: z.string()
+    .min(1, 'Caminho do arquivo é obrigatório')
+    .max(500, 'Caminho muito longo'),
+  tamanhoArquivo: z.number()
+    .int()
+    .positive()
+    .max(5 * 1024 * 1024, 'Arquivo muito grande (máximo 5MB)'),
+  dataUpload: z.union([z.string(), z.date()]).optional(),
+});
+
+// Schema para avaliação de pré-cadastro - MELHORADO
+export const AvaliacaoPreCadastroSchema = z.object({
+  idPreCadastro: z.number().int().positive(),
+  status: z.enum(['Aprovado', 'Rejeitado', 'DocumentacaoIncompleta']),
+  observacoes: z.string()
+    .max(1000, 'Observações muito longas')
+    .optional(),
+  motivoRejeicao: z.string()
+    .max(1000, 'Motivo muito longo')
+    .optional(),
+  avaliadoPor: z.string().min(11).max(14),
+}).refine((data) => {
+  if (data.status === 'Rejeitado' && !data.motivoRejeicao?.trim()) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Motivo da rejeição é obrigatório quando o status é "Rejeitado"',
+  path: ['motivoRejeicao']
+});
+
+// Schema para upload de documentos
+export const UploadDocumentosSchema = z.object({
+  idPreCadastro: z.number().int().positive(),
+  documentos: z.array(z.object({
+    file: z.instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, 'Arquivo muito grande (máximo 5MB)')
+      .refine((file) => {
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 
+                             'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        return allowedTypes.includes(file.type);
+      }, 'Tipo de arquivo não permitido'),
+    tipo: TipoDocumentoEnum,
+  })).min(1, 'Pelo menos um documento é obrigatório'),
+});
+
+// =========================
+// SCHEMAS PARA PRÉ-CADASTRO - REMOVIDO (duplicado acima)
+// =========================
+
+// Esta seção foi removida para evitar duplicação de schemas
+// Os schemas de pré-cadastro já estão definidos na seção anterior com validações melhoradas
+
+// =========================
+// TIPOS TYPESCRIPT DERIVADOS - CORRIGIDOS
 // =========================
 
 export type AlunosData = z.infer<typeof AlunosSchema>;
@@ -372,6 +674,14 @@ export type NotasData = z.infer<typeof NotasSchema>;
 export type AtestadosMedicosData = z.infer<typeof AtestadosMedicosSchema>;
 export type AtestadoAulasData = z.infer<typeof AtestadoAulasSchema>;
 export type EnvioAtestadoData = z.infer<typeof EnvioAtestadoSchema>;
+
+// Novos tipos para pré-cadastro
+export type PreCadastroData = z.infer<typeof PreCadastroSchema>;
+export type DocumentosPreCadastroData = z.infer<typeof DocumentosPreCadastroSchema>;
+export type PreCadastroFormData = z.infer<typeof PreCadastroFormSchema>;
+export type AvaliacaoPreCadastroData = z.infer<typeof AvaliacaoPreCadastroSchema>;
+export type StatusPreCadastro = z.infer<typeof StatusPreCadastroEnum>;
+export type TipoDocumento = z.infer<typeof TipoDocumentoEnum>;
 
 // Tipos para formulários (mantidos para compatibilidade)
 export type TurmaData = z.infer<typeof TurmaSchema>;
@@ -468,6 +778,10 @@ export const TABLE_MAPPING = {
   'AtestadosMedicos': 'atestadosMedicos',
   'atestadoAulas': 'atestadoAulas',
   'AtestadoAulas': 'atestadoAulas',
+  'preCadastro': 'preCadastro',
+  'PreCadastro': 'preCadastro',
+  'documentosPreCadastro': 'documentosPreCadastro',
+  'DocumentosPreCadastro': 'documentosPreCadastro',
 } as const;
 
 // Atualizar mapeamento de schemas
@@ -491,6 +805,8 @@ export const SCHEMA_MAPPING = {
   notas: NotasSchema,
   atestadosMedicos: AtestadosMedicosSchema,
   atestadoAulas: AtestadoAulasSchema,
+  preCadastro: PreCadastroSchema,
+  documentosPreCadastro: DocumentosPreCadastroSchema,
 } as const;
 
 // =========================

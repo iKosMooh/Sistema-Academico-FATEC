@@ -15,6 +15,7 @@ import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
 import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page";
 import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
 import { useSession } from "next-auth/react";
+import { AvaliacaoPreCadastros } from "@/app/components/painel-aulas/AvaliacaoPreCadastros";
 
 // Menu para professores
 const menuGroupsProfessor = [
@@ -60,6 +61,16 @@ const menuGroupsAdmin = [
       }
     ],
   },
+  {
+    label: "Pré-Matrículas",
+    items: [
+      {
+        label: "Avaliar Pré-Cadastros",
+        key: "pre-cadastros",
+        component: AvaliacaoPreCadastros
+      }
+    ],
+  },
 ];
 
 export function SidebarTurmas() {
@@ -71,20 +82,27 @@ export function SidebarTurmas() {
   const [activeView, setActiveView] = useState<'painel' | 'normal'>('normal');
   const { data: session } = useSession();
 
+
+  // Referência para chamar método do filho AvaliacaoPreCadastros
+  const preCadastrosRef = useState<{ carregarPreCadastros?: () => void }>({})[0];
+
   useEffect(() => {
-    // Busca turmas do banco - seguindo padrão dos outros arquivos
-    fetch("/api/crud", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        operation: "get",
-        table: "turmas", // Usar nome correto baseado nos outros arquivos
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
+    const fetchTurmas = async () => {
+      try {
+        const response = await fetch("/api/crud", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            operation: "get",
+            table: "turmas",
+            relations: { curso: true }
+          }),
+        });
+        
+        const result = await response.json();
         console.log('Resultado busca turmas sidebar:', result);
-        if (result.success) {
+        
+        if (result.success && result.data) {
           setTurmas(
             result.data.map((t: { idTurma: number | string; nomeTurma: string; idCurso?: number }) => ({
               id: String(t.idTurma),
@@ -94,11 +112,15 @@ export function SidebarTurmas() {
           );
         } else {
           console.error('Erro ao buscar turmas:', result.error);
+          setTurmas([]);
         }
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Erro na requisição turmas:', error);
-      });
+        setTurmas([]);
+      }
+    };
+
+    fetchTurmas();
   }, []);
 
   const handleGroupClick = (label: string) => {
@@ -284,6 +306,27 @@ export function SidebarTurmas() {
             >
               🏥 Atestados
             </button>
+            {/* Botão de Pré-Cadastros apenas para admins e coordenadores */}
+            {(perfil === "admin" || perfil === "coordenador") && (
+              <button
+                onClick={() => {
+                  setActiveView('painel');
+                  setSelectedKey('pre-cadastros');
+                  setOpenGroup(null);
+                  // Chama o carregamento dos pré-cadastros ao clicar
+                  setTimeout(() => {
+                    if (preCadastrosRef.carregarPreCadastros) preCadastrosRef.carregarPreCadastros();
+                  }, 0);
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeView === 'painel' && selectedKey === 'pre-cadastros'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-white hover:bg-gray-300'
+                }`}
+              >
+                📝 Pré-Matrículas
+              </button>
+            )}
           </div>
         </div>
         <nav>
@@ -334,6 +377,8 @@ export function SidebarTurmas() {
           </TurmaGuard>
         ) : activeView === 'painel' && selectedKey === 'dashboard' ? (
           <TurmaDashboard />
+        ) : activeView === 'painel' && selectedKey === 'pre-cadastros' ? (
+          <AvaliacaoPreCadastros />
         ) : activeView === 'normal' && CurrentComponent ? (
           exigeTurma.includes(selectedKey) ? (
             <TurmaGuard>

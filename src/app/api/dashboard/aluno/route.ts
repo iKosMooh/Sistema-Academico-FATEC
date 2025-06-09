@@ -140,15 +140,7 @@ export async function POST(req: Request) {
 
         return Promise.all(
           materiasNaTurma.map(async (materiaInfo) => {
-            // Buscar total de aulas agendadas para a matéria
-            const totalAulasAgendadas = await prisma.aula.count({
-              where: {
-                idTurma: turma.idTurma,
-                idMateria: materiaInfo.idMateria
-              }
-            });
-
-            // Buscar apenas aulas já ministradas (aulaConcluida = true)
+            // Buscar total de aulas ministradas (apenas as com aulaConcluida = true)
             const aulasMinistradas = await prisma.aula.count({
               where: {
                 idTurma: turma.idTurma,
@@ -170,23 +162,10 @@ export async function POST(req: Request) {
               }
             });
 
-            // Buscar total de ausências nas aulas ministradas
-            const ausenciasDoAluno = await prisma.presencas.count({
-              where: {
-                idAluno: aluno.idAluno,
-                presente: false,
-                aula: {
-                  idTurma: turma.idTurma,
-                  idMateria: materiaInfo.idMateria,
-                  aulaConcluida: true
-                }
-              }
-            });
-
-            // Calcular taxa de presença apenas com base nas aulas ministradas
+            // Calcular taxa de presença
             const taxaPresenca = aulasMinistradas > 0 
               ? (presencasDoAluno / aulasMinistradas) * 100 
-              : 0;
+              : 100; // Se não há aulas ministradas, considera 100%
 
             return {
               turma: {
@@ -196,10 +175,8 @@ export async function POST(req: Request) {
               materia: {
                 nomeMateria: materiaInfo.materia.nomeMateria
               },
-              totalAulas: totalAulasAgendadas,
               aulasMinistradas: aulasMinistradas,
               presencas: presencasDoAluno,
-              ausencias: ausenciasDoAluno,
               taxaPresenca: Math.round(taxaPresenca * 100) / 100
             };
           })
