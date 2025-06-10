@@ -79,6 +79,11 @@ export default function Header() {
 
         const items = [];
 
+        // Adiciona o link para o perfil do usuário
+        items.push(
+            { href: '/pages/perfil', label: 'Meu Perfil', icon: UserIcon }
+        );
+
         // Admin pode acessar tudo
         if (isAdmin) {
             items.push(
