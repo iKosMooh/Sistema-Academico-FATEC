@@ -595,17 +595,16 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Avaliação de Pré-Cadastros</h2>
-        <div className="flex items-center gap-4">
-          {/* Mostra o CPF do avaliador formatado */}
-          <span className="text-sm text-blue-900 font-semibold bg-blue-100 px-3 py-1 rounded-lg border border-blue-200">
+      <div className="flex justify-between items-center mb-8 bg-gray-100 p-6 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-gray-900">Avaliação de Pré-Cadastros</h2>
+        <div className="flex items-center gap-6">
+          <span className="text-base text-blue-900 font-semibold bg-blue-100 px-4 py-2 rounded-lg border border-blue-200">
             Seu CPF: {cpfResponsavel || 'Não encontrado'}
           </span>
           <select
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value as StatusPreCadastro | 'Todos' | '')}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border bg-white text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
           >
             {statusFiltroOptions.map(opt => (
               <option key={opt.value} value={opt.value} disabled={opt.disabled}>
@@ -615,7 +614,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
           </select>
           <button
             onClick={carregarPreCadastros}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-base"
           >
             Atualizar
           </button>
@@ -623,45 +622,46 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
       </div>
 
       {carregando ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">Carregando...</div>
+        <div className="text-center py-16">
+          <div className="text-gray-500 text-xl">Carregando...</div>
         </div>
       ) : preCadastros.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">
+        <div className="text-center py-16">
+          <div className="text-gray-500 text-xl">
             Nenhum pré-cadastro encontrado para o filtro selecionado.
           </div>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           {preCadastros.map((preCadastro) => (
-            <div key={preCadastro.idPreCadastro} className="card bg-white">
-              <div className="flex justify-between items-start mb-4">
+            <div
+              key={preCadastro.idPreCadastro}
+              className="bg-gray-100 rounded-2xl p-8 shadow-lg border border-gray-300"
+            >
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-2xl font-semibold text-gray-900">
                     {preCadastro.nome} {preCadastro.sobrenome}
                   </h3>
-                  {/* CPF formatado na visualização */}
-                  <p className="text-gray-600">
+                  <div className="text-base text-gray-600">
                     CPF: {isValidCPF(preCadastro.cpf) ? formatCPF(preCadastro.cpf) : preCadastro.cpf}
-                  </p>
-                  <p className="text-gray-600">Email: {preCadastro.email}</p>
-                  <p className="text-gray-600">Curso: {preCadastro.curso?.nomeCurso}</p>
+                  </div>
+                  <div className="text-base text-gray-600">Email: {preCadastro.email}</div>
+                  <div className="text-base text-gray-600">Curso: {preCadastro.curso?.nomeCurso}</div>
                 </div>
                 <div className="text-right">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(preCadastro.status)}`}>
+                  <span className={`px-4 py-2 rounded-full text-base font-medium border ${getStatusColor(preCadastro.status)}`}>
                     {preCadastro.status}
                   </span>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <div className="text-base text-gray-500 mt-2">
                     Enviado em: {formatarData(preCadastro.dataEnvio || new Date())}
-                  </p>
+                  </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-white rounded-xl p-6">
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Dados Pessoais</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-base text-gray-600 space-y-1">
                     <p>RG: {formatRG(preCadastro.rg)}</p>
                     <p>Data Nasc.: {formatarData(preCadastro.dataNasc)}</p>
                     <p>Mãe: {preCadastro.nomeMae}</p>
@@ -671,7 +671,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Endereço</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
+                  <div className="text-base text-gray-600 space-y-1">
                     <p>{preCadastro.rua}, {preCadastro.numero}</p>
                     {preCadastro.complemento && <p>{preCadastro.complemento}</p>}
                     <p>{preCadastro.cidade} - {preCadastro.uf}</p>
@@ -679,20 +679,19 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                   </div>
                 </div>
               </div>
-
               {preCadastro.documentos && preCadastro.documentos.length > 0 && (
-                <div className="mb-4">
+                <div className="mb-6">
                   <h4 className="font-semibold text-gray-900 mb-2">Documentos Enviados</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {preCadastro.documentos.map((doc, index) => (
                       <button
                         key={index}
                         onClick={() => downloadDocumento(doc.caminhoArquivo)}
-                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                        className="p-3 border border-gray-300 text-white rounded-lg hover:bg-gray-50 transition-colors text-left"
                       >
-                        <div className="text-sm font-medium text-gray-900">{doc.tipoDocumento}</div>
-                        <div className="text-xs text-gray-500 truncate">{doc.nomeArquivo}</div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-base font-medium text-gray-300">{doc.tipoDocumento}</div>
+                        <div className="text-sm text-white truncate">{doc.nomeArquivo}</div>
+                        <div className="text-sm text-gray-200">
                           {(doc.tamanhoArquivo / 1024 / 1024).toFixed(2)} MB
                         </div>
                       </button>
@@ -700,34 +699,30 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                   </div>
                 </div>
               )}
-
               {preCadastro.observacoes && (
-                <div className="mb-4">
+                <div className="mb-6">
                   <h4 className="font-semibold text-gray-900 mb-2">Observações</h4>
-                  <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                  <p className="text-base text-gray-600 bg-gray-50 p-4 rounded-lg">
                     {preCadastro.observacoes}
                   </p>
                 </div>
               )}
-
               {preCadastro.motivoRejeicao && (
-                <div className="mb-4">
-                  <h4 className="font-semibold text-red-900 mb-2">Motivo da Rejeição</h4>
-                  <p className="text-sm text-red-700 bg-red-50 p-3 rounded-lg">
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-2">Motivo da Rejeição</h4>
+                  <p className="text-base text-gray-900 bg-white p-4 rounded-lg border border-gray-200">
                     {preCadastro.motivoRejeicao}
                   </p>
                 </div>
               )}
-
-              <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-3">
-                <div className="flex flex-col gap-2 w-full md:w-auto">
-                  {/* Agora sempre mostra os botões de avaliação, independente do status */}
-                  <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+                <div className="flex flex-col gap-3 w-full md:w-auto">
+                  <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
                     <button
                       type="button"
                       disabled={processando}
                       onClick={() => aprovarDireto(preCadastro)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-base"
                     >
                       ✓ Aprovar
                     </button>
@@ -741,30 +736,30 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                           [preCadastro.idPreCadastro]: e.target.value,
                         }))
                       }
-                      className="border border-gray-300 rounded px-2 py-1 text-sm w-48"
+                      className="border border-gray-300 text-gray-900 bg-white rounded px-3 py-2 text-base w-60"
                       disabled={processando}
                     />
                     <button
                       type="button"
                       disabled={processando}
                       onClick={() => reprovarDireto(preCadastro)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                      className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-base"
                     >
                       ✗ Reprovar
                     </button>
                     <button
                       type="button"
                       onClick={() => abrirModalAvaliacao(preCadastro)}
-                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                      className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-base"
                     >
                       Avaliação Completa
                     </button>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-2 md:mt-0">
+                <div className="flex gap-3 mt-2 md:mt-0">
                   <button
                     onClick={() => abrirModalDetalhes(preCadastro)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-base"
                   >
                     👁️ Ver Detalhes
                   </button>
@@ -778,7 +773,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
       {/* Modal de Detalhes */}
       {modalDetalhes && preCadastroSelecionado && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 overflow-y-auto max-h-[90vh]">
+          <div className="bg-white rounded-lg p-8 max-w-lg w-full mx-4 overflow-y-auto max-h-[90vh]">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Detalhes do Pré-Cadastro
             </h3>
@@ -814,9 +809,9 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                       onClick={() => downloadDocumento(doc.caminhoArquivo)}
                       className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
                     >
-                      <div className="text-sm font-medium text-gray-900">{doc.tipoDocumento}</div>
-                      <div className="text-xs text-gray-500 truncate">{doc.nomeArquivo}</div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-sm font-medium text-gray-300">{doc.tipoDocumento}</div>
+                      <div className="text-xs text-white truncate">{doc.nomeArquivo}</div>
+                      <div className="text-xs text-gray-200">
                         {(doc.tamanhoArquivo / 1024 / 1024).toFixed(2)} MB
                       </div>
                     </button>
@@ -843,7 +838,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setModalDetalhes(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Fechar
               </button>
@@ -895,7 +890,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
       {/* Modal de Avaliação */}
       {modalAvaliacao && preCadastroSelecionado && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Avaliar Pré-Cadastro
             </h3>
@@ -911,7 +906,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                 <select
                   value={statusAvaliacao}
                   onChange={(e) => setStatusAvaliacao(e.target.value as 'Aprovado' | 'Rejeitado' | 'DocumentacaoIncompleta')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border bg-white text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Aprovado">Aprovado</option>
                   <option value="Rejeitado">Rejeitado</option>
@@ -927,7 +922,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                   value={observacoes}
                   onChange={(e) => setObservacoes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border text-gray-900 bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Observações adicionais..."
                 />
               </div>
@@ -952,7 +947,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setModalAvaliacao(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 transition-colors"
                 disabled={processando}
               >
                 Cancelar
