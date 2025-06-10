@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
       { cpf: '111.222.333-96', senhaHash: await bcrypt.hash('admin', salt), tipo: 'Admin' as const },
       { cpf: '839.582.438-60', senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
       { cpf: '649.565.688-27', senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
-      { cpf: '390.533.128-40', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
+      { cpf: '943.492.248-82', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
     ];
 
     await prisma.usuarios.createMany({ data: usuarios });

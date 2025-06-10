@@ -300,6 +300,14 @@ export default function ResetSistemaPage() {
                             'bg-blue-50 border border-blue-200 text-blue-800'
                     }`}>
                     <p className="font-medium">{message.text}</p>
+                    {/* Mensagem específica para erro de chave estrangeira */}
+                    {message.type === 'error' && message.text?.includes('P2003') && (
+                        <div className="mt-2 text-sm text-red-700">
+                            Erro de integridade referencial: verifique se todas as turmas, matérias e professores existem antes de criar as aulas.<br />
+                            <strong>Dica:</strong> O erro geralmente ocorre quando está tentando criar aulas para turmas, matérias ou professores que não existem no banco.<br />
+                            <span className="font-semibold">Solução:</span> Ajuste a ordem de criação dos dados no reset para garantir que todas as dependências existam antes de criar as aulas.
+                        </div>
+                    )}
                 </div>
             )}
 
