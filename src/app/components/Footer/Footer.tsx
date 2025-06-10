@@ -166,19 +166,19 @@ export default function Footer() {
                 >
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
                     <p className="font-bold text-blue-900 text-[11px]">Caio Magalhães</p>
-                    <p className="text-blue-800 text-[9px]">FullStack Developer</p>
+                    <p className="text-blue-800 text-[9px]">FullStack Developer - Product Owner</p>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
                     <p className="font-bold text-blue-900 text-[11px]">Gustavo Ribeiro</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer - Scrum Master</p>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
-                    <p className="font-bold text-blue-900 text-[11px]">Luiz Eduardo</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <p className="font-bold text-blue-900 text-[11px]">Luis Eduardo</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer - Time de Desenvolvimento</p>
                   </div>
                   <div className="bg-blue-300/80 p-1 rounded-lg text-center">
                     <p className="font-bold text-blue-900 text-[11px]">Henrique Cardoso</p>
-                    <p className="text-blue-800 text-[9px]">FrontEnd Developer</p>
+                    <p className="text-blue-800 text-[9px]">FrontEnd Developer - Time de Desenvolvimento</p>
                   </div>
                 </div>
               </div>
