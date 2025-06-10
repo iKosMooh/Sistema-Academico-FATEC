@@ -137,32 +137,50 @@ export async function POST(request: NextRequest) {
         documentos: documentosUpload
       });
 
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error('Erro do banco de dados:', dbError);
 
-      if (dbError.code === 'P2021' || 
-          dbError.message?.includes('does not exist') ||
-          dbError.message?.includes('PreCadastro')) {
-        
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Documentos validados. Sistema em configuração final.',
-          simulated: true
-        });
+      if (
+        typeof dbError === 'object' &&
+        dbError !== null &&
+        ('code' in dbError || 'message' in dbError)
+      ) {
+        const code = (dbError as { code?: string }).code;
+        const message = (dbError as { message?: string }).message;
+
+        if (
+          code === 'P2021' ||
+          message?.includes('does not exist') ||
+          message?.includes('PreCadastro')
+        ) {
+          return NextResponse.json({
+            success: true,
+            message: 'Documentos validados. Sistema em configuração final.',
+            simulated: true
+          });
+        }
       }
-      
+
       throw dbError;
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao fazer upload de documentos:', error);
     
-    if (error.code === 'P2021' || 
-        error.message?.includes('does not exist')) {
-      return NextResponse.json({
-        error: 'Sistema de pré-cadastro em configuração final.',
-        code: 'DB_NOT_CONFIGURED'
-      }, { status: 503 });
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ('code' in error || 'message' in error)
+    ) {
+      const code = (error as { code?: string }).code;
+      const message = (error as { message?: string }).message;
+
+      if (code === 'P2021' || message?.includes('does not exist')) {
+        return NextResponse.json({
+          error: 'Sistema de pré-cadastro em configuração final.',
+          code: 'DB_NOT_CONFIGURED'
+        }, { status: 503 });
+      }
     }
     
     return NextResponse.json(
