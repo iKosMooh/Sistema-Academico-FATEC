@@ -1,10 +1,8 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useSession, signOut, getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 // Schemas Zod
 const SenhaSchema = z.object({
@@ -33,9 +31,25 @@ const DadosSchema = z.object({
 
 export default function PerfilPage() {
   const { data: session, update } = useSession();
-  const router = useRouter();
   const [tab, setTab] = useState<"dados" | "senha" | "endereco" | "foto">("dados");
-  const [form, setForm] = useState<any>({});
+  type FormType = {
+    // Dados pessoais
+    nome?: string;
+    sobrenome?: string;
+    email?: string;
+    // Senha
+    senhaAtual?: string;
+    novaSenha?: string;
+    confirmarSenha?: string;
+    // Endereço
+    cep?: string;
+    rua?: string;
+    cidade?: string;
+    uf?: string;
+    numero?: string;
+    complemento?: string;
+  };
+  const [form, setForm] = useState<FormType>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);

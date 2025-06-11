@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     }
     // Para professor, pode ser implementado se houver endereço para professor
     return NextResponse.json({ success: false, error: "Usuário não encontrado ou não é aluno" }, { status: 404 });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || "Erro ao atualizar endereço" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar endereço";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

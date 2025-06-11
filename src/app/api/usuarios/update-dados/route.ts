@@ -6,7 +6,6 @@ const DadosSchema = z.object({
   cpf: z.string().min(11),
   nome: z.string().min(2),
   sobrenome: z.string().min(2),
-  email: z.string().email()
 });
 
 export async function POST(req: NextRequest) {
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ success: false, error: parsed.error.errors[0].message }, { status: 400 });
     }
-    const { cpf, nome, sobrenome, email } = parsed.data;
+    const { cpf, nome, sobrenome } = parsed.data;
     const user = await prisma.usuarios.findUnique({ where: { cpf } });
     if (!user) return NextResponse.json({ success: false, error: "Usuário não encontrado" }, { status: 404 });
 
@@ -28,7 +27,11 @@ export async function POST(req: NextRequest) {
     // Email não é salvo em todas as tabelas, mas pode ser salvo em uma tabela de emails se existir
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || "Erro ao atualizar dados" }, { status: 500 });
+  } catch (err: unknown) {
+    let errorMessage = "Erro ao atualizar dados";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

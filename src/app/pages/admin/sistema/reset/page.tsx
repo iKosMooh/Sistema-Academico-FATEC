@@ -128,9 +128,9 @@ export default function ResetSistemaPage() {
         },
         {
             tipo: 'Aluno',
-            login: '943.492.248-82',
+            login: '477.719.710-75',
             senha: 'aluno123',
-            nome: 'João Silva Santos',
+            nome: 'Aluno1 Silva Santos',
             observacao: 'Aluno do 3º semestre de Gestão Empresarial'
         }
     ];

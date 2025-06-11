@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     const senhaHash = await bcrypt.hash(novaSenha, salt);
     await prisma.usuarios.update({ where: { cpf }, data: { senhaHash } });
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || "Erro ao atualizar senha" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar senha";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }

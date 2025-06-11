@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
     const ok = await bcrypt.compare(senha, user.senhaHash);
     if (!ok) return NextResponse.json({ success: false, error: "Senha incorreta" }, { status: 400 });
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || "Erro ao checar senha" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Erro ao checar senha";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
