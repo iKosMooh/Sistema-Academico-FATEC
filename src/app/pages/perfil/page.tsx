@@ -200,72 +200,74 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
-      <h1 className="text-2xl font-bold mb-6 text-blue-900">Meu Perfil</h1>
-      <div className="flex gap-4 mb-8">
-        <button className={`px-4 py-2 rounded ${tab === "dados" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("dados")}>Dados Pessoais</button>
-        <button className={`px-4 py-2 rounded ${tab === "senha" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("senha")}>Senha</button>
-        <button className={`px-4 py-2 rounded ${tab === "endereco" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("endereco")}>Endereço</button>
-        <button className={`px-4 py-2 rounded ${tab === "foto" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("foto")}>Foto</button>
+    <main className="bg-white min-h-screen">
+      <div className="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+        <h1 className="text-2xl font-bold mb-6 text-blue-900">Meu Perfil</h1>
+        <div className="flex gap-4 mb-8">
+          <button className={`px-4 py-2 rounded ${tab === "dados" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("dados")}>Dados Pessoais</button>
+          <button className={`px-4 py-2 rounded ${tab === "senha" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("senha")}>Senha</button>
+          <button className={`px-4 py-2 rounded ${tab === "endereco" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("endereco")}>Endereço</button>
+          <button className={`px-4 py-2 rounded ${tab === "foto" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("foto")}>Foto</button>
+        </div>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
+        {success && <div className="text-green-600 mb-4">{success}</div>}
+
+        {tab === "dados" && (
+          <form className="bg-gray-200" onSubmit={handleDados}>
+            <label>Nome</label>
+            <input className="bg-white text-gray-900" type="text" value={form.nome || ""} onChange={e => setForm({ ...form, nome: e.target.value })} />
+            <label>Sobrenome</label>
+            <input className="bg-white text-gray-900" type="text" value={form.sobrenome || ""} onChange={e => setForm({ ...form, sobrenome: e.target.value })} />
+            <label>Email</label>
+            <input className="bg-white text-gray-900" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
+            <button type="submit">Salvar</button>
+          </form>
+        )}
+
+        {tab === "senha" && (
+          <form className="bg-gray-200" onSubmit={handleSenha}>
+            <label>Senha Atual</label>
+            <input className="bg-white text-gray-900" type="password" value={form.senhaAtual || ""} onChange={e => setForm({ ...form, senhaAtual: e.target.value })} />
+            <label>Nova Senha</label>
+            <input className="bg-white text-gray-900" type="password" value={form.novaSenha || ""} onChange={e => setForm({ ...form, novaSenha: e.target.value })} />
+            <label>Confirmar Nova Senha</label>
+            <input className="bg-white text-gray-900" type="password" value={form.confirmarSenha || ""} onChange={e => setForm({ ...form, confirmarSenha: e.target.value })} />
+            <button type="submit">Alterar Senha</button>
+          </form>
+        )}
+
+        {tab === "endereco" && (
+          <form className="bg-gray-200" onSubmit={handleEndereco}>
+            <label>CEP</label>
+            <input className="bg-white text-gray-900" type="text" value={form.cep || ""} onChange={e => setForm({ ...form, cep: e.target.value })} />
+            <label>Rua</label>
+            <input className="bg-white text-gray-900" type="text" value={form.rua || ""} onChange={e => setForm({ ...form, rua: e.target.value })} />
+            <label>Cidade</label>
+            <input className="bg-white text-gray-900" type="text" value={form.cidade || ""} onChange={e => setForm({ ...form, cidade: e.target.value })} />
+            <label>UF</label>
+            <input className="bg-white text-gray-900" type="text" value={form.uf || ""} onChange={e => setForm({ ...form, uf: e.target.value })} />
+            <label>Número</label>
+            <input className="bg-white text-gray-900" type="text" value={form.numero || ""} onChange={e => setForm({ ...form, numero: e.target.value })} />
+            <label>Complemento</label>
+            <input className="bg-white text-gray-900" type="text" value={form.complemento || ""} onChange={e => setForm({ ...form, complemento: e.target.value })} />
+            <button type="submit">Salvar Endereço</button>
+          </form>
+        )}
+
+        {tab === "foto" && (
+          <form className="bg-gray-200" onSubmit={handleFoto}>
+            <div className="mb-4">
+              {fotoPreview ? (
+                <Image src={fotoPreview} alt="Foto de perfil" width={120} height={120} className="rounded-full object-cover" />
+              ) : (
+                <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-gray-500">Sem foto</div>
+              )}
+            </div>
+            <input className="bg-white text-gray-900" type="file" accept="image/*" onChange={onFotoChange} />
+            <button type="submit">Atualizar Foto</button>
+          </form>
+        )}
       </div>
-      {error && <div className="text-red-600 mb-4">{error}</div>}
-      {success && <div className="text-green-600 mb-4">{success}</div>}
-
-      {tab === "dados" && (
-        <form onSubmit={handleDados}>
-          <label>Nome</label>
-          <input type="text" value={form.nome || ""} onChange={e => setForm({ ...form, nome: e.target.value })} />
-          <label>Sobrenome</label>
-          <input type="text" value={form.sobrenome || ""} onChange={e => setForm({ ...form, sobrenome: e.target.value })} />
-          <label>Email</label>
-          <input type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
-          <button type="submit">Salvar</button>
-        </form>
-      )}
-
-      {tab === "senha" && (
-        <form onSubmit={handleSenha}>
-          <label>Senha Atual</label>
-          <input type="password" value={form.senhaAtual || ""} onChange={e => setForm({ ...form, senhaAtual: e.target.value })} />
-          <label>Nova Senha</label>
-          <input type="password" value={form.novaSenha || ""} onChange={e => setForm({ ...form, novaSenha: e.target.value })} />
-          <label>Confirmar Nova Senha</label>
-          <input type="password" value={form.confirmarSenha || ""} onChange={e => setForm({ ...form, confirmarSenha: e.target.value })} />
-          <button type="submit">Alterar Senha</button>
-        </form>
-      )}
-
-      {tab === "endereco" && (
-        <form onSubmit={handleEndereco}>
-          <label>CEP</label>
-          <input type="text" value={form.cep || ""} onChange={e => setForm({ ...form, cep: e.target.value })} />
-          <label>Rua</label>
-          <input type="text" value={form.rua || ""} onChange={e => setForm({ ...form, rua: e.target.value })} />
-          <label>Cidade</label>
-          <input type="text" value={form.cidade || ""} onChange={e => setForm({ ...form, cidade: e.target.value })} />
-          <label>UF</label>
-          <input type="text" value={form.uf || ""} onChange={e => setForm({ ...form, uf: e.target.value })} />
-          <label>Número</label>
-          <input type="text" value={form.numero || ""} onChange={e => setForm({ ...form, numero: e.target.value })} />
-          <label>Complemento</label>
-          <input type="text" value={form.complemento || ""} onChange={e => setForm({ ...form, complemento: e.target.value })} />
-          <button type="submit">Salvar Endereço</button>
-        </form>
-      )}
-
-      {tab === "foto" && (
-        <form onSubmit={handleFoto}>
-          <div className="mb-4">
-            {fotoPreview ? (
-              <Image src={fotoPreview} alt="Foto de perfil" width={120} height={120} className="rounded-full object-cover" />
-            ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">Sem foto</div>
-            )}
-          </div>
-          <input type="file" accept="image/*" onChange={onFotoChange} />
-          <button type="submit">Atualizar Foto</button>
-        </form>
-      )}
-    </div>
+    </main>
   );
 }
