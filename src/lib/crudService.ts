@@ -2,6 +2,7 @@
 import { prisma } from '@/lib/prisma';
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { getSchemaForTable } from "@/lib/schemas";
 
 type ModelName = keyof typeof prisma;
 
@@ -40,7 +41,8 @@ interface CrudParams {
  * Função genérica para operações CRUD com Prisma.
  * Suporta inserção, consulta, atualização, exclusão e “pseudo-upsert” para presenças.
  */
-export async function handleCrud<T>({ operation, table, primaryKey, data, relations, where }: CrudParams): Promise<T> {
+export async function handleCrud<T = unknown>(payload: CrudParams): Promise<T> {
+  const { operation, table, primaryKey, data, relations, where } = payload;
   const model = prisma[table] as PrismaDelegate<typeof table>;
   console.log('CRUD Operation:', { operation, table, data, where });
   
@@ -100,9 +102,32 @@ export async function handleCrud<T>({ operation, table, primaryKey, data, relati
           }) as T;
         }
 
+        // Converte campos numéricos string para número conforme o schema
+        const schema = getSchemaForTable(table as string);
+        let dataToInsert = data;
+        if (schema) {
+          try {
+            // Tenta converter strings numéricas para número antes do parse
+            // Exemplo: anoLetivo: "2025" => 2025
+            const coercedData = { ...data };
+            if ('anoLetivo' in coercedData && typeof coercedData.anoLetivo === 'string') {
+              coercedData.anoLetivo = Number(coercedData.anoLetivo);
+            }
+            if ('idCurso' in coercedData && typeof coercedData.idCurso === 'string') {
+              coercedData.idCurso = Number(coercedData.idCurso);
+            }
+            // Adicione outros campos conforme necessário
+
+            dataToInsert = schema.parse(coercedData);
+          } catch (e) {
+            // Se erro de validação, lança para ser tratado pelo endpoint
+            throw e;
+          }
+        }
+
         // Inserção genérica para outras tabelas
         return await model.create({
-          data,
+          data: dataToInsert,
           include: relations || undefined,
         }) as T;
 
@@ -135,11 +160,35 @@ export async function handleCrud<T>({ operation, table, primaryKey, data, relati
           }) as T;
         }
 
-        return await model.upsert({
-          where: where || { id: 0 },
-          update: data || {},
-          create: data || {}
-        }) as T;
+        try {
+          return await model.upsert({
+            where: where || { id: 0 },
+            update: data || {},
+            create: data || {}
+          }) as T;
+        } catch (error: unknown) {
+          // Trata erro de foreign key violada
+          if (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            (error as { code: string }).code === 'P2003'
+          ) {
+            // Erro específico para notas: professor não existe
+            if (table === 'notas' && data && 'idProfessor' in data) {
+              throw {
+                message: 'O CPF informado para o professor não existe na tabela de professores. Não é possível lançar notas como Admin. Faça login como Professor.',
+                code: 'P2003'
+              };
+            }
+            // Mensagem detalhada para o frontend (genérica)
+            throw {
+              message: 'Chave estrangeira inválida: verifique se todos os campos de referência existem (Aluno, Turma, Matéria e Professor devem existir e estar corretos).',
+              code: 'P2003'
+            };
+          }
+          throw error;
+        }
 
       case 'update':
         if (!primaryKey) {

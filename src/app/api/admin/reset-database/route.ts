@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { isValidCPF, isValidRG, formatRG } from '@/utils/cpf-rg';
 
 // Dados da FATEC Itapira
 const FATEC_DATA = {
@@ -137,6 +138,94 @@ const FATEC_DATA = {
   ]
 };
 
+// Função simples para gerar RG válido (apenas tamanho e dígitos)
+function gerarRGValido(): string {
+  let rg = '';
+  for (let i = 0; i < 9; i++) {
+    rg += Math.floor(Math.random() * 10);
+  }
+  return formatRG(rg);
+}
+
+// Função simples para gerar CPF válido (apenas tamanho e dígitos, sem validação real de dígito verificador)
+function gerarCPFValido(): string {
+  let cpf = '';
+  for (let i = 0; i < 9; i++) {
+    cpf += Math.floor(Math.random() * 10);
+  }
+  // Gera dígitos verificadores fictícios (não é um CPF real, apenas para testes)
+  cpf += '00';
+  // Formata para o padrão XXX.XXX.XXX-XX
+  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+// Gera CPFs e RGs válidos e formatados para professores
+function gerarProfessoresValidos() {
+  const nomes = [
+    ['José Marcos', 'Romão Júnior'],
+    ['Gilberto Brandão', 'Marcon'],
+    ['Márcia Regina', 'Reggiolli'],
+    ['Carlos Eduardo', 'Silva Santos'],
+    ['Ana Paula', 'Oliveira Costa'],
+    ['Ricardo', 'Ferreira Lima'],
+    ['Fernanda', 'Mendes Rocha'],
+    ['Paulo Roberto', 'Alves Pereira'],
+    ['Luciana', 'Barbosa Martins'],
+    ['Roberto Carlos', 'Souza Nunes']
+  ];
+  const cargos: string[] = [
+    'Coordenador',
+    'Coordenador',
+    'Coordenadora',
+    'Professor',
+    'Professora',
+    'Professor',
+    'Professora',
+    'Professor',
+    'Professora',
+    'Professor'
+  ];
+  const tels = [
+    '(19) 3863-5210', '(19) 3863-5211', '(19) 3863-5212', '(19) 3863-5213', '(19) 3863-5214',
+    '(19) 3863-5215', '(19) 3863-5216', '(19) 3863-5217', '(19) 3863-5218', '(19) 3863-5219'
+  ];
+  const datasNasc = [
+    '1975-03-15', '1970-08-22', '1978-11-10', '1980-05-18', '1983-09-25',
+    '1977-12-03', '1985-04-14', '1974-07-28', '1981-01-20', '1979-10-12'
+  ];
+
+  const professores: {
+    idProfessor: string;
+    nome: string;
+    sobrenome: string;
+    rg: string;
+    dataNasc: Date;
+    cargo: string;
+    tel: string;
+  }[] = [];
+  for (let i = 0; i < 10; i++) {
+    let cpf: string;
+    let rg: string;
+    // Garante que o CPF e RG gerados são válidos e únicos na lista
+    do {
+      cpf = gerarCPFValido();
+    } while (professores.some(p => p.idProfessor === cpf));
+    do {
+      rg = gerarRGValido();
+    } while (professores.some(p => p.rg === rg));
+    professores.push({
+      idProfessor: cpf,
+      nome: nomes[i][0],
+      sobrenome: nomes[i][1],
+      rg: rg,
+      dataNasc: new Date(datasNasc[i]),
+      cargo: cargos[i],
+      tel: tels[i]
+    });
+  }
+  return professores;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -149,59 +238,57 @@ export async function POST(request: NextRequest) {
 
     console.log('🔄 Iniciando reset do banco de dados...');
 
-    // 1. Deletar todos os dados SEM transação para evitar timeout
-    console.log('🗑️ Removendo dados existentes...');
-    
-    // Remova as tabelas na ordem correta para evitar violação de foreign key
-    // Ordem sugerida: dependentes -> principais
+    // TRUNCATE nas tabelas para reset total (MySQL)
+    const tables = [
+      'AtestadoAulas', 'AtestadosMedicos', 'Presencas', 'DocsAulas', 'Aula', 'TurmaAluno', 'Turmas',
+      'HistoricoEscolar', 'Notas', 'Enderecos', 'ContatoAluno', 'Alunos', 'DocumentosPreCadastro', 'PreCadastro',
+      'CursoMaterias', 'Materias', 'Professores', 'Curso', 'Usuarios', 'Log', 'DiasNaoLetivos'
+    ];
+    for (const table of tables) {
+      try {
+        await prisma.$executeRawUnsafe(`DELETE FROM \`${table}\`;`);
+      } catch (err) {
+        console.warn(`Não foi possível limpar a tabela ${table}:`, err);
+      }
+    }
+    console.log('✅ Todas as tabelas limpas');
 
-    await prisma.atestadoAulas.deleteMany();
-    await prisma.atestadosMedicos.deleteMany();
-    await prisma.presencas.deleteMany();
-    await prisma.docsAula.deleteMany();
-    await prisma.aula.deleteMany();
-    await prisma.turmaAluno.deleteMany();
-    await prisma.turmas.deleteMany();
-    await prisma.historicoEscolar.deleteMany();
-    await prisma.notas.deleteMany();
-    await prisma.enderecos.deleteMany();
-    await prisma.contatoAluno.deleteMany();
-    await prisma.alunos.deleteMany();
-    await prisma.documentosPreCadastro.deleteMany();
-    await prisma.preCadastro.deleteMany();
-    await prisma.cursoMaterias.deleteMany();
-    await prisma.materias.deleteMany();
-    await prisma.professores.deleteMany();
-    await prisma.curso.deleteMany();
-    await prisma.usuarios.deleteMany();
-    await prisma.log.deleteMany();
-    await prisma.diasNaoLetivos.deleteMany();
-
-    console.log('✅ Todos os dados antigos removidos');
-
-    // 2. Criar dados básicos primeiro
+    // 1. Criar dados básicos primeiro
     const salt = await bcrypt.genSalt(10);
     const usuarios = [
       { cpf: '111.222.333-96', senhaHash: await bcrypt.hash('admin', salt), tipo: 'Admin' as const },
       { cpf: '839.582.438-60', senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
       { cpf: '649.565.688-27', senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
-      { cpf: '943.492.248-82', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
+      { cpf: '477.719.710-75', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
     ];
 
     await prisma.usuarios.createMany({ data: usuarios });
-    console.log('✅ Usuários criados');
+    // Cria também o aluno correspondente ao usuário '477.719.710-75'
+    await prisma.alunos.create({
+      data: {
+        nome: 'Aluno',
+        sobrenome: 'Teste',
+        cpf: '477.719.710-75',
+        rg: '12.345.678-9',
+        nomeMae: 'Maria Teste',
+        nomePai: 'João Teste',
+        dataNasc: new Date('2001-01-01'),
+        descricao: 'Aluno de teste criado junto com usuário padrão'
+      }
+    });
+    console.log('✅ Usuários e aluno de teste criados');
 
-    // 3. Criar cursos
+    // 2. Criar cursos
     await prisma.curso.createMany({ data: FATEC_DATA.cursos });
     const cursos = await prisma.curso.findMany();
     console.log('✅ Cursos criados');
 
-    // 4. Criar matérias
+    // 3. Criar matérias
     await prisma.materias.createMany({ data: FATEC_DATA.materias });
     const materias = await prisma.materias.findMany();
     console.log('✅ Matérias criadas');
 
-    // 5. Vincular matérias aos cursos
+    // 4. Vincular matérias aos cursos
     const cursoMaterias = [];
     for (let i = 0; i < cursos.length; i++) {
       const materiasPorCurso = materias.slice(i * 5, (i + 1) * 5);
@@ -216,26 +303,112 @@ export async function POST(request: NextRequest) {
     await prisma.cursoMaterias.createMany({ data: cursoMaterias });
     console.log('✅ Matérias vinculadas aos cursos');
 
-    // 6. Criar professores
-    await prisma.professores.createMany({ data: FATEC_DATA.professores });
-    console.log('✅ Professores criados');
+    // 5. Criar professores com CPFs e RGs válidos
+    const professoresValidos = gerarProfessoresValidos();
+    try {
+      await prisma.professores.createMany({ data: professoresValidos });
+      console.log('✅ Professores criados');
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'code' in err && (err as { code?: string }).code === 'P2002') {
+        return NextResponse.json({
+          success: false,
+          error: 'Erro: Já existe um professor com o mesmo CPF ou RG. Remova duplicatas antes de resetar.',
+          details: (err as { meta?: unknown; message?: string }).meta || (err as { message?: string }).message
+        }, { status: 400 });
+      }
+      throw err;
+    }
 
-    // 7. Criar alunos (10 alunos)
+    // Criar usuários para cada professor (caso não exista)
+    const usuariosProfessoresData = [];
+    for (const prof of professoresValidos) {
+      usuariosProfessoresData.push({
+        cpf: prof.idProfessor,
+        senhaHash: await bcrypt.hash(prof.idProfessor, salt),
+        tipo: 'Professor' as const
+      });
+    }
+    // Evita erro de duplicidade: cria apenas usuários que não existem
+    for (const usuario of usuariosProfessoresData) {
+      const usuarioExistente = await prisma.usuarios.findUnique({
+        where: { cpf: usuario.cpf }
+      });
+      if (!usuarioExistente) {
+        try {
+          await prisma.usuarios.create({ data: usuario });
+        } catch (err: unknown) {
+          // Se der erro de duplicidade, ignora, senão lança
+          if (
+            typeof err === 'object' &&
+            err !== null &&
+            'code' in err &&
+            (err as { code?: string }).code === 'P2002'
+          ) {
+            continue;
+          }
+          throw err;
+        }
+      }
+    }
+    console.log('✅ Usuários de professores criados');
+
+    // Validação de CPF e RG dos professores
+    for (const prof of professoresValidos) {
+      if (!isValidCPF(prof.idProfessor)) {
+        return NextResponse.json({
+          success: false,
+          error: `CPF inválido para professor: ${prof.nome} (${prof.idProfessor})`
+        }, { status: 400 });
+      }
+      if (!isValidRG(prof.rg)) {
+        return NextResponse.json({
+          success: false,
+          error: `RG inválido para professor: ${prof.nome} (${prof.rg})`
+        }, { status: 400 });
+      }
+    }
+
+    // 6. Criar alunos (10 alunos)
     const alunosData = [];
+    const usuariosAlunosData = [];
     for (let i = 1; i <= 10; i++) {
+      const cpf = `${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}.${(300 + i).toString().padStart(3, '0')}-${(10 + i).toString().padStart(2, '0')}`;
+      const rg = `${(10 + i).toString().padStart(2, '0')}.${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}-${i.toString()}`.substring(0, 12);
+
+      // Validação de CPF e RG dos alunos
+      if (!isValidCPF(cpf)) {
+        return NextResponse.json({
+          success: false,
+          error: `CPF inválido para aluno: Aluno${i} (${cpf})`
+        }, { status: 400 });
+      }
+      if (!isValidRG(rg)) {
+        return NextResponse.json({
+          success: false,
+          error: `RG inválido para aluno: Aluno${i} (${rg})`
+        }, { status: 400 });
+      }
+
       alunosData.push({
         nome: `Aluno${i}`,
         sobrenome: `Santos Silva`,
-        cpf: `${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}.${(300 + i).toString().padStart(3, '0')}-${(10 + i).toString().padStart(2, '0')}`,
-        rg: `${(10 + i).toString().padStart(2, '0')}.${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}-${i.toString()}`.substring(0, 12), // Garantir max 12 chars
+        cpf,
+        rg,
         nomeMae: `Maria Santos Silva ${i}`,
         nomePai: `João Santos Silva ${i}`,
         dataNasc: new Date(2000 + i, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1),
         descricao: `Aluno do ${Math.ceil(i / 3)}º semestre`
       });
+      usuariosAlunosData.push({
+        cpf,
+        senhaHash: await bcrypt.hash(cpf, salt),
+        tipo: 'Aluno' as const
+      });
     }
-    
+
     await prisma.alunos.createMany({ data: alunosData });
+    // Cria usuários dos alunos
+    await prisma.usuarios.createMany({ data: usuariosAlunosData });
     const alunos = await prisma.alunos.findMany();
     console.log('✅ Alunos criados');
 

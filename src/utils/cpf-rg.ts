@@ -101,3 +101,35 @@ export function formatRG(rg: string): string {
   }
   return rg;
 }
+
+/**
+ * Gera um CPF válido e formatado.
+ * @returns CPF válido no formato 000.000.000-00
+ */
+export function gerarCPFValido(): string {
+  // Gera 9 dígitos aleatórios
+  const n = [];
+  for (let i = 0; i < 9; i++) {
+    n.push(Math.floor(Math.random() * 10));
+  }
+
+  // Calcula o primeiro dígito verificador
+  let d1 = 0;
+  for (let i = 0; i < 9; i++) {
+    d1 += n[i] * (10 - i);
+  }
+  d1 = 11 - (d1 % 11);
+  if (d1 >= 10) d1 = 0;
+
+  // Calcula o segundo dígito verificador
+  let d2 = 0;
+  for (let i = 0; i < 9; i++) {
+    d2 += n[i] * (11 - i);
+  }
+  d2 += d1 * 2;
+  d2 = 11 - (d2 % 11);
+  if (d2 >= 10) d2 = 0;
+
+  const cpf = `${n.join('')}${d1}${d2}`;
+  return formatCPF(cpf);
+}

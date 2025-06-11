@@ -60,7 +60,7 @@ export default function Header() {
                     router.push('/pages/admin/painel-aulas');
                     break;
                 case 'Professor':
-                    router.push('/pages/professor/dashboard');
+                    router.push('/pages/admin/painel-aulas');
                     break;
                 case 'Aluno':
                     router.push('/pages/aluno/dashboard');

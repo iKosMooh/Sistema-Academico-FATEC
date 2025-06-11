@@ -19,14 +19,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Formato de imagem não permitido" }, { status: 400 });
     }
 
-    const pasta = path.join(process.cwd(), "public", "pastas", cpf);
+    // Salvar arquivo na pasta correta do fotoPath
+    const pasta = path.join(process.cwd(), "public", "pastas", "usuarios", cpf);
     await fs.mkdir(pasta, { recursive: true });
     const filename = `profile${ext}`;
     const buffer = Buffer.from(await foto.arrayBuffer());
     await fs.writeFile(path.join(pasta, filename), buffer);
 
     // Atualiza o caminho da foto no banco (Alunos, Professores ou Coordenadores)
-    let fotoPath = `/pastas/${cpf}/${filename}`;
+    const fotoPath = `/pastas/usuarios/${cpf}/${filename}`;
     const user = await prisma.usuarios.findUnique({ where: { cpf } });
     if (!user) return NextResponse.json({ success: false, error: "Usuário não encontrado" }, { status: 404 });
 
@@ -37,7 +38,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, fotoPath });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || "Erro ao atualizar foto" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar foto";
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
