@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { isValidCPF, isValidRG, formatRG } from '@/utils/cpf-rg';
+import { formatRG, gerarCPFValido } from '@/utils/cpf-rg';
+import { StatusPreCadastro, TipoDocumento, StatusAtestado } from '@prisma/client';
 
 // Dados da FATEC Itapira
 const FATEC_DATA = {
@@ -147,18 +148,6 @@ function gerarRGValido(): string {
   return formatRG(rg);
 }
 
-// Função simples para gerar CPF válido (apenas tamanho e dígitos, sem validação real de dígito verificador)
-function gerarCPFValido(): string {
-  let cpf = '';
-  for (let i = 0; i < 9; i++) {
-    cpf += Math.floor(Math.random() * 10);
-  }
-  // Gera dígitos verificadores fictícios (não é um CPF real, apenas para testes)
-  cpf += '00';
-  // Formata para o padrão XXX.XXX.XXX-XX
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-}
-
 // Gera CPFs e RGs válidos e formatados para professores
 function gerarProfessoresValidos() {
   const nomes = [
@@ -202,6 +191,9 @@ function gerarProfessoresValidos() {
     dataNasc: Date;
     cargo: string;
     tel: string;
+    fotoPath?: string | null;
+    docsPath?: string | null;
+    descricao?: string | null;
   }[] = [];
   for (let i = 0; i < 10; i++) {
     let cpf: string;
@@ -220,7 +212,10 @@ function gerarProfessoresValidos() {
       rg: rg,
       dataNasc: new Date(datasNasc[i]),
       cargo: cargos[i],
-      tel: tels[i]
+      tel: tels[i],
+      fotoPath: null,
+      docsPath: null,
+      descricao: null
     });
   }
   return professores;
@@ -253,42 +248,69 @@ export async function POST(request: NextRequest) {
     }
     console.log('✅ Todas as tabelas limpas');
 
-    // 1. Criar dados básicos primeiro
+    // 1. Usuários e Professores/Alunos de demonstração (garantir prioridade)
     const salt = await bcrypt.genSalt(10);
+
+    // CPFs fixos para os usuários de demonstração
+    const adminCpf = '111.222.333-96';
+    const coordCpf = '839.582.438-60';
+    const profCpf = '649.565.688-27';
+    const alunoCpf = '477.719.710-75';
+
+    // Professores válidos (garantir que os 3 primeiros sejam os de demonstração)
+    const professoresValidos = gerarProfessoresValidos();
+    professoresValidos[0].idProfessor = adminCpf;
+    professoresValidos[0].nome = 'José Marcos';
+    professoresValidos[0].sobrenome = 'Romão Júnior';
+    professoresValidos[0].cargo = 'Coordenador';
+
+    professoresValidos[1].idProfessor = coordCpf;
+    professoresValidos[1].nome = 'Gilberto Brandão';
+    professoresValidos[1].sobrenome = 'Marcon';
+    professoresValidos[1].cargo = 'Coordenador';
+
+    professoresValidos[2].idProfessor = profCpf;
+    professoresValidos[2].nome = 'Márcia Regina';
+    professoresValidos[2].sobrenome = 'Reggiolli';
+    professoresValidos[2].cargo = 'Coordenadora';
+
+    // Usuários de demonstração
     const usuarios = [
-      { cpf: '111.222.333-96', senhaHash: await bcrypt.hash('admin', salt), tipo: 'Admin' as const },
-      { cpf: '839.582.438-60', senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
-      { cpf: '649.565.688-27', senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
-      { cpf: '477.719.710-75', senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
+      { cpf: adminCpf, senhaHash: await bcrypt.hash('admin', salt), tipo: 'Admin' as const },
+      { cpf: coordCpf, senhaHash: await bcrypt.hash('coord123', salt), tipo: 'Coordenador' as const },
+      { cpf: profCpf, senhaHash: await bcrypt.hash('prof123', salt), tipo: 'Professor' as const },
+      { cpf: alunoCpf, senhaHash: await bcrypt.hash('aluno123', salt), tipo: 'Aluno' as const }
     ];
 
     await prisma.usuarios.createMany({ data: usuarios });
+
     // Cria também o aluno correspondente ao usuário '477.719.710-75'
     await prisma.alunos.create({
       data: {
-        nome: 'Aluno',
-        sobrenome: 'Teste',
-        cpf: '477.719.710-75',
+        nome: 'Aluno1',
+        sobrenome: 'Silva Santos',
+        cpf: alunoCpf,
         rg: '12.345.678-9',
         nomeMae: 'Maria Teste',
         nomePai: 'João Teste',
         dataNasc: new Date('2001-01-01'),
-        descricao: 'Aluno de teste criado junto com usuário padrão'
+        descricao: 'Aluno do 3º semestre de Gestão Empresarial'
       }
     });
-    console.log('✅ Usuários e aluno de teste criados');
 
-    // 2. Criar cursos
+    // 2. Professores
+    await prisma.professores.createMany({ data: professoresValidos });
+    console.log('✅ Usuários, aluno de teste e professores criados');
+
+    // 3. Cursos
     await prisma.curso.createMany({ data: FATEC_DATA.cursos });
     const cursos = await prisma.curso.findMany();
-    console.log('✅ Cursos criados');
 
-    // 3. Criar matérias
+    // 4. Matérias
     await prisma.materias.createMany({ data: FATEC_DATA.materias });
     const materias = await prisma.materias.findMany();
-    console.log('✅ Matérias criadas');
 
-    // 4. Vincular matérias aos cursos
+    // 5. Vincular matérias aos cursos
     const cursoMaterias = [];
     for (let i = 0; i < cursos.length; i++) {
       const materiasPorCurso = materias.slice(i * 5, (i + 1) * 5);
@@ -301,94 +323,13 @@ export async function POST(request: NextRequest) {
       }
     }
     await prisma.cursoMaterias.createMany({ data: cursoMaterias });
-    console.log('✅ Matérias vinculadas aos cursos');
 
-    // 5. Criar professores com CPFs e RGs válidos
-    const professoresValidos = gerarProfessoresValidos();
-    try {
-      await prisma.professores.createMany({ data: professoresValidos });
-      console.log('✅ Professores criados');
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'code' in err && (err as { code?: string }).code === 'P2002') {
-        return NextResponse.json({
-          success: false,
-          error: 'Erro: Já existe um professor com o mesmo CPF ou RG. Remova duplicatas antes de resetar.',
-          details: (err as { meta?: unknown; message?: string }).meta || (err as { message?: string }).message
-        }, { status: 400 });
-      }
-      throw err;
-    }
-
-    // Criar usuários para cada professor (caso não exista)
-    const usuariosProfessoresData = [];
-    for (const prof of professoresValidos) {
-      usuariosProfessoresData.push({
-        cpf: prof.idProfessor,
-        senhaHash: await bcrypt.hash(prof.idProfessor, salt),
-        tipo: 'Professor' as const
-      });
-    }
-    // Evita erro de duplicidade: cria apenas usuários que não existem
-    for (const usuario of usuariosProfessoresData) {
-      const usuarioExistente = await prisma.usuarios.findUnique({
-        where: { cpf: usuario.cpf }
-      });
-      if (!usuarioExistente) {
-        try {
-          await prisma.usuarios.create({ data: usuario });
-        } catch (err: unknown) {
-          // Se der erro de duplicidade, ignora, senão lança
-          if (
-            typeof err === 'object' &&
-            err !== null &&
-            'code' in err &&
-            (err as { code?: string }).code === 'P2002'
-          ) {
-            continue;
-          }
-          throw err;
-        }
-      }
-    }
-    console.log('✅ Usuários de professores criados');
-
-    // Validação de CPF e RG dos professores
-    for (const prof of professoresValidos) {
-      if (!isValidCPF(prof.idProfessor)) {
-        return NextResponse.json({
-          success: false,
-          error: `CPF inválido para professor: ${prof.nome} (${prof.idProfessor})`
-        }, { status: 400 });
-      }
-      if (!isValidRG(prof.rg)) {
-        return NextResponse.json({
-          success: false,
-          error: `RG inválido para professor: ${prof.nome} (${prof.rg})`
-        }, { status: 400 });
-      }
-    }
-
-    // 6. Criar alunos (10 alunos)
+    // 6. Alunos (além do aluno de demonstração)
     const alunosData = [];
     const usuariosAlunosData = [];
-    for (let i = 1; i <= 10; i++) {
-      const cpf = `${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}.${(300 + i).toString().padStart(3, '0')}-${(10 + i).toString().padStart(2, '0')}`;
-      const rg = `${(10 + i).toString().padStart(2, '0')}.${(100 + i).toString().padStart(3, '0')}.${(200 + i).toString().padStart(3, '0')}-${i.toString()}`.substring(0, 12);
-
-      // Validação de CPF e RG dos alunos
-      if (!isValidCPF(cpf)) {
-        return NextResponse.json({
-          success: false,
-          error: `CPF inválido para aluno: Aluno${i} (${cpf})`
-        }, { status: 400 });
-      }
-      if (!isValidRG(rg)) {
-        return NextResponse.json({
-          success: false,
-          error: `RG inválido para aluno: Aluno${i} (${rg})`
-        }, { status: 400 });
-      }
-
+    for (let i = 2; i <= 10; i++) {
+      const cpf = gerarCPFValido();
+      const rg = gerarRGValido();
       alunosData.push({
         nome: `Aluno${i}`,
         sobrenome: `Santos Silva`,
@@ -405,14 +346,11 @@ export async function POST(request: NextRequest) {
         tipo: 'Aluno' as const
       });
     }
-
     await prisma.alunos.createMany({ data: alunosData });
-    // Cria usuários dos alunos
     await prisma.usuarios.createMany({ data: usuariosAlunosData });
     const alunos = await prisma.alunos.findMany();
-    console.log('✅ Alunos criados');
 
-    // 8. Criar endereços e contatos para alunos em uma transação menor
+    // 7. Endereços e contatos para alunos
     const enderecosData = alunos.map((aluno, i) => ({
       idAluno: aluno.idAluno,
       cep: `13450-${(100 + i).toString().padStart(3, '0')}`,
@@ -434,9 +372,8 @@ export async function POST(request: NextRequest) {
       await tx.enderecos.createMany({ data: enderecosData });
       await tx.contatoAluno.createMany({ data: contatosData });
     }, { timeout: 30000 });
-    console.log('✅ Endereços e contatos criados');
 
-    // 9. Criar turmas
+    // 8. Turmas
     const turmasData = [];
     for (let i = 1; i <= 10; i++) {
       const cursoIndex = (i - 1) % 3;
@@ -448,32 +385,27 @@ export async function POST(request: NextRequest) {
     }
     await prisma.turmas.createMany({ data: turmasData });
     const turmas = await prisma.turmas.findMany();
-    console.log('✅ Turmas criadas');
 
-    // 10. Matricular alunos nas turmas
+    // 9. Matricular alunos nas turmas
     const matriculasData = alunos.map((aluno, i) => ({
       idTurma: turmas[i % turmas.length].idTurma,
       idAluno: aluno.idAluno,
       statusMatricula: 'Ativa' as const
     }));
     await prisma.turmaAluno.createMany({ data: matriculasData });
-    console.log('✅ Matrículas criadas');
 
-    // 11. Criar aulas em lotes menores
+    // 10. Criar aulas
     const aulasData = [];
     const dataBase = new Date('2024-03-01');
-    
     for (const turma of turmas) {
       const cursoMateriasTurma = await prisma.cursoMaterias.findMany({
         where: { idCurso: turma.idCurso },
         include: { materia: true }
       });
-
       for (let semana = 0; semana < 10; semana++) {
         for (const cm of cursoMateriasTurma) {
           const dataAula = new Date(dataBase);
           dataAula.setDate(dataBase.getDate() + (semana * 7) + (Math.floor(Math.random() * 5)));
-          
           aulasData.push({
             idTurma: turma.idTurma,
             idMateria: cm.idMateria,
@@ -488,61 +420,54 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    
-    // Criar aulas em lotes de 50
     const batchSize = 50;
     for (let i = 0; i < aulasData.length; i += batchSize) {
       const batch = aulasData.slice(i, i + batchSize);
       await prisma.aula.createMany({ data: batch });
-      console.log(`✅ Lote ${Math.floor(i/batchSize) + 1} de aulas criado`);
     }
-    
     const aulas = await prisma.aula.findMany();
-    console.log('✅ Todas as aulas criadas');
 
-    // 12. Criar presenças em lotes
+    // 11. DocsAulas (um arquivo por aula)
+    const docsAulasData = aulas.slice(0, 10).map((aula, i) => ({
+      idAula: aula.idAula,
+      src: `/pastas/aulas/${aula.idAula}/material${i + 1}.pdf`
+    }));
+    await prisma.docsAula.createMany({ data: docsAulasData });
+
+    // 12. Presenças
     const presencasData = [];
     const aulasConc = aulas.filter(a => a.aulaConcluida);
-    
     for (const aula of aulasConc) {
       const alunosDaTurma = await prisma.turmaAluno.findMany({
         where: { idTurma: aula.idTurma }
       });
-      
       for (const ta of alunosDaTurma) {
         presencasData.push({
           idAula: aula.idAula,
           idAluno: ta.idAluno,
-          idProfessor: FATEC_DATA.professores[Math.floor(Math.random() * FATEC_DATA.professores.length)].idProfessor,
+          idProfessor: professoresValidos[Math.floor(Math.random() * professoresValidos.length)].idProfessor,
           presente: Math.random() > 0.2,
           dataRegistro: aula.dataAula
         });
       }
     }
-    
-    // Criar presenças em lotes de 100
     const presencaBatchSize = 100;
     for (let i = 0; i < presencasData.length; i += presencaBatchSize) {
       const batch = presencasData.slice(i, i + presencaBatchSize);
       await prisma.presencas.createMany({ data: batch });
-      console.log(`✅ Lote ${Math.floor(i/presencaBatchSize) + 1} de presenças criado`);
     }
-    console.log('✅ Todas as presenças criadas');
 
-    // 13. Criar notas em lotes
+    // 13. Notas
     const notasData = [];
     const tiposAvaliacao = ['Prova 1', 'Prova 2', 'Trabalho', 'Projeto', 'Seminário'];
-    
     for (const turma of turmas) {
       const alunosDaTurma = await prisma.turmaAluno.findMany({
         where: { idTurma: turma.idTurma }
       });
-      
       const cursoMateriasTurma = await prisma.cursoMaterias.findMany({
         where: { idCurso: turma.idCurso },
         include: { materia: true }
       });
-
       for (const ta of alunosDaTurma) {
         for (const cm of cursoMateriasTurma) {
           for (let i = 0; i < 3; i++) {
@@ -551,7 +476,7 @@ export async function POST(request: NextRequest) {
               idAluno: ta.idAluno,
               idMateria: cm.idMateria,
               idTurma: turma.idTurma,
-              idProfessor: FATEC_DATA.professores[Math.floor(Math.random() * FATEC_DATA.professores.length)].idProfessor,
+              idProfessor: professoresValidos[Math.floor(Math.random() * professoresValidos.length)].idProfessor,
               valorNota: Math.round((Math.random() * 4 + 6) * 100) / 100,
               tipoAvaliacao: tiposAvaliacao[i % tiposAvaliacao.length],
               dataLancamento: new Date()
@@ -560,17 +485,23 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    
-    // Criar notas em lotes de 100
     const notasBatchSize = 100;
     for (let i = 0; i < notasData.length; i += notasBatchSize) {
       const batch = notasData.slice(i, i + notasBatchSize);
       await prisma.notas.createMany({ data: batch });
-      console.log(`✅ Lote ${Math.floor(i/notasBatchSize) + 1} de notas criado`);
     }
-    console.log('✅ Todas as notas criadas');
 
-    // 14. Criar dados finais
+    // 14. HistoricoEscolar (um por aluno)
+    const historicoEscolarData = alunos.map((aluno, i) => ({
+      idAluno: aluno.idAluno,
+      idCurso: cursos[i % cursos.length].idCurso,
+      idMateria: materias[i % materias.length].idMateria,
+      nota: Math.round((Math.random() * 4 + 6) * 100) / 100,
+      frequencia: Math.round((Math.random() * 20 + 80) * 100) / 100
+    }));
+    await prisma.historicoEscolar.createMany({ data: historicoEscolarData });
+
+    // 15. Dias não letivos
     const diasNaoLetivos = [
       { data: new Date('2024-04-21'), descricao: 'Tiradentes' },
       { data: new Date('2024-05-01'), descricao: 'Dia do Trabalhador' },
@@ -580,30 +511,97 @@ export async function POST(request: NextRequest) {
       { data: new Date('2024-11-15'), descricao: 'Proclamação da República' },
       { data: new Date('2024-12-25'), descricao: 'Natal' }
     ];
-    
     await prisma.diasNaoLetivos.createMany({ data: diasNaoLetivos });
-    console.log('✅ Dias não letivos criados');
 
+    // 16. Log
     const logsData = [
       { action: 'Sistema resetado e populado com dados de demonstração', dateTime: new Date() },
       { action: 'Usuários administrativos criados', dateTime: new Date() },
       { action: 'Dados da FATEC Itapira importados', dateTime: new Date() }
     ];
-    
     await prisma.log.createMany({ data: logsData });
-    console.log('✅ Logs criados');
 
-    // Gerar resumo
+    // 17. Pré-cadastros e documentos
+    const preCadastrosData = [];
+    const documentosPreCadastroData = [];
+    // Certifique-se de que 'cursos' está disponível neste escopo
+    for (let i = 1; i <= 5; i++) {
+      const cpf = gerarCPFValido();
+      preCadastrosData.push({
+        nome: `Candidato${i}`,
+        sobrenome: `Teste${i}`,
+        cpf,
+        rg: gerarRGValido(),
+        nomeMae: `Maria Candidata${i}`,
+        nomePai: `João Candidato${i}`,
+        dataNasc: new Date(2000 + i, 1, 1),
+        email: `candidato${i}@mail.com`,
+        telefone: `19999999${100 + i}`,
+        telefoneResponsavel: null,
+        nomeResponsavel: null,
+        cep: `13450-00${i}`,
+        rua: `Rua dos Pré-Cadastros, ${i}`,
+        cidade: 'Itapira',
+        uf: 'SP',
+        numero: `${i}`,
+        complemento: null,
+        status: StatusPreCadastro.Pendente,
+        dataEnvio: new Date(),
+        dataAvaliacao: null,
+        avaliadoPor: null,
+        observacoes: null,
+        motivoRejeicao: null,
+        idCursoDesejado: cursos[(i - 1) % cursos.length].idCurso // Adiciona o campo obrigatório
+      });
+      documentosPreCadastroData.push({
+        idPreCadastro: i,
+        tipoDocumento: TipoDocumento.RG,
+        nomeArquivo: `rg_candidato${i}.pdf`,
+        caminhoArquivo: `alunos/${cpf}/rg_candidato${i}.pdf`,
+        tamanhoArquivo: 1024 * 100,
+      });
+    }
+    await prisma.preCadastro.createMany({ data: preCadastrosData });
+    await prisma.documentosPreCadastro.createMany({ data: documentosPreCadastroData });
+
+    const atestadosData = alunos.slice(0, 3).map((aluno, i) => ({
+      idAluno: aluno.idAluno,
+      dataInicio: new Date('2024-05-01'),
+      dataFim: new Date('2024-05-05'),
+      motivo: 'Doença',
+      arquivoPath: `/pastas/alunos/${aluno.cpf}/atestado${i + 1}.pdf`,
+      status: StatusAtestado.Pendente,
+      observacoes: null,
+      avaliadoPor: professoresValidos[0].idProfessor,
+      dataAvaliacao: null,
+      justificativaRejeicao: null
+    }));
+    await prisma.atestadosMedicos.createMany({ data: atestadosData });
+    const atestados = await prisma.atestadosMedicos.findMany();
+    const atestadoAulasData = atestados.map((at, i) => ({
+      idAtestado: at.idAtestado,
+      idAula: aulas[i]?.idAula || aulas[0].idAula,
+      aplicado: false,
+      dataAplicacao: null
+    }));
+    await prisma.atestadoAulas.createMany({ data: atestadoAulasData });
+
+    // Resumo
     const resumo = {
-      usuarios: usuarios.length,
-      cursos: cursos.length, 
+      usuarios: await prisma.usuarios.count(),
+      cursos: cursos.length,
       materias: materias.length,
-      professores: FATEC_DATA.professores.length,
+      professores: professoresValidos.length,
       alunos: alunos.length,
       turmas: turmas.length,
       aulas: aulas.length,
       presencas: presencasData.length,
-      notas: notasData.length
+      notas: notasData.length,
+      historico: historicoEscolarData.length,
+      preCadastros: preCadastrosData.length,
+      atestados: atestadosData.length,
+      diasNaoLetivos: diasNaoLetivos.length,
+      logs: logsData.length
     };
 
     console.log('🎉 Reset concluído com sucesso!');
@@ -611,7 +609,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Banco resetado e populado com sucesso!',
-      summary: `Criados: ${resumo.usuarios} usuários, ${resumo.cursos} cursos, ${resumo.materias} matérias, ${resumo.professores} professores, ${resumo.alunos} alunos, ${resumo.turmas} turmas, ${resumo.aulas} aulas, ${resumo.presencas} presenças e ${resumo.notas} notas.`,
+      summary: `Criados: ${JSON.stringify(resumo)}`,
       data: resumo
     });
 
