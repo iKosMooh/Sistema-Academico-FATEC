@@ -383,12 +383,13 @@ export default function PreCadastroPage() {
               console.warn('Erros de validação:', formErrors);
             }
           )}
+          className='bg-white shadow-md rounded-lg p-6'
         >
           {/* Etapa 1: Dados Pessoais */}
           {etapaAtual === 1 && (
-            <div className="card">
+            <div className="card bg-white shadow-md rounded-lg p-6">
               <div style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
+                 <h2 className='text-gray-800' style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
                   <div style={{ 
                     width: '32px', 
                     height: '32px', 
@@ -584,7 +585,7 @@ export default function PreCadastroPage() {
 
           {/* Etapa 2: Endereço e Curso */}
           {etapaAtual === 2 && (
-            <div className="card">
+            <div className="card bg-white shadow-md rounded-lg p-6">
               <div style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
                   <div style={{ 
@@ -723,7 +724,7 @@ export default function PreCadastroPage() {
 
           {/* Etapa 3: Documentos */}
           {etapaAtual === 3 && (
-            <div className="card">
+            <div className="card bg-white shadow-md rounded-lg p-6">
               <div style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem', fontWeight: 'bold' }}>
                   <div style={{ 
@@ -855,7 +856,7 @@ export default function PreCadastroPage() {
 
           {/* Etapa 4: Sucesso */}
           {etapaAtual === 4 && (
-            <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+            <div className="card bg-white shadow-md rounded-lg p-6" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
               <div style={{
                 width: '64px',
                 height: '64px',

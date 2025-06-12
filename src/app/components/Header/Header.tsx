@@ -8,24 +8,23 @@ import { useState, useEffect } from "react";
 
 // Importação condicional do hook de permissões
 function usePermissionsWithFallback() {
-  const { data: session } = useSession();
-  
-  // Fallback manual se o hook não existir ou falhar
-  const userType = session?.user?.tipo;
-  
-  return {
-    userType,
-    isAdmin: userType === 'Admin',
-    canAccessCoordenador: userType === 'Admin' || userType === 'Coordenador',
-    canAccessProfessor: userType === 'Admin' || userType === 'Coordenador' || userType === 'Professor',
-    session,
-  };
+    const { data: session } = useSession();
+
+    // Fallback manual se o hook não existir ou falhar
+    const userType = session?.user?.tipo;
+
+    return {
+        userType,
+        isAdmin: userType === 'Admin',
+        canAccessCoordenador: userType === 'Admin' || userType === 'Coordenador',
+        canAccessProfessor: userType === 'Admin' || userType === 'Coordenador' || userType === 'Professor',
+        session,
+    };
 }
 
 export default function Header() {
     const pathname = usePathname();
     const isLoginPage = pathname === "/pages/login";
-    const isPainelAulasPage = pathname === "/pages/admin/painel-aulas";
     const router = useRouter();
     const { data: session } = useSession();
     const { userType, isAdmin, canAccessCoordenador, canAccessProfessor } = usePermissionsWithFallback();
@@ -118,32 +117,32 @@ export default function Header() {
 
     const getUserDisplayName = () => {
         if (!session?.user) return 'Usuário';
-        
+
         const user = session.user;
-        
+
         console.log('Dados do usuário na sessão:', user); // Debug
-        
+
         // Tentar buscar nome completo primeiro
         if (user.nome && user.sobrenome) {
             return `${user.nome} ${user.sobrenome}`;
         }
-        
+
         // Fallback para nome individual
         if (user.nome) {
             return user.nome;
         }
-        
-        
+
+
         // Fallback para email
         if (user.email) {
             return user.email.split('@')[0];
         }
-        
+
         // Fallback para CPF formatado
         if (user.cpf) {
             return `CPF: ${user.cpf}`;
         }
-        
+
         return 'Usuário';
     };
 
@@ -218,11 +217,13 @@ export default function Header() {
                                 <HomeIcon className="w-6 h-6" />
                             </button>
                         </div>
-
                         {session ? (
                             <div className="flex items-center relative">
                                 {/* Informações do Usuário */}
-                                <div className="hidden md:block mr-4 text-right">
+                                <div
+                                    className="hidden md:block mr-4 text-right cursor-pointer"
+                                    onClick={() => router.push('/pages/perfil')}
+                                >
                                     <p className="text-white font-medium text-sm">Bem-vindo,</p>
                                     <p className="text-white font-semibold truncate max-w-[120px]">
                                         {getUserDisplayName()}
@@ -233,13 +234,18 @@ export default function Header() {
                                 </div>
 
                                 {/* Avatar + Dropdown */}
-                                <div className="relative">
+                                <div
+                                    className="relative cursor-pointer"
+                                    onClick={() => router.push('/pages/perfil')}
+                                >
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setShowDropdown(!showDropdown);
+                                            router.push('/pages/perfil');
                                         }}
                                         className="user-avatar bg-white bg-opacity-20 p-1 rounded-full transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                                        tabIndex={-1}
                                     >
                                         <div className="bg-gray-200 border-2 border-dashed rounded-full w-10 h-10 flex items-center justify-center">
                                             {session.user?.fotoPath ? (
@@ -255,7 +261,6 @@ export default function Header() {
                                             )}
                                         </div>
                                     </button>
-
                                     {/* Dropdown Menu */}
                                     {showDropdown && (
                                         <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border py-2 z-50">
@@ -274,17 +279,16 @@ export default function Header() {
                                                 {getNavigationItems().map((item, index) => {
                                                     const Icon = item.icon;
                                                     const isActive = pathname === item.href;
-                                                    
+
                                                     return (
                                                         <Link
                                                             key={index}
                                                             href={item.href}
                                                             onClick={() => setShowDropdown(false)}
-                                                            className={`flex items-center px-4 py-2 text-sm hover:bg-blue-50 transition-colors ${
-                                                                isActive 
-                                                                    ? 'bg-blue-100 text-blue-800 border-r-2 border-blue-500' 
-                                                                    : 'text-gray-700'
-                                                            }`}
+                                                            className={`flex items-center px-4 py-2 text-sm hover:bg-blue-50 transition-colors ${isActive
+                                                                ? 'bg-blue-100 text-blue-800 border-r-2 border-blue-500'
+                                                                : 'text-gray-700'
+                                                                }`}
                                                         >
                                                             <Icon className="w-4 h-4 mr-3" />
                                                             {item.label}
@@ -313,25 +317,44 @@ export default function Header() {
                                 {/* Botão Sair (Desktop) */}
                                 {!isLoginPage && (
                                     <button
-                                        className="ml-4 hidden lg:flex items-center px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition duration-300 shadow-md text-white"
+                                        className="ml-4 flex items-center px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition duration-300 shadow-md text-white"
                                         type="button"
                                         onClick={handleLogout}
+                                    // Removido hidden lg:flex para garantir que o botão sempre aparece no desktop
                                     >
                                         <ArrowRightStartOnRectangleIcon className="w-5 h-5 mr-2" />
                                         <span className="font-medium">Sair</span>
                                     </button>
                                 )}
+                                {/* Botão Pré-Cadastro sempre visível e à direita */}
+                                <Link
+                                    href="/pages/pre-cadastro"
+                                    className="flex items-center px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-300 shadow-md text-white ml-4 hover:scale-105"
+                                >
+                                    <UserIcon className="w-5 h-5 mr-2" />
+                                    <span className="font-medium">Pré-Cadastro</span>
+                                </Link>
                             </div>
                         ) : (
                             // Usuário não logado
                             !isLoginPage && (
-                                <Link
-                                    href="/pages/login"
-                                    className="flex items-center px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 transition duration-300 shadow-md text-white"
-                                >
-                                    <UserIcon className="w-5 h-5 mr-2 " />
-                                    <span className="font-medium ">Entrar</span>
-                                </Link>
+                                <>
+                                    <Link
+                                        href="/pages/login"
+                                        className="flex items-center px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 transition duration-300 shadow-md text-white ml-2"
+                                    >
+                                        <UserIcon className="w-5 h-5 mr-2 " />
+                                        <span className="font-medium ">Entrar</span>
+                                    </Link>
+                                    {/* Botão Pré-Cadastro sempre visível e à direita */}
+                                    <Link
+                                        href="/pages/pre-cadastro"
+                                        className="flex items-center px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition duration-300 shadow-md text-white ml-4 hover:scale-105"
+                                    >
+                                        <UserIcon className="w-5 h-5 mr-2" />
+                                        <span className="font-medium">Pré-Cadastro</span>
+                                    </Link>
+                                </>
                             )
                         )}
                     </div>
@@ -406,15 +429,23 @@ export default function Header() {
                         })}
                     </div>
 
-                    {/* Login/Logout */}
-                    <div className="mt-auto">
+                    {/* Login/Logout e Pré-Cadastro */}
+                    <div className="mt-auto flex flex-col gap-2">
+                        <Link
+                            href="/pages/pre-cadastro"
+                            onClick={() => setShowMobileMenu(false)}
+                            className="flex items-center px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition duration-300 hover:scale-105"
+                        >
+                            <UserIcon className="w-5 h-5 mr-2" />
+                            Pré-Cadastro
+                        </Link>
                         {session ? (
                             <button
                                 onClick={() => {
                                     setShowMobileMenu(false);
                                     handleLogout();
                                 }}
-                                className="flex items-center w-full px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium"
+                                className="flex items-center w-full px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition duration-300 hover:scale-105"
                             >
                                 <ArrowRightStartOnRectangleIcon className="w-5 h-5 mr-2" />
                                 Sair
@@ -423,7 +454,7 @@ export default function Header() {
                             <Link
                                 href="/pages/login"
                                 onClick={() => setShowMobileMenu(false)}
-                                className="flex items-center px-3 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium"
+                                className="flex items-center px-3 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition duration-300 hover:scale-105"
                             >
                                 <UserIcon className="w-5 h-5 mr-2" />
                                 Entrar
@@ -435,7 +466,7 @@ export default function Header() {
 
             {/* Overlay para fechar dropdown desktop */}
             {showDropdown && (
-                <div 
+                <div
                     className="fixed inset-0 z-40 hidden md:block"
                     onClick={() => setShowDropdown(false)}
                 />

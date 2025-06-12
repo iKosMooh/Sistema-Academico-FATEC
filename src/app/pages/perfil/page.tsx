@@ -54,6 +54,7 @@ export default function PerfilPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [isAluno, setIsAluno] = useState<boolean>(true);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -65,6 +66,13 @@ export default function PerfilPage() {
         // Endereço pode ser buscado via API se necessário
       });
       setFotoPreview(session.user.fotoPath || null);
+
+      // Verifica se o usuário é aluno
+      if (session.user.tipo === "Aluno") {
+        setIsAluno(true);
+      } else {
+        setIsAluno(false);
+      }
     }
   }, [session]);
 
@@ -206,7 +214,9 @@ export default function PerfilPage() {
         <div className="flex gap-4 mb-8">
           <button className={`px-4 py-2 rounded ${tab === "dados" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("dados")}>Dados Pessoais</button>
           <button className={`px-4 py-2 rounded ${tab === "senha" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("senha")}>Senha</button>
-          <button className={`px-4 py-2 rounded ${tab === "endereco" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("endereco")}>Endereço</button>
+          {isAluno && (
+            <button className={`px-4 py-2 rounded ${tab === "endereco" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("endereco")}>Endereço</button>
+          )}
           <button className={`px-4 py-2 rounded ${tab === "foto" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setTab("foto")}>Foto</button>
         </div>
         {error && <div className="text-red-600 mb-4">{error}</div>}
@@ -219,7 +229,7 @@ export default function PerfilPage() {
             <label>Sobrenome</label>
             <input className="bg-white text-gray-900" type="text" value={form.sobrenome || ""} onChange={e => setForm({ ...form, sobrenome: e.target.value })} />
             <label>Email</label>
-            <input className="bg-white text-gray-900" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
+            <input disabled className="bg-white text-gray-900" type="email" value={form.email || ""} onChange={e => setForm({ ...form, email: e.target.value })} />
             <button type="submit">Salvar</button>
           </form>
         )}
@@ -236,10 +246,34 @@ export default function PerfilPage() {
           </form>
         )}
 
-        {tab === "endereco" && (
+        {isAluno && tab === "endereco" && (
           <form className="bg-gray-200" onSubmit={handleEndereco}>
             <label>CEP</label>
-            <input className="bg-white text-gray-900" type="text" value={form.cep || ""} onChange={e => setForm({ ...form, cep: e.target.value })} />
+            <input
+              className="bg-white text-gray-900"
+              type="text"
+              value={form.cep || ""}
+              onChange={e => setForm({ ...form, cep: e.target.value })}
+              onBlur={async (e) => {
+                const cep = e.target.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                  try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    if (!data.erro) {
+                      setForm(prev => ({
+                        ...prev,
+                        rua: data.logradouro || prev.rua,
+                        cidade: data.localidade || prev.cidade,
+                        uf: data.uf || prev.uf,
+                      }));
+                    }
+                  } catch {
+                    // Silencie erro de consulta de CEP
+                  }
+                }
+              }}
+            />
             <label>Rua</label>
             <input className="bg-white text-gray-900" type="text" value={form.rua || ""} onChange={e => setForm({ ...form, rua: e.target.value })} />
             <label>Cidade</label>
@@ -248,6 +282,10 @@ export default function PerfilPage() {
             <input className="bg-white text-gray-900" type="text" value={form.uf || ""} onChange={e => setForm({ ...form, uf: e.target.value })} />
             <label>Número</label>
             <input className="bg-white text-gray-900" type="text" value={form.numero || ""} onChange={e => setForm({ ...form, numero: e.target.value })} />
+            {/* Mensagem de erro customizada para campo obrigatório */}
+            {!form.numero || form.numero.trim() === "" ? (
+              <span className="text-red-600 text-sm mt-1 block">Digitar o número é necessário</span>
+            ) : null}
             <label>Complemento</label>
             <input className="bg-white text-gray-900" type="text" value={form.complemento || ""} onChange={e => setForm({ ...form, complemento: e.target.value })} />
             <button type="submit">Salvar Endereço</button>
@@ -258,7 +296,13 @@ export default function PerfilPage() {
           <form className="bg-gray-200" onSubmit={handleFoto}>
             <div className="mb-4">
               {fotoPreview ? (
-                <Image src={fotoPreview} alt="Foto de perfil" width={120} height={120} className="rounded-full object-cover" />
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setTab("dados")}
+                  title="Ir para perfil"
+                >
+                  <Image src={fotoPreview} alt="Foto de perfil" width={120} height={120} className="rounded-full object-cover" />
+                </span>
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-gray-500">Sem foto</div>
               )}
