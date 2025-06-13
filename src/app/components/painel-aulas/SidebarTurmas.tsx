@@ -368,7 +368,7 @@ export function SidebarTurmas() {
       </aside>
       
       {/* Conteúdo principal */}
-      <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-72" : ""}`}>
+      <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-0" : ""}`}>
         {activeView === 'painel' && selectedKey === 'atestados' ? (
           <AtestadosProfessor />
         ) : activeView === 'painel' && selectedKey === 'planejamento' ? (
