@@ -200,9 +200,14 @@ export async function handleCrud<T = unknown>(payload: CrudParams): Promise<T> {
         if (typeof model.update !== 'function') {
           throw new Error('Método update não disponível no modelo.');
         }
+        // Corrigir anoLetivo para número se for string (para tabela turmas)
+        const dataToUpdate = { ...data };
+        if (table === 'turmas' && typeof dataToUpdate.anoLetivo === 'string') {
+          dataToUpdate.anoLetivo = Number(dataToUpdate.anoLetivo);
+        }
         return (await model.update({
           where: { [primaryKey as string]: data[primaryKey as string] },
-          data,
+          data: dataToUpdate,
         })) as T;
 
       case 'delete':
