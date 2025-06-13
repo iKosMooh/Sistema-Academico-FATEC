@@ -33,7 +33,32 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-blue-900 to-blue-800 text-white w-full px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-10">
+          {/* QR Code GitHub - canto esquerdo, ocupa uma coluna inteira */}
+          <div className="flex flex-col items-center md:items-start justify-center min-h-[140px]">
+            <div className="w-28 h-28 md:w-36 md:h-36 flex items-center justify-center bg-white rounded-xl shadow-lg mb-2">
+              <a
+                href="https://github.com/Softmare/sistema-academico"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Repositório GitHub"
+                className="block"
+              >
+                <Image
+                  src="/qr-code-git.svg"
+                  alt="QR Code GitHub"
+                  width={120}
+                  height={120}
+                  className="w-24 h-24 md:w-32 md:h-32 object-contain"
+                  priority
+                />
+              </a>
+            </div>
+            <span className="text-xs text-blue-100 mt-1 text-center md:text-left max-w-[120px]">
+              Acesse o código no GitHub
+            </span>
+          </div>
+
           {/* 1 - Fatec Itapira */}
           <div>
             <h3 className="font-bold text-xl border-b border-blue-400 pb-2">Fatec Itapira</h3>
@@ -130,10 +155,10 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-lg mb-3 border-b border-blue-400 pb-2">Site Suporte</h3>
             <div className="flex flex-col gap-2 mt-2">
-              <a href="mailto:caiomagalhaesdesouza@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">caiomagalhaesdesouza@gmail.com</a>
-              <a href="mailto:henrique.cardoso@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">henrique.cardoso@gmail.com</a>
-              <a href="mailto:gustavo.ribeiro@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">gustavo.ribeiro@gmail.com</a>
-              <a href="mailto:luis.eduardo@gmail.com" className="text-white hover:text-blue-200 underline transition-colors">luis.eduardo@gmail.com</a>
+              <a href="mailto:caiomagalhaesdesouza@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-xs">caiomagalhaesdesouza@gmail.com</a>
+              <a href="mailto:henrique.cardoso@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-xs">henrique.cardoso@gmail.com</a>
+              <a href="mailto:gustavo.ribeiro@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-xs">gustavo.ribeiro@gmail.com</a>
+              <a href="mailto:luis.eduardo@gmail.com" className="text-white hover:text-blue-200 underline transition-colors text-xs">luis.eduardo@gmail.com</a>
             </div>
           </div>
         </div>

@@ -646,7 +646,9 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                   <div className="text-base text-gray-600">
                     CPF: {isValidCPF(preCadastro.cpf) ? formatCPF(preCadastro.cpf) : preCadastro.cpf}
                   </div>
-                  <div className="text-base text-gray-600">Email: {preCadastro.email}</div>
+                  <div className="text-base text-gray-600 break-all max-w-xs md:max-w-sm">
+                    Email: {preCadastro.email}
+                  </div>
                   <div className="text-base text-gray-600">Curso: {preCadastro.curso?.nomeCurso}</div>
                 </div>
                 <div className="text-right">
