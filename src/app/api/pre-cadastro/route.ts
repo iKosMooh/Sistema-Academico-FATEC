@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { PreCadastroFormSchema } from '@/lib/schemas';
+import { PreCadastroSchema } from '@/lib/schemas';
 import { ZodError } from 'zod';
 
 const prisma = new PrismaClient();
@@ -11,8 +11,28 @@ export async function POST(request: NextRequest) {
     console.log('Dados recebidos:', body);
 
     // Validar dados com schema específico para formulário
-    const validatedData = PreCadastroFormSchema.parse(body);
-    console.log('Dados validados:', validatedData);
+    const validatedData = PreCadastroSchema.parse(body);
+    // Corrigir idade para telefone do responsável
+    let nascimento: Date;
+    if (validatedData.dataNasc instanceof Date) {
+      nascimento = validatedData.dataNasc;
+    } else {
+      nascimento = new Date(validatedData.dataNasc);
+    }
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+    if (idade < 18) {
+      if (!validatedData.telefoneResponsavel || validatedData.telefoneResponsavel.length < 10) {
+        return NextResponse.json(
+          { error: 'Se você é menor de 18 anos, o telefone do responsável é obrigatório e deve ter pelo menos 10 dígitos.' },
+          { status: 400 }
+        );
+      }
+    }
 
     try {
       // Verificar se CPF já existe no pré-cadastro
@@ -84,47 +104,57 @@ export async function POST(request: NextRequest) {
         idPreCadastro: preCadastro.idPreCadastro
       });
 
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error('Erro do banco de dados:', dbError);
 
       // Tratar erros específicos do banco de dados
-      if (dbError.code === 'P2021' || 
-          dbError.message?.includes('does not exist') ||
-          dbError.message?.includes('PreCadastro')) {
-        
-        console.log('Tabelas de pré-cadastro não encontradas, simulando validação...');
-        
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Dados validados com sucesso. Sistema em configuração final.',
-          simulated: true,
-          data: validatedData
-        });
-      }
+      if (
+        typeof dbError === 'object' &&
+        dbError !== null &&
+        ('code' in dbError || 'message' in dbError)
+      ) {
+        const code = (dbError as { code?: string }).code;
+        const message = (dbError as { message?: string }).message;
 
-      // Erro de chave duplicada
-      if (dbError.code === 'P2002') {
-        const field = dbError.meta?.target?.[0];
-        if (field === 'cpf') {
+        if (
+          code === 'P2021' ||
+          (typeof message === 'string' && (message.includes('does not exist') || message.includes('PreCadastro')))
+        ) {
+          console.log('Tabelas de pré-cadastro não encontradas, simulando validação...');
+
+          return NextResponse.json({
+            success: true,
+            message: 'Dados validados com sucesso. Sistema em configuração final.',
+            simulated: true,
+            data: validatedData
+          });
+        }
+
+        // Erro de chave duplicada
+        if (code === 'P2002') {
+          const meta = (dbError as { meta?: { target?: string[] } }).meta;
+          const field = meta?.target?.[0];
+          if (field === 'cpf') {
+            return NextResponse.json(
+              { error: 'CPF já cadastrado no sistema' },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Erro de foreign key
+        if (code === 'P2003') {
           return NextResponse.json(
-            { error: 'CPF já cadastrado no sistema' },
+            { error: 'Curso selecionado não existe' },
             { status: 400 }
           );
         }
       }
 
-      // Erro de foreign key
-      if (dbError.code === 'P2003') {
-        return NextResponse.json(
-          { error: 'Curso selecionado não existe' },
-          { status: 400 }
-        );
-      }
-      
       throw dbError;
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao processar pré-cadastro:', error);
     
     // Erro de validação Zod
@@ -141,14 +171,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Outros erros relacionados ao banco
-    if (error.code === 'P2021' || 
-        error.message?.includes('does not exist') ||
-        error.message?.includes('PreCadastro')) {
-      
-      return NextResponse.json({
-        error: 'Sistema de pré-cadastro em configuração final.',
-        code: 'DB_NOT_CONFIGURED'
-      }, { status: 503 });
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ('code' in error || 'message' in error)
+    ) {
+      const code = (error as { code?: string }).code;
+      const message = (error as { message?: string }).message;
+
+      if (
+        code === 'P2021' ||
+        (typeof message === 'string' && (message.includes('does not exist') || message.includes('PreCadastro')))
+      ) {
+        return NextResponse.json({
+          error: 'Sistema de pré-cadastro em configuração final.',
+          code: 'DB_NOT_CONFIGURED'
+        }, { status: 503 });
+      }
     }
 
     // Erro genérico
@@ -170,7 +209,8 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
     
     try {
-      const where = status && status !== 'Todos' ? { status: status as any } : {};
+      type PreCadastroStatus = 'Pendente' | 'Aprovado' | 'Rejeitado'; // Adapte conforme seus status válidos
+      const where = status && status !== 'Todos' ? { status: status as PreCadastroStatus } : {};
       
       const [preCadastros, total] = await Promise.all([
         prisma.preCadastro.findMany({
@@ -216,31 +256,46 @@ export async function GET(request: NextRequest) {
         }
       });
 
-    } catch (dbError: any) {
-      if (dbError.code === 'P2021' || 
-          dbError.message?.includes('does not exist') ||
-          dbError.message?.includes('PreCadastro')) {
-        
+    } catch (dbError: unknown) {
+      if (
+        typeof dbError === 'object' &&
+        dbError !== null &&
+        ('code' in dbError || 'message' in dbError)
+      ) {
+        const code = (dbError as { code?: string }).code;
+        const message = (dbError as { message?: string }).message;
+
+        if (
+          code === 'P2021' ||
+          (typeof message === 'string' && (message.includes('does not exist') || message.includes('PreCadastro')))
+        ) {
+          return NextResponse.json({
+            success: true,
+            data: [],
+            pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
+          });
+        }
+      }
+      throw dbError;
+    }
+
+  } catch (error: unknown) {
+    console.error('Erro ao buscar pré-cadastros:', error);
+    
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ('code' in error || (typeof (error as { message?: string }).message === 'string' && (error as { message?: string }).message?.includes('does not exist')))
+    ) {
+      const code = (error as { code?: string }).code;
+      const message = (error as { message?: string }).message;
+      if (code === 'P2021' || message?.includes('does not exist')) {
         return NextResponse.json({
           success: true,
           data: [],
           pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
         });
       }
-      
-      throw dbError;
-    }
-
-  } catch (error: any) {
-    console.error('Erro ao buscar pré-cadastros:', error);
-    
-    if (error.code === 'P2021' || 
-        error.message?.includes('does not exist')) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
-      });
     }
     
     return NextResponse.json(

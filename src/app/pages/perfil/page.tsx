@@ -288,6 +288,8 @@ export default function PerfilPage() {
             ) : null}
             <label>Complemento</label>
             <input className="bg-white text-gray-900" type="text" value={form.complemento || ""} onChange={e => setForm({ ...form, complemento: e.target.value })} />
+            {/* Mensagem de erro do formulário (acima do botão) */}
+            {error && <div className="text-red-600 mb-2">{error}</div>}
             <button type="submit">Salvar Endereço</button>
           </form>
         )}

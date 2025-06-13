@@ -4,6 +4,7 @@ import { TipoDocumentoEnum } from '@/lib/schemas';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { mkdir } from 'fs/promises';
+import { formatCPF } from '@/utils/cpf-rg'; // Certifique-se que existe
 
 const prisma = new PrismaClient();
 
@@ -49,7 +50,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const uploadDir = join(process.cwd(), 'uploads', 'pre-cadastros', idPreCadastro.toString());
+      // Diretório correto: /public/pastas/alunos/{cpf-formatado}
+      const cpfFormatado = formatCPF(preCadastro.cpf);
+      const uploadDir = join(process.cwd(), 'public', 'pastas', 'alunos', cpfFormatado);
       
       // Criar diretório se não existir
       try {
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
         console.log('Diretório já existe ou erro na criação:', error);
       }
 
-      const documentosUpload = [];
+      const documentosUpload: Awaited<ReturnType<typeof prisma.documentosPreCadastro.create>>[] = [];
 
       for (let i = 0; i < documentos.length; i++) {
         const file = documentos[i];
@@ -87,24 +90,12 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // NOVO: Salvar arquivos em /public/alunos/{cpf}
-        // Buscar o CPF do pré-cadastro
-        const cpfAluno = preCadastro.cpf;
-        const uploadDir = join(process.cwd(), 'public', 'alunos', cpfAluno);
-
-        // Criar diretório se não existir
-        try {
-          await mkdir(uploadDir, { recursive: true });
-        } catch (error) {
-          console.log('Diretório já existe ou erro na criação:', error);
-        }
-
         // Gerar nome único para o arquivo
         const timestamp = Date.now();
         const extension = file.name.substring(file.name.lastIndexOf('.'));
         const nomeArquivo = `${tipoValidado}_${timestamp}${extension}`;
         const caminhoCompleto = join(uploadDir, nomeArquivo);
-        const caminhoRelativo = `alunos/${cpfAluno}/${nomeArquivo}`; // Corrigido para o caminho correto
+        const caminhoRelativo = `pastas/alunos/${cpfFormatado}/${nomeArquivo}`;
 
         // Salvar arquivo
         const bytes = await file.arrayBuffer();
@@ -182,6 +173,7 @@ export async function POST(request: NextRequest) {
         }, { status: 503 });
       }
     }
+    
     
     return NextResponse.json(
       { error: 'Erro interno do servidor' },

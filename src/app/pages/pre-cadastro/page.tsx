@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PreCadastroFormSchema, type PreCadastroFormData, type TipoDocumento } from '@/lib/schemas';
+import { PreCadastroSchema, type PreCadastroFormData, type TipoDocumento } from '@/lib/schemas';
 import { isValidCPF, isValidRG, formatCPF, formatRG } from '@/utils/cpf-rg';
 
 interface Curso {
@@ -61,8 +61,8 @@ export default function PreCadastroPage() {
     trigger,
     setError,
     clearErrors
-  } = useForm<PreCadastroFormData>({
-    resolver: zodResolver(PreCadastroFormSchema),
+  } = useForm({
+    resolver: zodResolver(PreCadastroSchema),
     mode: 'onChange'
   });
 
@@ -190,7 +190,7 @@ export default function PreCadastroPage() {
   };
 
   // Adicione um log para depuração do submit
-  const onSubmit = async (data: PreCadastroFormData) => {
+  const onSubmit: import("react-hook-form").SubmitHandler<PreCadastroFormData> = async (data) => {
     console.log("onSubmit chamado", data, arquivos);
     setMensaje(""); // Limpa mensagem anterior
 

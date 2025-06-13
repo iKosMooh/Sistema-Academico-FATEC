@@ -419,7 +419,8 @@ export const PreCadastroSchema = z.object({
   rg: z.string()
     .min(7, 'RG deve ter pelo menos 7 dígitos')
     .max(12, 'RG muito longo')
-    .regex(/^\d+$/, 'RG deve conter apenas números'),
+    .transform(val => val.replace(/\D/g, '')) // Aceita RG com pontos/hífens e remove
+    .refine(val => /^\d+$/.test(val), 'RG deve conter apenas números'),
   nomeMae: z.string()
     .min(5, 'Nome da mãe deve ter pelo menos 5 caracteres')
     .max(160, 'Nome muito longo')
@@ -439,7 +440,10 @@ export const PreCadastroSchema = z.object({
     }, 'Data de nascimento deve estar entre 14 e 100 anos atrás'),
   email: EmailSchema,
   telefone: TelefoneSchema,
-  telefoneResponsavel: TelefoneSchema.optional().nullable(),
+  telefoneResponsavel: z
+    .string()
+    .optional()
+    .nullable(),
   nomeResponsavel: z.string()
     .max(100, 'Nome muito longo')
     .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
@@ -471,9 +475,19 @@ export const PreCadastroSchema = z.object({
     .nullable(),
   
   // Curso
-  idCursoDesejado: z.number()
-    .int()
-    .positive('Selecione um curso válido'),
+  idCursoDesejado: z.preprocess(
+    (val) => {
+      if (typeof val === 'string' && val.trim() !== '') {
+        const num = Number(val);
+        if (isNaN(num)) return undefined;
+        return num;
+      }
+      return val;
+    },
+    z.number({ required_error: 'Selecione um curso válido' })
+      .int('Selecione um curso válido')
+      .positive('Selecione um curso válido')
+  ),
   
   // Status e dados de controle
   status: StatusPreCadastroEnum.default('Pendente'),
@@ -482,99 +496,25 @@ export const PreCadastroSchema = z.object({
   avaliadoPor: z.string().min(11).max(14).optional().nullable(),
   observacoes: z.string().max(1000, 'Observações muito longas').optional().nullable(),
   motivoRejeicao: z.string().max(1000, 'Motivo muito longo').optional().nullable(),
-});
-
-// Schema para formulário de pré-cadastro (frontend) - MELHORADO
-export const PreCadastroFormSchema = z.object({
-  nome: z.string()
-    .min(2, 'Nome deve ter pelo menos 2 caracteres')
-    .max(100, 'Nome muito longo')
-    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras')
-    .transform(name => name.trim().replace(/\s+/g, ' ')),
-  sobrenome: z.string()
-    .min(2, 'Sobrenome deve ter pelo menos 2 caracteres')
-    .max(150, 'Sobrenome muito longo')
-    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Sobrenome deve conter apenas letras')
-    .transform(name => name.trim().replace(/\s+/g, ' ')),
-  cpf: CPFSchema,
-  rg: z.string()
-    .min(7, 'RG deve ter pelo menos 7 dígitos')
-    .max(12, 'RG muito longo')
-    .regex(/^\d+$/, 'RG deve conter apenas números'),
-  nomeMae: z.string()
-    .min(5, 'Nome da mãe deve ter pelo menos 5 caracteres')
-    .max(160, 'Nome muito longo')
-    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Nome deve conter apenas letras')
-    .transform(name => name.trim().replace(/\s+/g, ' ')),
-  nomePai: z.string()
-    .max(160, 'Nome muito longo')
-    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
-    .optional()
-    .transform(val => val ? val.trim().replace(/\s+/g, ' ') : undefined),
-  dataNasc: z.string()
-    .min(1, 'Data de nascimento é obrigatória')
-    .refine((date) => {
-      const inputDate = new Date(date);
-      const today = new Date();
-      const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
-      const maxDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
-      return inputDate >= minDate && inputDate <= maxDate;
-    }, 'Idade deve estar entre 14 e 100 anos'),
-  email: EmailSchema,
-  telefone: TelefoneSchema,
-  telefoneResponsavel: TelefoneSchema.optional(),
-  nomeResponsavel: z.string()
-    .max(100, 'Nome muito longo')
-    .regex(/^[a-zA-ZÀ-ÿ\s]*$/, 'Nome deve conter apenas letras')
-    .optional()
-    .transform(val => val ? val.trim().replace(/\s+/g, ' ') : undefined),
-  
-  // Endereço
-  cep: CEPSchema,
-  rua: z.string()
-    .min(5, 'Rua deve ter pelo menos 5 caracteres')
-    .max(255, 'Rua muito longa')
-    .transform(val => val.trim()),
-  cidade: z.string()
-    .min(2, 'Cidade deve ter pelo menos 2 caracteres')
-    .max(100, 'Cidade muito longa')
-    .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Cidade deve conter apenas letras')
-    .transform(val => val.trim()),
-  uf: z.string()
-    .length(2, 'UF deve ter exatamente 2 caracteres')
-    .regex(/^[A-Z]{2}$/, 'UF deve conter apenas letras maiúsculas')
-    .refine((uf) => {
-      const ufsValidas = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
-      return ufsValidas.includes(uf);
-    }, 'UF inválida'),
-  numero: z.string()
-    .min(1, 'Número é obrigatório')
-    .max(10, 'Número muito longo'),
-  complemento: z.string()
-    .max(100, 'Complemento muito longo')
-    .optional()
-    .transform(val => val ? val.trim() : undefined),
-  
-  // Curso
-  idCursoDesejado: z.number()
-    .int()
-    .positive('Selecione um curso válido'),
 })
 .superRefine((data, ctx) => {
   // Validação condicional: telefoneResponsavel obrigatório se menor de 18 anos
-  const idade = (() => {
-    const nascimento = new Date(data.dataNasc);
-    const hoje = new Date();
-    let idade = hoje.getFullYear() - nascimento.getFullYear();
-    const m = hoje.getMonth() - nascimento.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-      idade--;
-    }
-    return idade;
-  })();
+  let nascimento: Date;
+  if (data.dataNasc instanceof Date) {
+    nascimento = data.dataNasc;
+  } else {
+    nascimento = new Date(data.dataNasc);
+  }
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  const m = hoje.getMonth() - nascimento.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+    idade--;
+  }
 
+  // Só exige telefone do responsável se idade < 18
   if (idade < 18) {
-    if (!data.telefoneResponsavel || data.telefoneResponsavel.length < 10) {
+    if (!data.telefoneResponsavel || data.telefoneResponsavel.replace(/\D/g, '').length < 10) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['telefoneResponsavel'],
@@ -582,6 +522,7 @@ export const PreCadastroFormSchema = z.object({
       });
     }
   }
+  // Se maior de idade, não adiciona erro para telefone do responsável
 });
 
 // Schema para DocumentosPreCadastro - MELHORADO
@@ -643,17 +584,6 @@ export const UploadDocumentosSchema = z.object({
   })).min(1, 'Pelo menos um documento é obrigatório'),
 });
 
-// =========================
-// SCHEMAS PARA PRÉ-CADASTRO - REMOVIDO (duplicado acima)
-// =========================
-
-// Esta seção foi removida para evitar duplicação de schemas
-// Os schemas de pré-cadastro já estão definidos na seção anterior com validações melhoradas
-
-// =========================
-// TIPOS TYPESCRIPT DERIVADOS - CORRIGIDOS
-// =========================
-
 export type AlunosData = z.infer<typeof AlunosSchema>;
 export type EnderecosData = z.infer<typeof EnderecosSchema>;
 export type ContatoAlunoData = z.infer<typeof ContatoAlunoSchema>;
@@ -678,7 +608,7 @@ export type EnvioAtestadoData = z.infer<typeof EnvioAtestadoSchema>;
 // Novos tipos para pré-cadastro
 export type PreCadastroData = z.infer<typeof PreCadastroSchema>;
 export type DocumentosPreCadastroData = z.infer<typeof DocumentosPreCadastroSchema>;
-export type PreCadastroFormData = z.infer<typeof PreCadastroFormSchema>;
+export type PreCadastroFormData = z.infer<typeof PreCadastroSchema>;
 export type AvaliacaoPreCadastroData = z.infer<typeof AvaliacaoPreCadastroSchema>;
 export type StatusPreCadastro = z.infer<typeof StatusPreCadastroEnum>;
 export type TipoDocumento = z.infer<typeof TipoDocumentoEnum>;
@@ -730,10 +660,6 @@ export function getAccessibleLevels(userType: TipoUsuario): TipoUsuario[] {
     .filter(([, level]) => level <= userLevel)
     .map(([role]) => role as TipoUsuario);
 }
-
-// =========================
-// MAPEAMENTO DE TABELAS CORRETO
-// =========================
 
 // Mapeamento baseado no schema.prisma real
 export const TABLE_MAPPING = {
@@ -835,6 +761,38 @@ export function validateAulaData(data: unknown) {
   return AulaSchema.parse(data);
 }
 
+// Schema para dados do dashboard da turma
+export const TurmaDashboardSchema = z.object({
+  turma: z.object({
+    idTurma: z.number(),
+    nomeTurma: z.string(),
+    anoLetivo: z.number(),
+    curso: z.object({
+      nomeCurso: z.string(),
+      cargaHorariaTotal: z.number()
+    })
+  }),
+  estatisticas: z.object({
+    totalAlunos: z.number(),
+    totalAulas: z.number(),
+    aulasMinistradas: z.number(),
+    mediaGeralTurma: z.number(),
+    frequenciaMedia: z.number()
+  }),
+  graficos: z.object({
+    mediaNotas: z.array(z.object({
+      materia: z.string(), // Mudança: agora é matéria ao invés de aluno
+      media: z.number(),
+      totalNotas: z.number()
+    })),
+    frequenciaPorMateria: z.array(z.object({
+      materia: z.string(),
+      frequencia: z.number()
+    }))
+  })
+});
+
+export type TurmaDashboardData = z.infer<typeof TurmaDashboardSchema>;
 // Função específica para validar CursoMaterias
 export function validateCursoMateriasData(data: unknown) {
   return CursoMateriasSchema.parse(data);
@@ -870,36 +828,3 @@ export function validateCrudPayload(payload: {
 
 // Adicionar tipo específico para aulas recorrentes
 export type AulasRecorrentesData = z.infer<typeof AulasRecorrentesSchema>;
-
-// Schema para dados do dashboard da turma
-export const TurmaDashboardSchema = z.object({
-  turma: z.object({
-    idTurma: z.number(),
-    nomeTurma: z.string(),
-    anoLetivo: z.number(),
-    curso: z.object({
-      nomeCurso: z.string(),
-      cargaHorariaTotal: z.number()
-    })
-  }),
-  estatisticas: z.object({
-    totalAlunos: z.number(),
-    totalAulas: z.number(),
-    aulasMinistradas: z.number(),
-    mediaGeralTurma: z.number(),
-    frequenciaMedia: z.number()
-  }),
-  graficos: z.object({
-    mediaNotas: z.array(z.object({
-      materia: z.string(), // Mudança: agora é matéria ao invés de aluno
-      media: z.number(),
-      totalNotas: z.number()
-    })),
-    frequenciaPorMateria: z.array(z.object({
-      materia: z.string(),
-      frequencia: z.number()
-    }))
-  })
-});
-
-export type TurmaDashboardData = z.infer<typeof TurmaDashboardSchema>;
