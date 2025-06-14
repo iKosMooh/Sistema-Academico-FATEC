@@ -5,10 +5,9 @@ import { ZodError } from 'zod';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const ativo = searchParams.get('ativo');
+    // const { searchParams } = new URL(request.url);
     
     try {
       const cursos = await prisma.curso.findMany({
@@ -25,53 +24,70 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(cursos);
 
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error('Erro do banco de dados:', dbError);
 
-      if (dbError.code === 'P2021' || 
-          dbError.message?.includes('does not exist') ||
-          dbError.message?.includes('Curso')) {
-        
-        // Retornar cursos mock para desenvolvimento
+      if (
+        typeof dbError === 'object' &&
+        dbError !== null &&
+        ('code' in dbError || 'message' in dbError)
+      ) {
+        const code = (dbError as { code?: string }).code;
+        const message = (dbError as { message?: string }).message;
+
+        if (
+          code === 'P2021' ||
+          message?.includes('does not exist') ||
+          message?.includes('Curso')
+        ) {
+          // Retornar cursos mock para desenvolvimento
+          const cursosMock = [
+            {
+              idCurso: 1,
+              nomeCurso: "Análise e Desenvolvimento de Sistemas",
+              cargaHorariaTotal: 2880,
+              descricao: "Curso superior de tecnologia"
+            },
+            {
+              idCurso: 2,
+              nomeCurso: "Gestão Empresarial",
+              cargaHorariaTotal: 2400,
+              descricao: "Curso superior de tecnologia"
+            }
+          ];
+
+          return NextResponse.json(cursosMock);
+        }
+      }
+
+      throw dbError;
+    }
+
+  } catch (error: unknown) {
+    console.error('Erro ao buscar cursos:', error);
+
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ('code' in error || 'message' in error)
+    ) {
+      const code = (error as { code?: string }).code;
+      const message = (error as { message?: string }).message;
+
+      if (code === 'P2021' || message?.includes('does not exist')) {
         const cursosMock = [
           {
             idCurso: 1,
             nomeCurso: "Análise e Desenvolvimento de Sistemas",
             cargaHorariaTotal: 2880,
             descricao: "Curso superior de tecnologia"
-          },
-          {
-            idCurso: 2,
-            nomeCurso: "Gestão Empresarial",
-            cargaHorariaTotal: 2400,
-            descricao: "Curso superior de tecnologia"
           }
         ];
-        
+
         return NextResponse.json(cursosMock);
       }
-      
-      throw dbError;
     }
 
-  } catch (error: any) {
-    console.error('Erro ao buscar cursos:', error);
-    
-    if (error.code === 'P2021' || 
-        error.message?.includes('does not exist')) {
-      
-      const cursosMock = [
-        {
-          idCurso: 1,
-          nomeCurso: "Análise e Desenvolvimento de Sistemas",
-          cargaHorariaTotal: 2880,
-          descricao: "Curso superior de tecnologia"
-        }
-      ];
-      
-      return NextResponse.json(cursosMock);
-    }
-    
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
@@ -104,31 +120,38 @@ export async function POST(request: NextRequest) {
         data: curso
       });
 
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error('Erro do banco de dados:', dbError);
 
-      if (dbError.code === 'P2021' || 
-          dbError.message?.includes('does not exist')) {
-        
-        return NextResponse.json({ 
-          success: true, 
-          message: 'Curso validado. Sistema em configuração.',
-          simulated: true,
-          data: validatedData
-        });
-      }
+      if (
+        typeof dbError === 'object' &&
+        dbError !== null &&
+        ('code' in dbError || 'message' in dbError)
+      ) {
+        const code = (dbError as { code?: string }).code;
+        const message = (dbError as { message?: string }).message;
 
-      if (dbError.code === 'P2002') {
-        return NextResponse.json(
-          { error: 'Nome do curso já existe' },
-          { status: 400 }
-        );
+        if (code === 'P2021' || message?.includes('does not exist')) {
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Curso validado. Sistema em configuração.',
+            simulated: true,
+            data: validatedData
+          });
+        }
+
+        if (code === 'P2002') {
+          return NextResponse.json(
+            { error: 'Nome do curso já existe' },
+            { status: 400 }
+          );
+        }
       }
       
       throw dbError;
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao criar curso:', error);
     
     if (error instanceof ZodError) {

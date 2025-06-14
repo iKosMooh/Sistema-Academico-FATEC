@@ -51,7 +51,7 @@ interface Professor {
 
 type TableType = "usuarios" | "alunos" | "professores";
 
-export function UsuariosDashboard() {
+export default function UsuariosDashboard() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
@@ -487,6 +487,4 @@ export function UsuariosDashboard() {
 }
 
 // Se ainda quiser manter a página acessível diretamente, exporte uma page que apenas renderiza o componente:
-export default function UsuariosDashboardPage() {
-  return <UsuariosDashboard />;
-}
+// Removido para evitar exportação default duplicada.

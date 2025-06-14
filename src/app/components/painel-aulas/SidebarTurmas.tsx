@@ -11,7 +11,7 @@ import { LancamentoNotas } from "@/app/components/painel-aulas/LancamentoNotas";
 import { VisualizarNotas } from "@/app/components/painel-aulas/VisualizarNotas";
 import { AtestadosProfessor } from "@/app/components/painel-aulas/AtestadosProfessor";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
-import { UsuariosDashboard } from "@/app/pages/admin/usuarios/dashboard/page";
+import UsuariosDashboard from "@/app/pages/admin/usuarios/dashboard/page";
 import AcademicoDashboardPage from "@/app/pages/admin/academico/dashboard/page";
 import { TurmaDashboard } from "@/app/components/dashboard/TurmaDashboard";
 import { useSession } from "next-auth/react";

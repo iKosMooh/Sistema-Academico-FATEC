@@ -1,183 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { AvaliacaoPreCadastroSchema } from '@/lib/schemas';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { ZodError } from 'zod';
+import { AvaliacaoPreCadastroSchema } from '@/lib/schemas'; // Usa o zod do schemas.ts
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticação
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.cpf) {
-      return NextResponse.json(
-        { error: 'Usuário não autenticado' },
-        { status: 401 }
-      );
-    }
-
-    // Verificar permissões (apenas Admin e Coordenador)
-    if (session.user.tipo !== 'Admin' && session.user.tipo !== 'Coordenador') {
-      return NextResponse.json(
-        { error: 'Acesso negado. Apenas administradores e coordenadores podem avaliar pré-cadastros.' },
-        { status: 403 }
-      );
-    }
-
+    // Validação do corpo usando zod
     const body = await request.json();
-    console.log('Dados de avaliação recebidos:', body);
-
-    // Validar dados da avaliação
-    const validatedData = AvaliacaoPreCadastroSchema.parse({
-      ...body,
-      avaliadoPor: session.user.cpf
-    });
-
-    try {
-      // Verificar se o pré-cadastro existe e está pendente
-      const preCadastroExistente = await prisma.preCadastro.findUnique({
-        where: { idPreCadastro: validatedData.idPreCadastro }
-      });
-
-      if (!preCadastroExistente) {
-        return NextResponse.json(
-          { error: 'Pré-cadastro não encontrado' },
-          { status: 404 }
-        );
-      }
-
-      if (preCadastroExistente.status !== 'Pendente' && preCadastroExistente.status !== 'EmAnalise') {
-        return NextResponse.json(
-          { error: 'Este pré-cadastro já foi avaliado' },
-          { status: 400 }
-        );
-      }
-
-      // Verificar se o avaliador existe
-      const avaliadorExiste = await prisma.professores.findUnique({
-        where: { idProfessor: validatedData.avaliadoPor }
-      });
-
-      if (!avaliadorExiste) {
-        return NextResponse.json(
-          { error: 'Avaliador não encontrado no sistema' },
-          { status: 400 }
-        );
-      }
-
-      // Atualizar o pré-cadastro com a avaliação
-      const preCadastroAtualizado = await prisma.preCadastro.update({
-        where: { idPreCadastro: validatedData.idPreCadastro },
-        data: {
-          status: validatedData.status,
-          observacoes: validatedData.observacoes || null,
-          motivoRejeicao: validatedData.motivoRejeicao || null,
-          avaliadoPor: validatedData.avaliadoPor,
-          dataAvaliacao: new Date()
-        },
-        include: {
-          curso: {
-            select: {
-              nomeCurso: true
-            }
-          },
-          avaliador: {
-            select: {
-              nome: true,
-              sobrenome: true
-            }
-          }
-        }
-      });
-
-      // Se aprovado, criar registro de aluno (opcional)
-      if (validatedData.status === 'Aprovado') {
-        // Aqui você pode implementar a lógica para criar automaticamente
-        // o registro do aluno na tabela Alunos se desejar
-        console.log('Pré-cadastro aprovado, candidato pode ser matriculado');
-      }
-
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Avaliação registrada com sucesso',
-        data: preCadastroAtualizado 
-      });
-
-    } catch (dbError: unknown) {
-      console.error('Erro do banco de dados:', dbError);
-
-      if (
-        typeof dbError === 'object' &&
-        dbError !== null &&
-        ('code' in dbError || 'message' in dbError)
-      ) {
-        const code = (dbError as { code?: string }).code;
-        const message = (dbError as { message?: string }).message;
-
-        if (
-          code === 'P2021' ||
-          message?.includes('does not exist') ||
-          message?.includes('PreCadastro')
-        ) {
-          return NextResponse.json({
-            success: true,
-            message: 'Avaliação simulada com sucesso. Sistema em configuração final.',
-            simulated: true,
-            data: validatedData
-          });
-        }
-
-        // Erro de foreign key
-        if (code === 'P2003') {
-          return NextResponse.json(
-            { error: 'Pré-cadastro ou avaliador não encontrado' },
-            { status: 404 }
-          );
-        }
-      }
-
-      throw dbError;
-    }
-
-  } catch (error) {
-    console.error('Erro ao avaliar pré-cadastro:', error);
-    
-    // Erro de validação Zod
-    if (error instanceof ZodError) {
-      const firstError = error.errors[0];
+    const parseResult = AvaliacaoPreCadastroSchema.safeParse(body);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { 
-          error: `Erro de validação: ${firstError.message}`,
-          field: firstError.path.join('.'),
-          details: error.errors 
-        },
+        { error: 'Dados inválidos', details: parseResult.error.errors },
         { status: 400 }
       );
     }
+    const data = parseResult.data;
 
-    // Erro relacionado ao banco
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      ('code' in error || 'message' in error)
-    ) {
-      const code = (error as { code?: string }).code;
-      const message = (error as { message?: string }).message;
+    // Verificar se o pré-cadastro existe
+    const preCadastro = await prisma.preCadastro.findUnique({
+      where: { idPreCadastro: data.idPreCadastro }
+    });
 
-      if (
-        code === 'P2021' ||
-        message?.includes('does not exist') ||
-        message?.includes('PreCadastro')
-      ) {
-        return NextResponse.json({
-          error: 'Sistema de pré-cadastro em configuração final.',
-          code: 'DB_NOT_CONFIGURED'
-        }, { status: 503 });
+    if (!preCadastro) {
+      return NextResponse.json(
+        { error: 'Pré-cadastro não encontrado' },
+        { status: 404 }
+      );
+    }
+
+    // Atualizar status do pré-cadastro
+    const preCadastroAtualizado = await prisma.preCadastro.update({
+      where: { idPreCadastro: data.idPreCadastro },
+      data: {
+        status: data.status as 'Pendente' | 'Aprovado' | 'Rejeitado' | 'DocumentacaoIncompleta',
+        observacoes: data.observacoes,
+        motivoRejeicao: data.motivoRejeicao,
+        avaliadoPor: data.avaliadoPor,
+        dataAvaliacao: new Date()
+      }
+    });
+
+    // Se aprovado, criar aluno automaticamente
+    if (data.status === 'Aprovado') {
+      try {
+        // Verificar se já existe aluno com este CPF
+        const alunoExistente = await prisma.alunos.findUnique({
+          where: { cpf: preCadastro.cpf }
+        });
+
+        if (!alunoExistente) {
+          // Criar aluno
+          const aluno = await prisma.alunos.create({
+            data: {
+              nome: preCadastro.nome,
+              sobrenome: preCadastro.sobrenome,
+              cpf: preCadastro.cpf,
+              rg: preCadastro.rg,
+              nomeMae: preCadastro.nomeMae,
+              nomePai: preCadastro.nomePai,
+              dataNasc: preCadastro.dataNasc,
+              descricao: `Matrícula aprovada via pré-cadastro em ${new Date().toLocaleDateString()}`
+            }
+          });
+
+          // Criar endereço
+          await prisma.enderecos.create({
+            data: {
+              idAluno: aluno.idAluno,
+              cep: preCadastro.cep,
+              rua: preCadastro.rua,
+              cidade: preCadastro.cidade,
+              uf: preCadastro.uf,
+              numero: preCadastro.numero
+            }
+          });
+
+          // Criar contato
+          await prisma.contatoAluno.create({
+            data: {
+              idAluno: aluno.idAluno,
+              nomeTel1: preCadastro.nomeResponsavel || preCadastro.nomeMae || preCadastro.nome,
+              tel1: preCadastro.telefone,
+              nomeTel2: preCadastro.nomeResponsavel || null,
+              tel2: preCadastro.telefoneResponsavel || null
+            }
+          });
+
+          // Criar usuário
+          const senhaTemporaria = Math.random().toString(36).slice(-8);
+          const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
+
+          await prisma.usuarios.create({
+            data: {
+              cpf: preCadastro.cpf,
+              senhaHash,
+              tipo: 'Aluno'
+            }
+          });
+
+          // Log das credenciais (em produção, enviar por email)
+          console.log(`Credenciais para ${preCadastro.nome}: CPF: ${preCadastro.cpf}, Senha: ${senhaTemporaria}`);
+        }
+      } catch (error) {
+        console.error('Erro ao criar aluno automaticamente:', error);
+        return NextResponse.json(
+          { error: 'Erro ao criar aluno no sistema' },
+          { status: 500 }
+        );
       }
     }
 
+    return NextResponse.json({
+      success: true,
+      preCadastro: preCadastroAtualizado
+    });
+
+  } catch (error) {
+    console.error('Erro ao avaliar pré-cadastro:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }
