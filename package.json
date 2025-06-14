@@ -36,6 +36,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vercel/ncc": "^0.38.3",
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
     "postcss": "^8.5.4",
