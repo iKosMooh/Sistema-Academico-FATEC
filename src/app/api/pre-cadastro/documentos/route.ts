@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           data: {
             idPreCadastro,
             tipoDocumento: tipoValidado,
-            nomeArquivo: file.name,
+            nomeArquivo: nomeArquivo, // Salva o nome gerado, igual ao arquivo físico
             caminhoArquivo: caminhoRelativo,
             tamanhoArquivo: file.size,
           }

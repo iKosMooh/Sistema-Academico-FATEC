@@ -387,7 +387,15 @@ export function SidebarTurmas() {
           ) : (
             <CurrentComponent onClose={() => { }} />
           )
-        ) : null}
+        ) : (
+          // Mensagem padrão quando nada está carregado
+          <div className="flex flex-col items-center justify-center h-full text-center text-blue-900 mt-24">
+            <span className="text-2xl font-semibold mb-4">Painel de Aulas</span>
+            <p className="text-base md:text-lg bg-blue-100 border border-blue-200 rounded-xl px-6 py-4 shadow">
+              No menu lateral esquerdo selecione uma turma e uma opção para visualizar suas respectivas informações.
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );

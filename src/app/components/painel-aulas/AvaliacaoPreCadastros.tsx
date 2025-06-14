@@ -413,14 +413,15 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
     return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
   };
 
-  const downloadDocumento = (caminhoArquivo: string) => {
-    // Implementar download do documento
-    window.open(`/api/pre-cadastro/documento/${encodeURIComponent(caminhoArquivo)}`, '_blank');
-  };
-
   const abrirModalDetalhes = (preCadastro: PreCadastroCompleto) => {
     setPreCadastroSelecionado(preCadastro);
     setModalDetalhes(true);
+  };
+
+  // Abrir o arquivo específico do aluno ao clicar
+  const abrirArquivoAluno = (cpf: string, nomeArquivo: string) => {
+    // Remove máscara do CPF se houver
+    window.open(`/pastas/alunos/${formatCPF(cpf)}/${nomeArquivo}`, '_blank');
   };
 
   // Aprovação direta na lista (usando zod)
@@ -688,7 +689,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                     {preCadastro.documentos.map((doc, index) => (
                       <button
                         key={index}
-                        onClick={() => downloadDocumento(doc.caminhoArquivo)}
+                        onClick={() => abrirArquivoAluno(preCadastro.cpf, doc.nomeArquivo)}
                         className="p-3 border border-gray-300 text-white rounded-lg hover:bg-gray-50 transition-colors text-left"
                       >
                         <div className="text-base font-medium text-gray-300">{doc.tipoDocumento}</div>
@@ -808,7 +809,7 @@ export function AvaliacaoPreCadastros({}: AvaliacaoPreCadastrosProps) {
                   {preCadastroSelecionado.documentos.map((doc, index) => (
                     <button
                       key={index}
-                      onClick={() => downloadDocumento(doc.caminhoArquivo)}
+                      onClick={() => abrirArquivoAluno(preCadastroSelecionado.cpf, doc.nomeArquivo)}
                       className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
                     >
                       <div className="text-sm font-medium text-gray-300">{doc.tipoDocumento}</div>
