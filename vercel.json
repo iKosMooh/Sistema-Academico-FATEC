@@ -1,8 +1,5 @@
 {
   "functions": {
-    "api/**": {
-      "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
-    },
     "src/app/api/**.ts": {
       "memory": 512
     }
