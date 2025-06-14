@@ -115,38 +115,18 @@ export default function Header() {
         return items;
     };
 
-    const getUserDisplayName = () => {
+    // Memoize user display name and role to avoid multiple calls
+    const userDisplayName = (() => {
         if (!session?.user) return 'Usuário';
-
         const user = session.user;
-
-        console.log('Dados do usuário na sessão:', user); // Debug
-
-        // Tentar buscar nome completo primeiro
-        if (user.nome && user.sobrenome) {
-            return `${user.nome} ${user.sobrenome}`;
-        }
-
-        // Fallback para nome individual
-        if (user.nome) {
-            return user.nome;
-        }
-
-
-        // Fallback para email
-        if (user.email) {
-            return user.email.split('@')[0];
-        }
-
-        // Fallback para CPF formatado
-        if (user.cpf) {
-            return `CPF: ${user.cpf}`;
-        }
-
+        if (user.nome && user.sobrenome) return `${user.nome} ${user.sobrenome}`;
+        if (user.nome) return user.nome;
+        if (user.email) return user.email.split('@')[0];
+        if (user.cpf) return `CPF: ${user.cpf}`;
         return 'Usuário';
-    };
+    })();
 
-    const getUserRole = () => {
+    const userRole = (() => {
         const roleLabels = {
             Admin: 'Administrador',
             Coordenador: 'Coordenador',
@@ -154,7 +134,7 @@ export default function Header() {
             Aluno: 'Aluno'
         };
         return roleLabels[userType as keyof typeof roleLabels] || userType;
-    };
+    })();
 
     // Sempre renderizar o header sem loading
     return (
@@ -226,10 +206,10 @@ export default function Header() {
                                 >
                                     <p className="text-white font-medium text-sm">Bem-vindo,</p>
                                     <p className="text-white font-semibold truncate max-w-[120px]">
-                                        {getUserDisplayName()}
+                                        {userDisplayName}
                                     </p>
                                     <p className="text-blue-200 text-xs">
-                                        {getUserRole()}
+                                        {userRole}
                                     </p>
                                 </div>
 
@@ -267,10 +247,10 @@ export default function Header() {
                                             {/* Header do Dropdown */}
                                             <div className="px-4 py-2 border-b">
                                                 <p className="font-semibold text-gray-800 truncate">
-                                                    {getUserDisplayName()}
+                                                    {userDisplayName}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {getUserRole()}
+                                                    {userRole}
                                                 </p>
                                             </div>
 
@@ -394,8 +374,8 @@ export default function Header() {
                                 )}
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-800 truncate max-w-[120px]">{getUserDisplayName()}</p>
-                                <p className="text-xs text-blue-800">{getUserRole()}</p>
+                                <p className="font-semibold text-gray-800 truncate max-w-[120px]">{userDisplayName}</p>
+                                <p className="text-xs text-blue-800">{userRole}</p>
                             </div>
                         </div>
                     )}

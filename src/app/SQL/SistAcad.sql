@@ -134,14 +134,13 @@ CREATE TABLE `Professores` (
   `sobrenome` VARCHAR(150) NOT NULL,
   `rg` VARCHAR(12) NOT NULL UNIQUE,
   `dataNasc` DATE NOT NULL,
-  `cargo` VARCHAR(100) NOT NULL COMMENT 'Prof./Coord./Diretor etc',
+  `cargo` VARCHAR(100) NOT NULL,
   `fotoPath` VARCHAR(255),
   `docsPath` VARCHAR(255),
   `descricao` TEXT,
   `tel` VARCHAR(20),
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME NOT NULL 
-    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idProfessor`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -275,7 +274,7 @@ DROP TABLE IF EXISTS `Usuarios`;
 CREATE TABLE `Usuarios` (
   `cpf` VARCHAR(14) NOT NULL,
   `senhaHash` VARCHAR(255) NOT NULL,
-  `tipo` ENUM('Admin','Professor','Aluno') NOT NULL,
+  `tipo` ENUM('Admin','Coordenador','Professor','Aluno') NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`cpf`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -289,6 +288,84 @@ CREATE TABLE `Log` (
   `action` TEXT NOT NULL,
   `dateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`idLog`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------
+-- Tabela de Notas
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `Notas`;
+CREATE TABLE `Notas` (
+  `idNota` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(100) NOT NULL,
+  `idAluno` INT NOT NULL,
+  `idMateria` INT NOT NULL,
+  `idTurma` INT NOT NULL,
+  `idProfessor` VARCHAR(14) NOT NULL,
+  `valorNota` DECIMAL(5,2) NOT NULL,
+  `dataLancamento` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `tipoAvaliacao` VARCHAR(50) NOT NULL,
+  `observacoes` TEXT,
+  PRIMARY KEY (`idNota`),
+  UNIQUE KEY `uc_aluno_materia_turma_tipo` (`idAluno`, `idMateria`, `idTurma`, `tipoAvaliacao`),
+  KEY `fk_notas_professor` (`idProfessor`),
+  CONSTRAINT `fk_notas_professor` FOREIGN KEY (`idProfessor`) REFERENCES `Professores` (`idProfessor`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_notas_aluno` FOREIGN KEY (`idAluno`) REFERENCES `Alunos` (`idAluno`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_notas_materia` FOREIGN KEY (`idMateria`) REFERENCES `Materias` (`idMateria`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_notas_turma` FOREIGN KEY (`idTurma`) REFERENCES `Turmas` (`idTurma`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------
+-- Tabela de PreCadastro
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `PreCadastro`;
+CREATE TABLE `PreCadastro` (
+  `idPreCadastro` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(100) NOT NULL,
+  `sobrenome` VARCHAR(150) NOT NULL,
+  `cpf` VARCHAR(14) NOT NULL UNIQUE,
+  `rg` VARCHAR(12) NOT NULL,
+  `nomeMae` VARCHAR(160) NOT NULL,
+  `nomePai` VARCHAR(160),
+  `dataNasc` DATE NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `telefone` VARCHAR(20) NOT NULL,
+  `telefoneResponsavel` VARCHAR(20),
+  `nomeResponsavel` VARCHAR(100),
+  `cep` VARCHAR(9) NOT NULL,
+  `rua` VARCHAR(255) NOT NULL,
+  `cidade` VARCHAR(100) NOT NULL,
+  `uf` CHAR(2) NOT NULL,
+  `numero` VARCHAR(10) NOT NULL,
+  `complemento` VARCHAR(100),
+  `idCursoDesejado` INT NOT NULL,
+  `status` ENUM('Pendente','EmAnalise','Aprovado','Rejeitado','DocumentacaoIncompleta') NOT NULL DEFAULT 'Pendente',
+  `dataEnvio` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `dataAvaliacao` DATETIME,
+  `avaliadoPor` VARCHAR(14),
+  `observacoes` TEXT,
+  `motivoRejeicao` TEXT,
+  PRIMARY KEY (`idPreCadastro`),
+  KEY `fk_precadastro_curso` (`idCursoDesejado`),
+  KEY `fk_precadastro_avaliador` (`avaliadoPor`),
+  CONSTRAINT `fk_precadastro_curso` FOREIGN KEY (`idCursoDesejado`) REFERENCES `Curso` (`idCurso`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_precadastro_avaliador` FOREIGN KEY (`avaliadoPor`) REFERENCES `Professores` (`idProfessor`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------
+-- Tabela de DocumentosPreCadastro
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `DocumentosPreCadastro`;
+CREATE TABLE `DocumentosPreCadastro` (
+  `idDocumento` INT NOT NULL AUTO_INCREMENT,
+  `idPreCadastro` INT NOT NULL,
+  `tipoDocumento` ENUM('Foto3x4','RG','CPF','ComprovanteResidencia','HistoricoEscolar','CertidaoNascimento','CertidaoCasamento','ComprovanteRenda','Outros') NOT NULL,
+  `nomeArquivo` VARCHAR(255) NOT NULL,
+  `caminhoArquivo` VARCHAR(500) NOT NULL,
+  `tamanhoArquivo` INT NOT NULL,
+  `dataUpload` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`idDocumento`),
+  KEY `fk_docs_precadastro` (`idPreCadastro`),
+  CONSTRAINT `fk_docs_precadastro` FOREIGN KEY (`idPreCadastro`) REFERENCES `PreCadastro` (`idPreCadastro`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Restaurar configurações originais

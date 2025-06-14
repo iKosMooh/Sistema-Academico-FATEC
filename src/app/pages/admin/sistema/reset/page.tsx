@@ -11,6 +11,8 @@ export default function ResetSistemaPage() {
     const [lastReset, setLastReset] = useState<Date | null>(null);
     const [canReset, setCanReset] = useState(true);
     const [timeRemaining, setTimeRemaining] = useState(0);
+    const [resetSteps, setResetSteps] = useState<string[]>([]);
+    const [resetError, setResetError] = useState<string | null>(null);
 
     // Verificar último reset e calcular tempo restante
     useEffect(() => {
@@ -61,7 +63,10 @@ export default function ResetSistemaPage() {
 
         setIsResetting(true);
         setMessage(null);
+        setResetSteps([]);
+        setResetError(null);
 
+        // Removido SSE pois o backend não suporta (erro 405)
         try {
             const response = await fetch('/api/admin/reset-database', {
                 method: 'POST',
@@ -73,6 +78,9 @@ export default function ResetSistemaPage() {
             });
 
             const result = await response.json();
+
+            if (result.steps) setResetSteps(result.steps);
+            if (result.steps) setResetSteps(result.steps);
 
             if (result.success) {
                 setMessage({
@@ -314,10 +322,42 @@ export default function ResetSistemaPage() {
             {/* Loading Overlay */}
             {isResetting && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg text-center">
+                    <div className="bg-white p-6 rounded-lg text-center max-w-lg w-full">
                         <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent mx-auto mb-4"></div>
-                        <p className="font-medium text-gray-800">Resetando banco de dados...</p>
-                        <p className="text-sm text-gray-600">Isso pode levar alguns segundos.</p>
+                        <p className="font-medium text-gray-800 mb-2">Resetando banco de dados...</p>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Isso pode demorar alguns segundos. Não feche ou recarregue a página.
+                        </p>
+                        <div className="text-left text-xs text-gray-700 max-h-48 overflow-y-auto mb-2" style={{ fontFamily: 'monospace' }}>
+                            {resetSteps.length > 0
+                                ? (
+                                    <ol className="list-decimal ml-4">
+                                        {resetSteps.map((step, idx) => (
+                                            <li key={idx} className="mb-1 flex items-center">
+                                                <span className={idx === resetSteps.length - 1 ? "font-bold text-blue-700" : ""}>
+                                                    {step}
+                                                </span>
+                                                <span className="ml-2 text-gray-400">
+                                                    {resetSteps.length > 1
+                                                        ? `${Math.round(((idx + 1) / resetSteps.length) * 100)}%`
+                                                        : ""}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                )
+                                : (
+                                    <span>
+                                        {resetSteps.length === 0 && isResetting
+                                            ? "Aguardando resposta do servidor..."
+                                            : ""}
+                                    </span>
+                                )
+                            }
+                            {resetError && (
+                                <div className="text-red-700 font-bold mt-2">{resetError}</div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
