@@ -342,108 +342,114 @@ export default function Header() {
             </header>
 
             {/* Mobile Drawer/Menu */}
+            {/* Overlay escuro para fechar o menu ao clicar fora */}
             <div
-                className={`fixed inset-0 z-50 transition-transform duration-300 md:hidden ${showMobileMenu ? 'translate-x-0' : '-translate-x-full'} bg-black bg-opacity-40`}
-                style={{ pointerEvents: showMobileMenu ? 'auto' : 'none' }}
+                className={`fixed inset-0 z-40 md:hidden bg-black bg-opacity-40 transition-opacity duration-300 ${showMobileMenu ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                 onClick={() => setShowMobileMenu(false)}
-            >
-                <nav
-                    className={`bg-white w-72 max-w-full h-full shadow-lg p-4 flex flex-col transition-transform duration-300 ${showMobileMenu ? 'translate-x-0' : '-translate-x-full'}`}
-                    onClick={e => e.stopPropagation()}
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <span className="text-blue-800 font-bold text-xl">Menu</span>
-                        <button onClick={() => setShowMobileMenu(false)}>
-                            <XMarkIcon className="w-7 h-7 text-blue-800" />
-                        </button>
-                    </div>
-                    {/* Usuário */}
-                    {session && (
-                        <div className="flex items-center mb-4">
-                            <div className="bg-gray-200 border-2 border-dashed rounded-full w-12 h-12 flex items-center justify-center mr-3">
-                                {session.user?.fotoPath ? (
-                                    <Image
-                                        src={session.user.fotoPath}
-                                        alt="Avatar"
-                                        width={48}
-                                        height={48}
-                                        className="rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <UserIcon className="text-blue-800 w-7 h-7" />
-                                )}
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-800 truncate max-w-[120px]">{userDisplayName}</p>
-                                <p className="text-xs text-blue-800">{userRole}</p>
-                            </div>
-                        </div>
-                    )}
+            />
 
-                    {/* Navegação */}
-                    <div className="flex flex-col gap-2 mb-4">
+            {/* Menu lateral (drawer) no mobile */}
+            <nav
+                className={`
+                    fixed top-0 left-0 h-full w-72 max-w-full z-50 bg-white shadow-lg p-4 flex flex-col
+                    transition-transform duration-300
+                    ${showMobileMenu ? 'translate-x-0' : '-translate-x-full'}
+                    md:hidden
+                `}
+                style={{ willChange: 'transform' }}
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="flex items-center justify-between mb-6">
+                    <span className="text-blue-800 font-bold text-xl">Menu</span>
+                    <button onClick={() => setShowMobileMenu(false)}>
+                        <XMarkIcon className="w-7 h-7 text-blue-800" />
+                    </button>
+                </div>
+                {/* Usuário */}
+                {session && (
+                    <div className="flex items-center mb-4">
+                        <div className="bg-gray-200 border-2 border-dashed rounded-full w-12 h-12 flex items-center justify-center mr-3">
+                            {session.user?.fotoPath ? (
+                                <Image
+                                    src={session.user.fotoPath}
+                                    alt="Avatar"
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full object-cover"
+                                />
+                            ) : (
+                                <UserIcon className="text-blue-800 w-7 h-7" />
+                            )}
+                        </div>
+                        <div>
+                            <p className="font-semibold text-gray-800 truncate max-w-[120px]">{userDisplayName}</p>
+                            <p className="text-xs text-blue-800">{userRole}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Navegação */}
+                <div className="flex flex-col gap-2 mb-4">
+                    <button
+                        onClick={() => {
+                            setShowMobileMenu(false);
+                            handleHomeClick();
+                        }}
+                        className="flex items-center px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-medium"
+                    >
+                        <HomeIcon className="w-5 h-5 mr-2" />
+                        {session ? 'Dashboard' : 'Início'}
+                    </button>
+                    {session && getNavigationItems().map((item, idx) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={idx}
+                                href={item.href}
+                                onClick={() => setShowMobileMenu(false)}
+                                className={`flex items-center px-3 py-2 rounded-lg font-medium ${isActive ? 'bg-blue-100 text-blue-800' : 'text-gray-700 hover:bg-blue-50'}`}
+                            >
+                                <Icon className="w-5 h-5 mr-2" />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                {/* Login/Logout e Pré-Cadastro */}
+                <div className="mt-auto flex flex-col gap-2">
+                    <Link
+                        href="/pages/pre-cadastro"
+                        onClick={() => setShowMobileMenu(false)}
+                        className="flex items-center px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition duration-300 hover:scale-105"
+                    >
+                        <UserIcon className="w-5 h-5 mr-2" />
+                        Pré-Cadastro
+                    </Link>
+                    {session ? (
                         <button
                             onClick={() => {
                                 setShowMobileMenu(false);
-                                handleHomeClick();
+                                handleLogout();
                             }}
-                            className="flex items-center px-3 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-medium"
+                            className="flex items-center w-full px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition duration-300 hover:scale-105"
                         >
-                            <HomeIcon className="w-5 h-5 mr-2" />
-                            {session ? 'Dashboard' : 'Início'}
+                            <ArrowRightStartOnRectangleIcon className="w-5 h-5 mr-2" />
+                            Sair
                         </button>
-                        {session && getNavigationItems().map((item, idx) => {
-                            const Icon = item.icon;
-                            const isActive = pathname === item.href;
-                            return (
-                                <Link
-                                    key={idx}
-                                    href={item.href}
-                                    onClick={() => setShowMobileMenu(false)}
-                                    className={`flex items-center px-3 py-2 rounded-lg font-medium ${isActive ? 'bg-blue-100 text-blue-800' : 'text-gray-700 hover:bg-blue-50'}`}
-                                >
-                                    <Icon className="w-5 h-5 mr-2" />
-                                    {item.label}
-                                </Link>
-                            );
-                        })}
-                    </div>
-
-                    {/* Login/Logout e Pré-Cadastro */}
-                    <div className="mt-auto flex flex-col gap-2">
+                    ) : (
                         <Link
-                            href="/pages/pre-cadastro"
+                            href="/pages/login"
                             onClick={() => setShowMobileMenu(false)}
-                            className="flex items-center px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition duration-300 hover:scale-105"
+                            className="flex items-center px-3 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition duration-300 hover:scale-105"
                         >
                             <UserIcon className="w-5 h-5 mr-2" />
-                            Pré-Cadastro
+                            Entrar
                         </Link>
-                        {session ? (
-                            <button
-                                onClick={() => {
-                                    setShowMobileMenu(false);
-                                    handleLogout();
-                                }}
-                                className="flex items-center w-full px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition duration-300 hover:scale-105"
-                            >
-                                <ArrowRightStartOnRectangleIcon className="w-5 h-5 mr-2" />
-                                Sair
-                            </button>
-                        ) : (
-                            <Link
-                                href="/pages/login"
-                                onClick={() => setShowMobileMenu(false)}
-                                className="flex items-center px-3 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition duration-300 hover:scale-105"
-                            >
-                                <UserIcon className="w-5 h-5 mr-2" />
-                                Entrar
-                            </Link>
-                        )}
-                    </div>
-                </nav>
-            </div>
-
+                    )}
+                </div>
+            </nav>
             {/* Overlay para fechar dropdown desktop */}
             {showDropdown && (
                 <div

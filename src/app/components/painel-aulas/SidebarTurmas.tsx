@@ -98,10 +98,10 @@ export function SidebarTurmas() {
             relations: { curso: true }
           }),
         });
-        
+
         const result = await response.json();
         console.log('Resultado busca turmas sidebar:', result);
-        
+
         if (result.success && result.data) {
           setTurmas(
             result.data.map((t: { idTurma: number | string; nomeTurma: string; idCurso?: number }) => ({
@@ -192,7 +192,7 @@ export function SidebarTurmas() {
   const CurrentComponent = getCurrentComponent();
 
   return (
-    <div className="flex relative">
+    <div className="flex relative w-full max-w-full overflow-x-hidden">
       {/* Botão flutuante para abrir/fechar sidebar - sempre visível */}
       <button
         className={`fixed top-6 left-6 z-50 bg-blue-700 text-white p-3 rounded-full shadow-lg hover:bg-blue-800 transition-all flex items-center gap-2
@@ -270,11 +270,10 @@ export function SidebarTurmas() {
                 setSelectedKey('dashboard');
                 setOpenGroup("Gerenciamento de Turma");
               }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'painel'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === 'painel'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-white hover:bg-gray-300'
-              }`}
+                }`}
             >
               📊 Painel
             </button>
@@ -284,11 +283,10 @@ export function SidebarTurmas() {
                 setSelectedKey('planejamento');
                 setOpenGroup("Gerenciamento de Turma");
               }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'painel' && selectedKey === 'planejamento'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === 'painel' && selectedKey === 'planejamento'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-white hover:bg-gray-300'
-              }`}
+                }`}
             >
               📅 Calendário
             </button>
@@ -298,11 +296,10 @@ export function SidebarTurmas() {
                 setSelectedKey('atestados');
                 setOpenGroup(null); // Não precisa de grupo específico
               }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeView === 'painel' && selectedKey === 'atestados'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === 'painel' && selectedKey === 'atestados'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-white hover:bg-gray-300'
-              }`}
+                }`}
             >
               🏥 Atestados
             </button>
@@ -318,11 +315,10 @@ export function SidebarTurmas() {
                     if (preCadastrosRef.carregarPreCadastros) preCadastrosRef.carregarPreCadastros();
                   }, 0);
                 }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  activeView === 'painel' && selectedKey === 'pre-cadastros'
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeView === 'painel' && selectedKey === 'pre-cadastros'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-white hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 📝 Pré-Matrículas
               </button>
@@ -351,9 +347,8 @@ export function SidebarTurmas() {
                             setSelectedKey(item.key);
                             setActiveView('normal'); // Resetar para view normal
                           }}
-                          className={`block w-full text-left text-sm px-2 py-1 rounded ${
-                            selectedKey === item.key && activeView === 'normal' ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
-                          }`}
+                          className={`block w-full text-left text-sm px-2 py-1 rounded ${selectedKey === item.key && activeView === 'normal' ? "bg-blue-900 font-bold" : "hover:bg-blue-800"
+                            }`}
                         >
                           {item.label}
                         </button>
@@ -366,9 +361,9 @@ export function SidebarTurmas() {
           </ul>
         </nav>
       </aside>
-      
+
       {/* Conteúdo principal */}
-      <main className={`flex-1 p-4 ${sidebarOpen ? "md:ml-0" : ""}`}>
+      <main className={`flex-1 p-4 min-w-0 w-0`}>
         {activeView === 'painel' && selectedKey === 'atestados' ? (
           <AtestadosProfessor />
         ) : activeView === 'painel' && selectedKey === 'planejamento' ? (
@@ -389,7 +384,7 @@ export function SidebarTurmas() {
           )
         ) : (
           // Mensagem padrão quando nada está carregado
-          <div className="flex flex-col items-center justify-center h-full text-center text-blue-900 mt-24">
+          <div className="flex flex-col items-center justify-center text-center text-blue-900 mt-24 overflow-hidden">
             <span className="text-2xl font-semibold mb-4">Painel de Aulas</span>
             <p className="text-base md:text-lg bg-blue-100 border border-blue-200 rounded-xl px-6 py-4 shadow">
               No menu lateral esquerdo selecione uma turma e uma opção para visualizar suas respectivas informações.
