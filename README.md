@@ -2,6 +2,12 @@
 
 ![SOFTMARE Banner](/public/logo.png)
 
+<div align="center">
+  <a href="https://softmare.vercel.app" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/Acessar%20Demo%20Oficial%20no%20Vercel-Softmare-blueviolet?style=for-the-badge&logo=vercel" alt="Acessar Demo Oficial no Vercel" />
+  </a>
+</div>
+
 [![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18+-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
